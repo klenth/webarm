@@ -8,11 +8,13 @@
     height: var(--display-height);
     font-size: 1rem;
     margin: 8px;
+    cursor: default;
+    user-select: none;
 }
 
 .register-display .label {
     padding: 0 8px;
-    font-family: monospace;
+    /*font-family: monospace;*/
     margin-right: 8px;
     line-height: var(--display-height);
     height: var(--display-height);

@@ -9,6 +9,63 @@ const DisplayMode = {
     Hexadecimal: 'h'
 };
 
+const displayHeight = '32px';
+//const chromeColor = '#00b5e2';
+const chromeColor = '#8252C7';
+const foreColor = 'white';
+const textColor = 'black';
+
+const Display = styled.div`
+  border: 3px solid ${chromeColor};
+  border-radius: 8px;
+  color: #00b5e2;
+  background-color: white;
+  padding: 0;
+  --display-height: ${displayHeight};
+  height: var(--display-height);
+  font-size: 1rem;
+  margin: 4px;
+  cursor: default;
+  user-select: none;
+`;
+
+const Label = styled.div`
+  padding: 0 8px;
+  font-family: monospace;
+  margin-right: 8px;
+  line-height: var(--display-height);
+  height: var(--display-height);
+  display: inline-block;
+  width: 32px;
+  text-align: center;
+  color: ${foreColor};
+  background-color: ${chromeColor};
+`;
+
+const Value = styled.div`
+  display: inline-block;
+  width: 192px;
+  font-family: monospace;
+  color: ${textColor};
+
+  text-align: center;
+  white-space: nowrap;
+  height: var(--display-height);
+  line-height: var(--display-height);
+`;
+
+const Modes = styled.span`
+  margin: 0 4px;
+  font-size: 0.7rem;
+`;
+
+const Mode = styled.span`
+  color: ${({ selected }) => selected ? foreColor : chromeColor};
+  background-color: ${({ selected }) => selected ? chromeColor : foreColor};
+  padding: 2px 3px;
+  cursor: pointer;
+`;
+
 function insertCommas(n) {
     const hasSign = (n[0] === '+' || n[0] === '-');
 
@@ -26,6 +83,8 @@ function insertCommas(n) {
 }
 
 function valueText(value, mode) {
+    if (value === null)
+        return null;
     if (mode === DisplayMode.Binary) {
         let s = '';
         for (let i = 0; i < 32; ++i) {
@@ -89,13 +148,13 @@ export default class RegisterDisplay extends React.Component {
             ));
 
         return (
-            <div className={'register-display'}>
-                <span className={'label'}>{this.props.label}</span>
-                <span className={'value'}>{valueText(this.props.value, this.state.displayMode)}</span>
-                <span className={'modes'}>
+            <Display>
+                <Label>{this.props.label}</Label>
+                <Value>&nbsp;{valueText(this.props.value, this.state.displayMode)}&nbsp;</Value>
+                <Modes>
                     {modeSelectors}
-                </span>
-            </div>
+                </Modes>
+            </Display>
         );
     }
 
@@ -108,10 +167,6 @@ export default class RegisterDisplay extends React.Component {
 }
 
 function ModeSelector(props) {
-    let className = 'mode';
-    if (props.selected)
-        className += ' selected';
-
     const mode = props.mode;
     const text =
         (mode === DisplayMode.Binary) ? 'Bin'
@@ -121,11 +176,11 @@ function ModeSelector(props) {
         : '???';
 
     return (
-        <span
-            className={className}
+        <Mode
+            selected={props.selected}
             onClick={() => props.handleClick(props.mode)}
         >
             {text}
-        </span>
+        </Mode>
     );
 }
