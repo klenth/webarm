@@ -2,10 +2,8 @@ import React from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import RegisterDisplay from './components/RegisterDisplay';
+import AST from './grammar/arm32Ast';
 import './App.css';
-
-import simWorkerCode from './simWorker.js';
-import WorkerBuilder from './WorkerBuilder';
 
 const Controls = styled.div`
   text-align: right;
@@ -50,9 +48,11 @@ class App extends React.Component {
             <div className="App">
                 <Controls>
                     <button
+                        onClick={() => this.handleParse()}
+                    >Parse</button>
+                    <button
                         onClick={() => this.handleRun()}
-                    >Run
-                    </button>
+                    >Run</button>
                     <button>Stop</button>
                     <button>Reset</button>
                 </Controls>
@@ -71,9 +71,11 @@ class App extends React.Component {
     }
 
     componentDidMount() {
-        simWorker = new WorkerBuilder(simWorkerCode);
+        simWorker = new Worker(new URL('./simWorker.js', import.meta.url));
         simWorker.addEventListener('message', e => {
-            console.log('Received message from worker!');
+            console.log('Received message from worker');
+            if (e.data.command === 'parse')
+                this.handleParseComplete(e.data);
         });
     }
 
@@ -83,13 +85,34 @@ class App extends React.Component {
         this.setState(newState);
     }
 
+    handleParse() {
+        simWorker.postMessage({
+            command: 'parse',
+            params: {
+                code: this.state.code,
+            }
+        });
+    }
+
     handleRun() {
+        console.log('Posting message to worker');
         simWorker.postMessage({
             command: 'run',
             params: {
                 code: this.state.code,
             },
         });
+    }
+
+    handleParseComplete(data) {
+        if (data.status === 'complete') {
+            console.log('Parsed code!');
+            const ast = AST.AstNode.reconstruct(data.params.ast);
+            console.log(ast);
+            AST.logAst(ast);
+        } else if (data.status === 'error') {
+            console.log('Unable to parse!');
+        }
     }
 }
 

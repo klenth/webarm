@@ -3,7 +3,7 @@
 import antlr4 from 'antlr4';
 import ARM32Listener from './ARM32Listener.js';
 
-import Ast from './arm32Ast';
+import AST from './arm32Ast';
 
 
 const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
@@ -158,7 +158,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 32;
 	        this.match(ARM32Parser.EOF);
 
-	                localctx.p =  new Ast.Program(localctx.lines)
+	                localctx.p =  new AST.Program(localctx.lines.map(l => l.l))
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -198,7 +198,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 38;
 	            localctx.inst = this.instruction();
 
-	                    localctx.l =  new Ast.Line((localctx.lab===null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.inst.i)
+	                    localctx.l =  new AST.Line((localctx.lab===null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.inst.i)
 	                
 	            break;
 
@@ -215,7 +215,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 44;
 	            localctx.dir = this.directive();
 
-	                    localctx.l =  new Ast.Line((localctx.lab===null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.dir.d);
+	                    localctx.l =  new AST.Line((localctx.lab===null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.dir.d);
 	                
 	            break;
 
@@ -290,7 +290,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        }
 
-	                localctx.i =  new Ast.Instruction((localctx.op===null ? null : this._input.getText(new antlr4.Interval(localctx.op.start,localctx.op.stop))), localctx.operands);
+	                localctx.i =  new AST.Instruction((localctx.op===null ? null : this._input.getText(new antlr4.Interval(localctx.op.start,localctx.op.stop))), localctx.operands.map(o => o.op));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -357,7 +357,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 68;
 	            localctx.f = this.flexOperandSpec();
 
-	                    localctx.op =  new Ast.FlexOperand(localctx.r.reg, localctx.f.op.text, parseInt(localctx.f.amount.text));
+	                    localctx.op =  new AST.FlexOperand(localctx.r.reg, localctx.f.op.text, parseInt(localctx.f.amount.text));
 	                
 	            break;
 
@@ -391,7 +391,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 81;
 	            this.match(ARM32Parser.BANG);
 
-	                    localctx.op =  new Ast.PreindexedOperand(localctx.r.reg, parseInt(localctx.o.off));
+	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, parseInt(localctx.o.off));
 	                
 	            break;
 
@@ -408,7 +408,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 88;
 	            localctx.o = this.offset();
 
-	                    localctx.op =  new Ast.PostindexedOperand(localctx.r.reg, parseInt(localctx.o.off));
+	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, parseInt(localctx.o.off));
 	                
 	            break;
 
@@ -431,7 +431,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 97;
 	            this.match(ARM32Parser.RBRACK);
 
-	                    localctx.op =  new Ast.OffsetOperand(localctx.r.reg, localctx.o.off);
+	                    localctx.op =  new AST.OffsetOperand(localctx.r.reg, localctx.o.off);
 	                
 	            break;
 
@@ -487,7 +487,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 111;
 	        localctx.r = this.match(ARM32Parser.REGISTER);
 
-	                localctx.reg =  new Ast.Register(localctx.r);
+	                localctx.reg =  new AST.Register((localctx.r===null ? null : localctx.r.text));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -558,7 +558,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 123;
 	            localctx.f = this.flexOperandSpec();
 
-	                    localctx.off =  new Ast.FlexOperand(localctx.r.reg, localctx.f.op.text, parseInt(localctx.f.amount.text));
+	                    localctx.off =  new AST.FlexOperand(localctx.r.reg, localctx.f.op.text, parseInt(localctx.f.amount.text));
 	                
 	            break;
 
@@ -598,7 +598,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 132;
 	        localctx.v = this.match(ARM32Parser.INT);
 
-	                localctx.value =  new Ast.Immediate(parseInt(localctx.v));
+	                localctx.value =  new AST.Immediate(parseInt((localctx.v===null ? null : localctx.v.text)));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -626,7 +626,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 136;
 	        localctx.v = this.match(ARM32Parser.INT);
 
-	                localctx.value =  new Ast.PseudoImmediate(parseInt(localctx.v));
+	                localctx.value =  new AST.PseudoImmediate(parseInt((localctx.v===null ? null : localctx.v.text)));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -652,7 +652,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 139;
 	        localctx.t = this.match(ARM32Parser.ID);
 
-	                localctx.text =  localctx.t;
+	                localctx.text =  (localctx.t===null ? null : localctx.t.text);
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -700,7 +700,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	                _la = this._input.LA(1);
 	            }
 
-	                    localctx.d =  new Ast.DCD(localctx.values.map(s => parseInt(s)));
+	                    localctx.d =  new AST.DCD(localctx.values.map(s => parseInt(s.text)));
 	                
 	            break;
 	        case ARM32Parser.EQU:
@@ -710,7 +710,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 153;
 	            localctx.value = this.match(ARM32Parser.INT);
 
-	                    localctx.d =  new Ast.EquateDirective(parseInt(localctx.value));
+	                    localctx.d =  new AST.EquateDirective(parseInt((localctx.value===null ? null : localctx.value.text)));
 	                
 	            break;
 	        case ARM32Parser.FILL:
@@ -720,7 +720,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 156;
 	            localctx.value = this.match(ARM32Parser.INT);
 
-	                    localctx.d =  new Ast.FillDirective(parseInt(localctx.value));
+	                    localctx.d =  new AST.FillDirective(parseInt((localctx.value===null ? null : localctx.value.text)));
 	                
 	            break;
 	        default:

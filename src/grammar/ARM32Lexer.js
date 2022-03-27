@@ -3,7 +3,7 @@
 import antlr4 from 'antlr4';
 
 
-import Ast from './arm32Ast';
+import AST from './arm32Ast';
 
 
 

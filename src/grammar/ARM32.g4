@@ -1,23 +1,23 @@
 grammar ARM32;
 
 @header {
-import Ast from './arm32Ast';
+import AST from './arm32Ast';
 }
 
 program
 returns [Program p]
     : (lines+=line)* EOF {
-        $p = new Ast.Program($lines);
+        $p = new AST.Program($lines.map(l => l.l));
     }
     ;
 
 line
 returns [Line l]
     : lab=label? inst=instruction {
-        $l = new Ast.Line($lab.text, $inst.i);
+        $l = new AST.Line($lab.text, $inst.i);
     }
     | lab=label? dir=directive {
-        $l = new Ast.Line($lab.text, $dir.d);;
+        $l = new AST.Line($lab.text, $dir.d);;
     }
     ;
 
@@ -28,7 +28,7 @@ label
 instruction
 returns [Instruction i]
     : op=opcode (operands+=operand (COMMA operands+=operand)*)? {
-        $i = new Ast.Instruction($op.text, $operands);;
+        $i = new AST.Instruction($op.text, $operands.map(o => o.op));;
     }
     ;
 
@@ -40,19 +40,19 @@ opcode
 operand
 returns [AstNode op]
     : r=register COMMA f=flexOperandSpec {
-        $op = new Ast.FlexOperand($r.reg, $f.ctx.op.text, parseInt($f.ctx.amount.text));;
+        $op = new AST.FlexOperand($r.reg, $f.ctx.op.text, parseInt($f.ctx.amount.text));;
     }
     | r=register {
         $op = $r.reg;;
     }
     | LBRACK r=register COMMA o=offset? RBRACK BANG {
-        $op = new Ast.PreindexedOperand($r.reg, parseInt($o.off));;
+        $op = new AST.PreindexedOperand($r.reg, parseInt($o.off));;
     }
     | LBRACK r=register RBRACK COMMA o=offset {
-        $op = new Ast.PostindexedOperand($r.reg, parseInt($o.off));;
+        $op = new AST.PostindexedOperand($r.reg, parseInt($o.off));;
     }
     | LBRACK r=register (COMMA o=offset)? RBRACK {
-        $op = new Ast.OffsetOperand($r.reg, $o.off);;
+        $op = new AST.OffsetOperand($r.reg, $o.off);;
     }
     | i=immediate {
         $op = $i.value;;
@@ -68,7 +68,7 @@ returns [AstNode op]
 register
 returns [Register reg]
     : r=REGISTER {
-        $reg = new Ast.Register($r);;
+        $reg = new AST.Register($r.text);;
     }
     ;
 
@@ -82,7 +82,7 @@ returns [AstNode off]
         $off = $r.reg;;
     }
     | r=register COMMA f=flexOperandSpec {
-        $off = new Ast.FlexOperand($r.reg, $f.ctx.op.text, parseInt($f.ctx.amount.text));;
+        $off = new AST.FlexOperand($r.reg, $f.ctx.op.text, parseInt($f.ctx.amount.text));;
     }
     | i=immediate {
         $off = $i.value;;
@@ -92,34 +92,34 @@ returns [AstNode off]
 immediate
 returns [Immediate value]
     : POUND v=INT {
-        $value = new Ast.Immediate(parseInt($v));;
+        $value = new AST.Immediate(parseInt($v.text));;
     }
     ;
 
 pseudoImmediate
 returns [PseudoImmediate value]
     : EQUALS v=INT {
-        $value = new Ast.PseudoImmediate(parseInt($v));;
+        $value = new AST.PseudoImmediate(parseInt($v.text));;
     }
     ;
 
 symbol
 returns [String text]
     : t=ID {
-        $text = $t;;
+        $text = $t.text;;
     }
     ;
 
 directive
 returns [Directive d]
     : DCD (values+=INT (COMMA values+=INT)*) {
-        $d = new Ast.DCD($values.map(s => parseInt(s)));;
+        $d = new AST.DCD($values.map(s => parseInt(s.text)));;
     }
     | EQU value=INT {
-        $d = new Ast.EquateDirective(parseInt($value));;
+        $d = new AST.EquateDirective(parseInt($value.text));;
     }
     | FILL value=INT {
-        $d = new Ast.FillDirective(parseInt($value));;
+        $d = new AST.FillDirective(parseInt($value.text));;
     }
     ;
 
