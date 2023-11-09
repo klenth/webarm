@@ -13,6 +13,11 @@ class AstNode {
     }
 
     static reconstruct(o) {
+        if (o === null)
+            return null;
+        else if (o === undefined)
+            return undefined;
+
         const className = o.className;
         if (!className)
             throw 'No className found!';
@@ -134,6 +139,10 @@ class Register extends AstNode {
 
     static reconstruct(o) {
         return new Register(o.name);
+    }
+
+    number() {
+        return parseInt(this.name.slice(1));
     }
 }
 
