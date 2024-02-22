@@ -86,7 +86,7 @@ function operandSpec(operands) {
     for (let op of operands) {
         if (op instanceof AST.Register)
             spec += "R";
-        else if (op instanceof AST.Immedate)
+        else if (op instanceof AST.Immediate)
             spec += "I";
         else if (op instanceof AST.FlexOperand)
             spec += "Rf";

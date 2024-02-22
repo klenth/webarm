@@ -1,6 +1,6 @@
 import SimulatorMemory from './SimulatorMemory';
 
-export default class SimulatorState {
+export class SimulatorState {
     constructor(registers, memory) {
         this.registers = Array(16).fill(0);
         for (let i = 0; registers && i < this.registers.length; ++i)
@@ -10,6 +10,10 @@ export default class SimulatorState {
 
     getPC() {
         return this.registers[15];
+    }
+
+    advancePC() {
+        this.registers[15] += 4;
     }
 
     clone() {

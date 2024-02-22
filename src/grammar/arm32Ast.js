@@ -1,4 +1,4 @@
-class AstNode {
+export class AstNode {
     constructor(name) {
         this.name = name;
         this.className = this.constructor.name;
@@ -28,7 +28,7 @@ class AstNode {
     }
 }
 
-class Program extends AstNode {
+export class Program extends AstNode {
     constructor(lines) {
         super('program');
         this.lines = lines;
@@ -43,7 +43,7 @@ class Program extends AstNode {
     }
 }
 
-class Line extends AstNode {
+export class Line extends AstNode {
     constructor(label, item) {
         super('line');
         this.label = label;
@@ -65,7 +65,7 @@ class Line extends AstNode {
     }
 }
 
-class Instruction extends AstNode {
+export class Instruction extends AstNode {
     constructor(opcode, operands) {
         super(opcode);
         this.opcode = opcode;
@@ -81,7 +81,7 @@ class Instruction extends AstNode {
     }
 }
 
-class Directive extends AstNode {
+export class Directive extends AstNode {
     constructor(name) {
         super(name);
     }

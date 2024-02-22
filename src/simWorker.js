@@ -3,6 +3,10 @@ import ARM32Lexer from './grammar/ARM32Lexer';
 import ARM32Parser from './grammar/ARM32Parser';
 import AST from './grammar/arm32Ast';
 import counter from './counter';
+import { step } from './arm32sim/Simulator.js';
+import { SimulatorState } from './arm32sim/SimulatorState.js';
+import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
+import { Instruction } from './grammar/arm32Ast.js';
 
 //function main() {
 (function() {
@@ -24,7 +28,12 @@ import counter from './counter';
     }
 
     function handleRunMessage(params) {
-
+        const ast = parse(params.code);
+        runProgram(ast);
+        sendToApp({
+            command: 'run',
+            status: 'complete',
+        });
     }
 
     console.log('Worker: adding event listener (' + counter.count() + ')');
@@ -77,6 +86,23 @@ import counter from './counter';
         }*/
 
         return valid ? ast : null;
+    }
+
+    function runProgram(ast) {
+        console.log("In runProgram()");
+        let state = new SimulatorState();
+
+        console.log("Program has " + ast.lines.length + " lines");
+        for (const line of ast.lines) {
+            if (line.item instanceof Instruction) {
+                console.log(line.item.opcode);
+            } else
+                console.log("[Non-instruction]");
+        }
+
+        while (state.memory.readWord(state.getPC()) !== 0) {
+            state = step(state);
+        }
     }
 
 //}

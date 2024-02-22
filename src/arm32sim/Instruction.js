@@ -2,9 +2,9 @@ import SimulatorState from './SimulatorState';
 import SimulatorMemory from './SimulatorMemory';
 import Bitfield from '../bits/Bitfield';
 
-class InstructionFormatError extends Error {}
+export class InstructionFormatError extends Error {}
 
-class Instruction {
+export class Instruction {
     constructor(fieldValues) {
         this.fieldValues = { ...fieldValues };
         this.validate();
@@ -224,13 +224,3 @@ class IntegerDataProcessingImmediateInstruction extends Instruction {
         return m;
     }
 }
-
-const exports = {
-    Instruction: Instruction,
-    IntegerTestCompareRegisterInstruction: IntegerTestCompareRegisterInstruction,
-    IntegerTestCompareImmediateInstruction: IntegerTestCompareImmediateInstruction,
-    IntegerDataProcessingRegisterInstruction: IntegerDataProcessingRegisterInstruction,
-    IntegerDataProcessingImmediateInstruction: IntegerDataProcessingImmediateInstruction,
-};
-
-export default exports;
