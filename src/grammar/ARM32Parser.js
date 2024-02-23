@@ -3,7 +3,7 @@
 import antlr4 from 'antlr4';
 import ARM32Listener from './ARM32Listener.js';
 
-import AST from './arm32Ast';
+import * as AST from './arm32Ast';
 
 
 const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",

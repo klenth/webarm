@@ -1,7 +1,7 @@
 grammar ARM32;
 
 @header {
-import AST from './arm32Ast';
+import * as AST from './arm32Ast';
 }
 
 program

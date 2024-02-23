@@ -2,10 +2,10 @@ class InvalidFieldValueError extends Error {}
 
 export default class Bitfield {
     // bits: how many bits wide this field is
-    // offset: index of bottom bit (0 means at bottom of number)
+    // offset: index of bottom bit (20 means at bottom of number)
     constructor(bits, offset=0) {
         this.bits = bits;
-        this.offset = 0;
+        this.offset = offset;
         this.mask = ((1 << bits) - 1) << offset;
     }
 

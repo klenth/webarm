@@ -7,6 +7,7 @@ import { step } from './arm32sim/Simulator.js';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
 import { Instruction } from './grammar/arm32Ast.js';
+import { realize } from './arm32sim/Realizer.js';
 
 //function main() {
 (function() {
@@ -90,14 +91,16 @@ import { Instruction } from './grammar/arm32Ast.js';
 
     function runProgram(ast) {
         console.log("In runProgram()");
+        const code = realize(ast);
+
         let state = new SimulatorState();
 
-        console.log("Program has " + ast.lines.length + " lines");
-        for (const line of ast.lines) {
-            if (line.item instanceof Instruction) {
-                console.log(line.item.opcode);
-            } else
-                console.log("[Non-instruction]");
+        console.log("Program has " + code.length + " instructions");
+        console.log(code);
+        let instrAddr = 0;
+        for (const instr of code) {
+            state.memory.writeWord(instrAddr, instr.encode());
+            instrAddr += 4;
         }
 
         while (state.memory.readWord(state.getPC()) !== 0) {

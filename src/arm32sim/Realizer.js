@@ -1,13 +1,17 @@
-import AST from '../grammar/arm32Ast';
-import I from './Instruction';
+import * as AST from '../grammar/arm32Ast';
+import * as I from './Instruction';
 
-export default function realize(ast) {
-    const instructions = ast.lines.map(line => {
-        if (line instanceof AST.Directive)
+export function realize(ast) {
+    return ast.lines.flatMap(line => {
+        if (line.item instanceof AST.Directive)
             return [];
-        else if (line instanceof AST.Instruction)
-            return realizeInstruction(line);
-    }).flatten();
+        else if (line.item instanceof AST.Instruction)
+            return realizeInstruction(line.item);
+        else {
+            console.error("Line that is neither a directive nor an instruction in AST: " + line);
+            return [];
+        }
+    });
 }
 
 function realizeInstruction(i) {
@@ -15,6 +19,7 @@ function realizeInstruction(i) {
         return handleIntegerTestCompareInstruction(i);
     else if (['AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(i.opcode) >= 0)
         return handleIntegerDataProcessingInstruction(i);
+    console.warn("Unhandled opcode in realizeInstruction(): " + i.opcode);
     return [];
 }
 
@@ -71,7 +76,13 @@ function handleIntegerDataProcessingInstruction(i) {
 
     if (spec === 'RRI') {
         return new I.IntegerDataProcessingImmediateInstruction({
-
+            cond: cond,
+            '[bits27-24]': 0b0010,
+            opc: opc,
+            S: i.S,
+            Rn: i.Rn,
+            Rd: i.Rd,
+            imm12: i.imm12,
         });
     } else if (spec === 'RRR') {
 

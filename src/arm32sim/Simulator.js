@@ -1,6 +1,6 @@
 import SimulatorMemory from './SimulatorMemory';
 import SimulatorState from './SimulatorState';
-import { Instruction } from './Instruction.js';
+import { Instruction, decode } from './Instruction.js';
 
 function step(state) {
     const newState = state.clone();
@@ -12,7 +12,7 @@ function step(state) {
 }
 
 function execute(instrCode, state) {
-    const instr = Instruction.fromCode(instrCode);
+    const instr = decode(instrCode);
     console.log("Executing " + instr.mnemonic());
 }
 

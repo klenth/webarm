@@ -87,7 +87,7 @@ export class Directive extends AstNode {
     }
 }
 
-class DCD extends Directive {
+export class DCD extends Directive {
     constructor(values) {
         super('DCD');
         this.values = values;
@@ -102,7 +102,7 @@ class DCD extends Directive {
     }
 }
 
-class EquateDirective extends Directive {
+export class EquateDirective extends Directive {
     constructor(value) {
         super('equ');
         this.value = value;
@@ -117,7 +117,7 @@ class EquateDirective extends Directive {
     }
 }
 
-class FillDirective extends Directive {
+export class FillDirective extends Directive {
     constructor(value) {
         super('FILL');
         this.value = value;
@@ -132,7 +132,7 @@ class FillDirective extends Directive {
     }
 }
 
-class Register extends AstNode {
+export class Register extends AstNode {
     constructor(name) {
         super(name);
     }
@@ -146,7 +146,7 @@ class Register extends AstNode {
     }
 }
 
-class FlexOperand extends AstNode {
+export class FlexOperand extends AstNode {
     constructor(register, shift, amount) {
         super('flex');
         this.register = register;
@@ -167,7 +167,7 @@ class FlexOperand extends AstNode {
     }
 }
 
-class OffsetOperand extends AstNode {
+export class OffsetOperand extends AstNode {
     constructor(register, offset) {
         super('offset');
         this.register = register;
@@ -190,7 +190,7 @@ class OffsetOperand extends AstNode {
     }
 }
 
-class PreindexedOperand extends AstNode {
+export class PreindexedOperand extends AstNode {
     constructor(register, offset) {
         super('preindex');
         this.register = register;
@@ -210,7 +210,7 @@ class PreindexedOperand extends AstNode {
     }
 }
 
-class PostindexedOperand extends AstNode {
+export class PostindexedOperand extends AstNode {
     constructor(register, offset) {
         super('postindex');
         this.register = register;
@@ -230,7 +230,7 @@ class PostindexedOperand extends AstNode {
     }
 }
 
-class Immediate extends AstNode {
+export class Immediate extends AstNode {
     constructor(value) {
         super('immediate');
         this.value = value;
@@ -245,7 +245,7 @@ class Immediate extends AstNode {
     }
 }
 
-class PseudoImmediate extends AstNode {
+export class PseudoImmediate extends AstNode {
     constructor(value) {
         super('pseudoimmediate');
         this.value = value;
@@ -260,7 +260,7 @@ class PseudoImmediate extends AstNode {
     }
 }
 
-function logAst(node, log=console.log, levels=0) {
+export function logAst(node, log=console.log, levels=0) {
     if (!node)
         return;
 
@@ -273,24 +273,3 @@ function logAst(node, log=console.log, levels=0) {
     for (let child of node.children())
         logAst(child, log, levels + 1);
 }
-
-const exports = {
-    AstNode: AstNode,
-    Program: Program,
-    Line: Line,
-    Instruction: Instruction,
-    Directive: Directive,
-    DCD: DCD,
-    EquateDirective: EquateDirective,
-    FillDirective: FillDirective,
-    Register: Register,
-    FlexOperand: FlexOperand,
-    OffsetOperand: OffsetOperand,
-    PreindexedOperand: PreindexedOperand,
-    PostindexedOperand: PostindexedOperand,
-    Immediate: Immediate,
-    PseudoImmediate: PseudoImmediate,
-    logAst: logAst,
-};
-
-export default exports;

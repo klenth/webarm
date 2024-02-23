@@ -4,6 +4,37 @@ import Bitfield from '../bits/Bitfield';
 
 export class InstructionFormatError extends Error {}
 
+const INSTRUCTION_DECODERS = [];
+
+const registerInstructionDecoder = function(decoder) {
+    INSTRUCTION_DECODERS.push(decoder);
+}
+
+const registerOpcodeDecoder = function(bitfield, value, instructionClass) {
+    registerInstructionDecoder(
+        code => (bitfield.get(code) === value) ? instructionClass.fromCode(code) : null
+    );
+}
+
+export function decode(code) {
+    let instr;
+    for (let decoder of INSTRUCTION_DECODERS) {
+        instr = decoder(code);
+        if (instr)
+            return instr;
+    }
+    return null;
+}
+
+function decodeFieldValues(word, format) {
+    const fields = format.fields;
+    const fieldValues = {};
+    for (let name of Object.keys(fields))
+        fieldValues[name] = fields[name].getAndCheck(word);
+
+    return fieldValues;
+}
+
 export class Instruction {
     constructor(fieldValues) {
         this.fieldValues = { ...fieldValues };
@@ -28,20 +59,8 @@ export class Instruction {
         return this.fieldValues[fieldName];
     }
 
-    static fromCode(word) {
-        const fields = this.format().fields;
-        const fieldValues = {};
-        for (let name of Object.keys(fields))
-            fieldValues[name] = fields[name].getAndCheck(word);
-
-        return new Instruction(fieldValues);
-    }
-
-    static fromFields(fieldValues) {
-        return new Instruction(fieldValues);
-    }
-
     encode() {
+        console.debug(this.format);
         const fields = this.format().fields;
         let word = 0;
         for (let name of Object.keys(fields))
@@ -50,24 +69,26 @@ export class Instruction {
     }
 }
 
-class InstructionFormat {
+export class InstructionFormat {
     constructor(fields) {
         this.fields = fields;
 
         let bits = 0;
+        console.debug('Checking for field overlap:');
         for (let name of Object.keys(this.fields)) {
             const field = this.fields[name];
             if (field.get(bits) !== 0)
-                throw new InstructionFormatError('Instruction format has field overlap!');
+                throw new InstructionFormatError('Instruction format has field overlap! [' + name + ']');
             bits = field.setOnes(bits);
+            console.debug('After ' + name + ', bits = ' + ((bits >>> 0).toString(2)));
         }
 
-        if (bits !== 0xffff_ffff)
+        if ((bits ^ 0xffff_ffff) !== 0)
             throw new InstructionFormatError('Instruction format does not cover all 32 bits!');
     }
 }
 
-class IntegerTestCompareRegisterInstruction extends Instruction {
+export class IntegerTestCompareRegisterInstruction extends Instruction {
     format() {
         return new InstructionFormat({
             cond: new Bitfield(4, 28),
@@ -101,7 +122,7 @@ class IntegerTestCompareRegisterInstruction extends Instruction {
     }
 }
 
-class IntegerTestCompareImmediateInstruction extends Instruction {
+export class IntegerTestCompareImmediateInstruction extends Instruction {
     format() {
         return new InstructionFormat({
             cond: new Bitfield(4, 28),
@@ -180,17 +201,19 @@ export class IntegerDataProcessingRegisterInstruction extends Instruction {
     }
 }
 
-class IntegerDataProcessingImmediateInstruction extends Instruction {
+export class IntegerDataProcessingImmediateInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        cond: new Bitfield(4, 28),
+        '[bits27-24]': new Bitfield(4, 24).asConstant(0b0010),
+        opc: new Bitfield(3, 21),
+        S: new Bitfield(1, 20),
+        Rn: new Bitfield(4, 16),
+        Rd: new Bitfield(4, 12),
+        imm12: new Bitfield(12, 0),
+    });
+
     format() {
-        return new InstructionFormat({
-            cond: new Bitfield(4, 28),
-            '[bits27-24]': new Bitfield(4, 24).asConstant(0b0010),
-            opc: new Bitfield(3, 21),
-            S: new Bitfield(1, 20),
-            Rn: new Bitfield(4, 16),
-            Rd: new Bitfield(4, 12),
-            imm12: new Bitfield(12, 0),
-        });
+        return IntegerDataProcessingImmediateInstruction._format;
     }
 
     validate() {
@@ -223,4 +246,12 @@ class IntegerDataProcessingImmediateInstruction extends Instruction {
 
         return m;
     }
+
+    static fromCode(word) {
+        return new IntegerDataProcessingImmediateInstruction(decodeFieldValues(word, IntegerDataProcessingImmediateInstruction._format));
+    }
 }
+
+[0b000, 0b001, 0b010, 0b111, 0b100, 0b101, 0b110, 0b111].forEach(value =>
+    registerOpcodeDecoder(new Bitfield(3, 21), value, IntegerDataProcessingImmediateInstruction)
+);

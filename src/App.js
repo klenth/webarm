@@ -2,7 +2,7 @@ import React from 'react';
 import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import RegisterDisplay from './components/RegisterDisplay';
-import AST from './grammar/arm32Ast';
+import * as AST from './grammar/arm32Ast';
 import './App.css';
 
 const Controls = styled.div`
