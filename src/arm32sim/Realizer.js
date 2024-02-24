@@ -112,7 +112,8 @@ function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
     const spec = operandSpec(i.operands);
 
     const cond = parseCond(Cond);
-    const opc = (OpCode === 'AND') ?   0b0000
+    const opc =
+          (OpCode === 'AND') ?         0b0000
         : (OpCode === 'EOR') ?         0b0001
         : (OpCode === 'SUB') ?         0b0010
         : (OpCode === 'RSB') ?         0b0011
@@ -130,7 +131,8 @@ function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
         : (OpCode === 'MVN') ?         0b1111
         : null;
 
-    const Sbit = (S === 'S')
+    console.debug('In realizer for ' + OpCode + ', S = ', S);
+    const Sbit = S
         || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0;
 
     /*

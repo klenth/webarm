@@ -305,7 +305,7 @@ export class DataProcessingInstruction extends Instruction {
 
     mnemonic() {
         let m = DataProcessingInstruction._opcodes[this.get('OpCode')];
-        if (this.get('S'))
+        if (this.get('S') && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(m) < 0)
             m += 'S';
 
         return m;

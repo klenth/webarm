@@ -8,6 +8,8 @@ import {
     DataProcessingInstruction
 } from './Instruction.js';
 import Bitfield from '../bits/Bitfield';
+import * as arithmetic from '../bits/arithmetic';
+import {testAdditionOverflow, testSubtractionOverflow} from '../bits/arithmetic';
 
 class UnimplementedException {
     constructor(message) {
@@ -144,16 +146,30 @@ function executeDataProcessingInstruction(state, instr) {
     }
 
     function testCV(arg1, arg2, cin) {
-        let cout = 0, v = 0;
+        let of;
         switch (OpCode) {
             // TODO: logical operations
             case 0b0100:    // ADD
             case 0b1011:    // CMN
+                cin = 0;
+            case 0b0101:    // ADC
+                of = testAdditionOverflow(arg1, arg2, cin);
+                return { 'C': of.unsigned, 'V': of.signed };
 
-        }
-        return {
-            'c': cout,
-            'v': v,
+            case 0b0011:    // RSB
+            case 0b0111:    // RSC
+                const temp = arg1;
+                arg1 = arg2;
+                arg2 = temp;
+            case 0b0010:    // SUB
+            case 0b0110:    // SBC
+            case 0b1010:    // CMP
+                cin = (OpCode === 0b0111 || OpCode === 0b0110) ? cin : 0;
+                of = testSubtractionOverflow(arg1, arg2, cin);
+                return { 'C': of.unsigned, 'V': of.signed };
+            default:
+                console.warn("Unimplemented C/V flags for opcode " + OpCode.toString(16));
+                return { 'C': 0, 'V': 0 };
         }
     }
 
@@ -165,13 +181,16 @@ function executeDataProcessingInstruction(state, instr) {
     const RnValue = state.registers[Rn];
 
     let result;
+    let resultCV;
     if (I) {
         const Rotate = new Bitfield(4, 8).get(Operand2);
         const Imm = new Bitfield(8, 0).get(Operand2);
         const rotatedOperand = rotateRight(Imm, 2 * Rotate);
         console.debug('rotatedOperand = ' + rotatedOperand + ', Imm = ' + Imm);
         // TODO: handle carry in
-        result = evaluate(RnValue, rotatedOperand);
+        result = evaluate(RnValue, rotatedOperand, state.C);
+        if (S === 0b1)
+            resultCV = testCV(RnValue, rotatedOperand, state.C);
     } else {
         const Shift = new Bitfield(8, 4).get(Operand2);
         const Rm = new Bitfield(4, 0).get(Operand2);
@@ -189,10 +208,11 @@ function executeDataProcessingInstruction(state, instr) {
             operand = shift(RmValue, RsValue & 0xff, ShiftType);
         }
 
-        result = evaluate(RnValue, operand);
+        result = evaluate(RnValue, operand, state.C);
+        if (S === 0b1)
+            resultCV = testCV(RnValue, operand, state.C);
     }
 
-    const C = (result & 0x1_0000_0000) >>> 32;
     result &= 0xffff_ffff;
 
     console.debug('result = ' + result);
@@ -201,10 +221,16 @@ function executeDataProcessingInstruction(state, instr) {
         state.registers[Rd] = result;
     }
 
+    console.debug('S = ', S);
     // TODO: handle logical operation status bits correctly
-    if (S === 0b1) {
+    if (S) {
+        console.debug('Updating condition codes');
         state.N = (result >>> 31) & 1;
         state.Z = (result === 0) ? 1 : 0;
-        // TODO: handle C, V
+
+        if (resultCV) {
+            state.C = resultCV.C;
+            state.V = resultCV.V;
+        }
     }
 }
