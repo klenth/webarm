@@ -50,21 +50,40 @@ function shift(value, bits, typeEncoded) {
     }
 }
 
-function evalBinary(mnemonic, val1, val2) {
-    switch (mnemonic) {
-        case 'AND':
-            return val1 & val2;
-        case 'EOR':
-            return val1 ^ val2;
-        case 'SUB':
-            return val1 - val2;
-        case 'RSB':
-            return val2 - val1;
-        case 'ADD':
-            return val1 + val2;
-        case 'ADC':
-        case 'RSC':
-            throw "unimplemented op with carry";
+function testCondition(cond, state) {
+    switch (cond) {
+        case 0b1110:    // AL (default, most common)
+            return true;
+        case 0b0000:    // EQ
+            return state.Z !== 0;
+        case 0b0001:    // NE
+            return state.Z === 0;
+        case 0b0010:    // CS/HS
+            return state.C !== 0;
+        case 0b0011:    // CC/LO
+            return state.C === 0;
+        case 0b0100:    // MI
+            return state.N !== 0;
+        case 0b0101:    // PL
+            return state.N === 0;
+        case 0b0110:    // VS
+            return state.V !== 0;
+        case 0b0111:    // VC
+            return state.V === 0;
+        case 0b1000:    // HI
+            return state.C !== 0 && state.Z === 0;
+        case 0b1001:    // LS
+            return state.C === 0 || state.Z !== 0;
+        case 0b1010:    // GE
+            return state.N === state.V;
+        case 0b1011:    // LT
+            return state.N !== state.V;
+        case 0b1100:    // GT
+            return state.Z === 0 && state.N === state.V;
+        case 0b1101:    // LE
+            return state.Z !== 0 || state.N !== state.V;
+        case 0b1111:    // reserved, error
+            console.assert(false, "Condition code of 1111!");
     }
 }
 
@@ -83,6 +102,10 @@ function execute(instrCode, state) {
 }
 
 function executeDataProcessingInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (!testCondition(Cond, state))
+        return;
+
     const OpCode = instr.get('OpCode');
 
     function evaluate(arg1, arg2, c) {
@@ -120,7 +143,6 @@ function executeDataProcessingInstruction(state, instr) {
         }
     }
 
-    // TODO: handle Cond
     const I = instr.get('I');   // is Operand2 an immediate?
     const S = instr.get('S');   // are we setting condition codes?
     const Rd = instr.get('Rd'); // destination register
@@ -162,5 +184,11 @@ function executeDataProcessingInstruction(state, instr) {
         state.registers[Rd] = result;
     }
 
-    // TODO: handle carry out, condition codes in general
+    if (S === 0b1) {
+        console.debug('Setting flags:');
+        state.N = (result >>> 31) & 1;
+        state.Z = (result === 0) ? 1 : 0;
+        console.debug('N = ' + state.N + ', Z = ' + state.Z);
+        // TODO: handle C, V
+    }
 }

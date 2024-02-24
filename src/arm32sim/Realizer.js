@@ -14,13 +14,66 @@ export function realize(ast) {
     });
 }
 
+/*(('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
+            | 'ROR' | 'RRX')
+        'S'?
+        COND?)
+            : 'EQ' | 'NE' | 'CS' | 'HS' | 'CC' | 'LO' | 'MI' | 'PL' | 'VS' | 'VC' | 'HI' | 'LS'
+    | 'GE' | 'LT' | 'GT' | 'LE' | 'AL';*/
+const BASIC_MNEMONIC_PATTERN = /^(MOV|MVN|ADR|LDR|ADD|ADC|SUB|SBC|RSB|RSC|AND|EOR|BIC|ORR|ROR|RRX|LSR|ASR|LSL)(S?)(EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|)$/i;
+
 function realizeInstruction(i) {
-    if (['TST', 'TEQ', 'CMP', 'CMN'].indexOf(i.opcode) >= 0)
-        return handleIntegerTestCompareInstruction(i);
-    else if (['AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(i.opcode) >= 0)
-        return handleIntegerDataProcessingInstruction(i);
-    console.warn("Unhandled opcode in realizeInstruction(): " + i.opcode);
+    let match = BASIC_MNEMONIC_PATTERN.exec(i.opcode);
+    if (match) {
+        const OpCode = match[1];
+        const S = (match[2] !== '');
+        const Cond = match[3];
+        if (['TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(OpCode) >= 0)
+            return handleIntegerDataProcessingInstruction(i, OpCode, S, Cond);
+    }
+
+    console.error("Unhandled opcode in realizeInstruction(): " + i.opcode);
     return [];
+}
+
+function parseCond(cond) {
+    switch (cond.toUpperCase()) {
+        case '':
+        case 'AL':
+            return 0b1110;
+        case 'EQ':
+            return 0b0000;
+        case 'NEQ':
+            return 0b0001;
+        case 'CS':
+        case 'HS':
+            return 0b0010;
+        case 'CC':
+        case 'LO':
+            return 0b0011;
+        case 'MI':
+            return 0b0100;
+        case 'PL':
+            return 0b0101;
+        case 'VS':
+            return 0b0110;
+        case 'VC':
+            return 0b0111;
+        case 'HI':
+            return 0b1000;
+        case 'LS':
+            return 0b1001;
+        case 'GE':
+            return 0b1010;
+        case 'LT':
+            return 0b1011;
+        case 'GT':
+            return 0b1100;
+        case 'LE':
+            return 0b1101;
+        default:
+            console.assert(false, 'Invalid condition suffix: ' + cond);
+    }
 }
 
 function handleIntegerTestCompareInstruction(i) {
@@ -55,31 +108,26 @@ function handleIntegerTestCompareInstruction(i) {
         throw "Invalid operands: " + spec;
 }
 
-function handleIntegerDataProcessingInstruction(i) {
+function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
     const spec = operandSpec(i.operands);
 
-    let ops = i.opcode;
-    const S = i.opcode.endsWith('S');
-    if (S)
-        ops = ops.slice(0, ops.length - 1);
-
-    const cond = 0b0000;
-    const opc = (ops === 'AND') ?   0b0000
-        : (ops === 'EOR') ?         0b0001
-        : (ops === 'SUB') ?         0b0010
-        : (ops === 'RSB') ?         0b0011
-        : (ops === 'ADD') ?         0b0100
-        : (ops === 'ADC') ?         0b0101
-        : (ops === 'SBC') ?         0b0110
-        : (ops === 'RSC') ?         0b0111
-        : (ops === 'TST') ?         0b1000
-        : (ops === 'TEQ') ?         0b1001
-        : (ops === 'CMP') ?         0b1010
-        : (ops === 'CMN') ?         0b1011
-        : (ops === 'ORR') ?         0b1100
-        : (ops === 'MOV') ?         0b1101
-        : (ops === 'BIC') ?         0b1110
-        : (ops === 'MVN') ?         0b1111
+    const cond = parseCond(Cond);
+    const opc = (OpCode === 'AND') ?   0b0000
+        : (OpCode === 'EOR') ?         0b0001
+        : (OpCode === 'SUB') ?         0b0010
+        : (OpCode === 'RSB') ?         0b0011
+        : (OpCode === 'ADD') ?         0b0100
+        : (OpCode === 'ADC') ?         0b0101
+        : (OpCode === 'SBC') ?         0b0110
+        : (OpCode === 'RSC') ?         0b0111
+        : (OpCode === 'TST') ?         0b1000
+        : (OpCode === 'TEQ') ?         0b1001
+        : (OpCode === 'CMP') ?         0b1010
+        : (OpCode === 'CMN') ?         0b1011
+        : (OpCode === 'ORR') ?         0b1100
+        : (OpCode === 'MOV') ?         0b1101
+        : (OpCode === 'BIC') ?         0b1110
+        : (OpCode === 'MVN') ?         0b1111
         : null;
 
     /*
@@ -110,7 +158,7 @@ function handleIntegerDataProcessingInstruction(i) {
             '[bits27-26]': 0b00,
             I: 0b1,
             OpCode: opc,
-            S: i.S,
+            S: S ? 1 : 0,
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[2].value & 0xff
@@ -122,7 +170,7 @@ function handleIntegerDataProcessingInstruction(i) {
             '[bits27-26]': 0b00,
             I: 0b0,
             OpCode: opc,
-            S: i.S,
+            S: S ? 1 : 0,
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[2].number()

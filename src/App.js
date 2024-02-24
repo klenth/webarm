@@ -5,6 +5,7 @@ import RegisterDisplay from './components/RegisterDisplay';
 import * as AST from './grammar/arm32Ast';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import './App.css';
+import NzcvDisplay from './components/NzcvDisplay';
 
 const Controls = styled.div`
   text-align: right;
@@ -68,6 +69,12 @@ class App extends React.Component {
                     />
                     <Registers>
                         {registers}
+                        <NzcvDisplay
+                            N={this.state.simulatorState.N}
+                            Z={this.state.simulatorState.Z}
+                            C={this.state.simulatorState.C}
+                            V={this.state.simulatorState.V}
+                        />
                     </Registers>
                 </Center>
             </div>
@@ -124,7 +131,7 @@ class App extends React.Component {
     handleRunComplete(data) {
         if (data.status === 'complete') {
             const newState = { ...this.state };
-            newState.simulatorState = data.finalState;
+            newState.simulatorState = SimulatorState.reconstruct(data.finalState);
             console.log(data.finalState);
             this.setState(newState);
         }

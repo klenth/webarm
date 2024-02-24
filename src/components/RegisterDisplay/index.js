@@ -1,2 +1,2 @@
-export * from './RegisterDisplay';
-export { default } from './RegisterDisplay';
+export * from './RegisterDisplay.js';
+export { default } from './RegisterDisplay.js';
