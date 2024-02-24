@@ -10,9 +10,9 @@ const registerInstructionDecoder = function(decoder) {
     INSTRUCTION_DECODERS.push(decoder);
 }
 
-const registerOpcodeDecoder = function(bitfield, value, instructionClass) {
+const registerOpcodeDecoder = function(bitfield, value, decoder) {
     registerInstructionDecoder(
-        code => (bitfield.get(code) === value) ? instructionClass.fromCode(code) : null
+        code => (bitfield.get(code) === value) ? decoder(code) : null
     );
 }
 
@@ -201,6 +201,10 @@ export class IntegerDataProcessingRegisterInstruction extends Instruction {
     }
 }
 
+/*[0b000, 0b001, 0b010, 0b111, 0b100, 0b101, 0b110, 0b111].forEach(value =>
+    registerOpcodeDecoder(new Bitfield(7, 21), value, IntegerDataProcessingRegisterInstruction)
+);*/
+
 export class IntegerDataProcessingImmediateInstruction extends Instruction {
     static _format = new InstructionFormat({
         cond: new Bitfield(4, 28),
@@ -248,10 +252,79 @@ export class IntegerDataProcessingImmediateInstruction extends Instruction {
     }
 
     static fromCode(word) {
-        return new IntegerDataProcessingImmediateInstruction(decodeFieldValues(word, IntegerDataProcessingImmediateInstruction._format));
+        console.log('fromCode(): word = 0x' + word.toString(0x10));
+        const fieldValues = decodeFieldValues(word, IntegerDataProcessingImmediateInstruction._format);
+        console.log(fieldValues);
+        return new IntegerDataProcessingImmediateInstruction(fieldValues);
     }
 }
 
-[0b000, 0b001, 0b010, 0b111, 0b100, 0b101, 0b110, 0b111].forEach(value =>
-    registerOpcodeDecoder(new Bitfield(3, 21), value, IntegerDataProcessingImmediateInstruction)
+/*[0b000, 0b001, 0b010, 0b111, 0b100, 0b101, 0b110, 0b111].forEach(value =>
+    registerOpcodeDecoder(new Bitfield(7, 21), 0b0010_000 | value, IntegerDataProcessingImmediateInstruction)
+);*/
+
+export class DataProcessingInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        Cond: new Bitfield(4, 28),
+        '[bits27-26]': new Bitfield(2, 26).asConstant(0b00),
+        I: new Bitfield(1, 25),
+        OpCode: new Bitfield(4, 21),
+        S: new Bitfield(1, 20),
+        Rn: new Bitfield(4, 16),
+        Rd: new Bitfield(4, 12),
+        Operand2: new Bitfield(12, 0)
+    });
+
+    static _opcodes = {
+        0b0000: 'AND',
+        0b0001: 'EOR',
+        0b0010: 'SUB',
+        0b0011: 'RSB',
+        0b0100: 'ADD',
+        0b0101: 'ADC',
+        0b0110: 'SBC',
+        0b0111: 'RSC',
+        0b1000: 'TST',
+        0b1001: 'TEQ',
+        0b1010: 'CMP',
+        0b1011: 'CMN',
+        0b1100: 'ORR',
+        0b1101: 'MOV',
+        0b1110: 'BIC',
+        0b1111: 'MVN'
+    }
+
+    format() {
+        return DataProcessingInstruction._format;
+    }
+
+    validate() {
+        if (this.get('Cond') === 0b1111)
+            throw new InstructionFormatError('cond=1111');
+    }
+
+    mnemonic() {
+        let m = DataProcessingInstruction._opcodes[this.get('OpCode')];
+        if (this.get('S'))
+            m += 'S';
+
+        return m;
+    }
+
+    static fromCode(word) {
+        console.log("DataProcessingInstruction.fromCode()");
+        const fieldValues = decodeFieldValues(word, DataProcessingInstruction._format);
+        return new DataProcessingInstruction(fieldValues);
+    }
+}
+
+registerInstructionDecoder(code => {
+    console.debug("Opcode " + new Bitfield(4, 21).get(code).toString(2));
+    return null;
+});
+
+Object.keys(DataProcessingInstruction._opcodes).forEach(opcode => {
+        console.debug("Registering decoder for opcode " + (+opcode).toString(2));
+        registerOpcodeDecoder(new Bitfield(4, 21), +opcode, DataProcessingInstruction.fromCode);
+    }
 );

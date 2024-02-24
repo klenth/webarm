@@ -30,10 +30,11 @@ import { realize } from './arm32sim/Realizer.js';
 
     function handleRunMessage(params) {
         const ast = parse(params.code);
-        runProgram(ast);
+        const finalState = runProgram(ast);
         sendToApp({
             command: 'run',
             status: 'complete',
+            finalState: finalState,
         });
     }
 
@@ -106,6 +107,8 @@ import { realize } from './arm32sim/Realizer.js';
         while (state.memory.readWord(state.getPC()) !== 0) {
             state = step(state);
         }
+
+        return state;
     }
 
 //}

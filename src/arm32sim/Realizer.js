@@ -64,28 +64,69 @@ function handleIntegerDataProcessingInstruction(i) {
         ops = ops.slice(0, ops.length - 1);
 
     const cond = 0b0000;
-    const opc = (ops === 'AND') ?   0b000
-        : (ops === 'EOR') ?         0b001
-        : (ops === 'SUB') ?         0b010
-        : (ops === 'RSB') ?         0b011
-        : (ops === 'ADD') ?         0b100
-        : (ops === 'ADC') ?         0b101
-        : (ops === 'SBC') ?         0b110
-        : (ops === 'RSC') ?         0b111
+    const opc = (ops === 'AND') ?   0b0000
+        : (ops === 'EOR') ?         0b0001
+        : (ops === 'SUB') ?         0b0010
+        : (ops === 'RSB') ?         0b0011
+        : (ops === 'ADD') ?         0b0100
+        : (ops === 'ADC') ?         0b0101
+        : (ops === 'SBC') ?         0b0110
+        : (ops === 'RSC') ?         0b0111
+        : (ops === 'TST') ?         0b1000
+        : (ops === 'TEQ') ?         0b1001
+        : (ops === 'CMP') ?         0b1010
+        : (ops === 'CMN') ?         0b1011
+        : (ops === 'ORR') ?         0b1100
+        : (ops === 'MOV') ?         0b1101
+        : (ops === 'BIC') ?         0b1110
+        : (ops === 'MVN') ?         0b1111
         : null;
 
+    /*
     if (spec === 'RRI') {
         return new I.IntegerDataProcessingImmediateInstruction({
             cond: cond,
             '[bits27-24]': 0b0010,
             opc: opc,
             S: i.S,
-            Rn: i.Rn,
-            Rd: i.Rd,
-            imm12: i.imm12,
+            Rn: +i.operands[1].number(),
+            Rd: +i.operands[0].number(),
+            imm12: +i.operands[2].value,
         });
     } else if (spec === 'RRR') {
+        return new I.IntegerDataProcessingRegisterInstruction({
+            cond: cond,
+            '[bits27-24]': 0b0000,
+            'opc': opc,
+            S: i.S,
+            Rn: +i.operands[0].number(),
 
+        });
+    } */
+    if (spec === 'RRI') {
+        // TODO: handle rotated immediates
+        return new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b1,
+            OpCode: opc,
+            S: i.S,
+            Rn: +i.operands[1].number(),
+            Rd: +i.operands[0].number(),
+            Operand2: +i.operands[2].value & 0xff
+        });
+    } else if (spec === 'RRR') {
+        // TODO: handle shifts
+        return new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: opc,
+            S: i.S,
+            Rn: +i.operands[1].number(),
+            Rd: +i.operands[0].number(),
+            Operand2: +i.operands[2].number()
+        });
     } else if (spec === 'RRRf') {
 
     } else

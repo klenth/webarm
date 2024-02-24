@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import AceEditor from 'react-ace';
 import RegisterDisplay from './components/RegisterDisplay';
 import * as AST from './grammar/arm32Ast';
+import { SimulatorState } from './arm32sim/SimulatorState.js';
 import './App.css';
 
 const Controls = styled.div`
@@ -32,15 +33,18 @@ class App extends React.Component {
         super(props);
         this.state = {
             code: '',
+            simulatorState: new SimulatorState(),
         };
     }
 
     render() {
+        const stateRegisters = this.state.simulatorState.registers || [];
+        console.log(this.state);
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
                 label={'R' + i}
-                value={null}
+                value={stateRegisters[i]}
             />
         ));
 
@@ -76,6 +80,8 @@ class App extends React.Component {
             console.log('Received message from worker');
             if (e.data.command === 'parse')
                 this.handleParseComplete(e.data);
+            else if (e.data.command === 'run')
+                this.handleRunComplete(e.data);
         });
     }
 
@@ -112,6 +118,15 @@ class App extends React.Component {
             AST.logAst(ast);
         } else if (data.status === 'error') {
             console.log('Unable to parse!');
+        }
+    }
+
+    handleRunComplete(data) {
+        if (data.status === 'complete') {
+            const newState = { ...this.state };
+            newState.simulatorState = data.finalState;
+            console.log(data.finalState);
+            this.setState(newState);
         }
     }
 }
