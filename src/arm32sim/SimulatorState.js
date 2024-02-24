@@ -1,5 +1,10 @@
 import SimulatorMemory from './SimulatorMemory';
+import Bitfield from '../bits/Bitfield.js';
 
+const Nbf = new Bitfield(1, 3),
+    Zbf = new Bitfield(1, 2),
+    Cbf = new Bitfield(1, 1),
+    Vbf = new Bitfield(1, 0);
 export class SimulatorState {
     constructor(registers, memory, nzcv) {
         this.registers = Array(16).fill(0);
@@ -22,35 +27,35 @@ export class SimulatorState {
     }
 
     get N() {
-        return (this.nzcv >>> 3) & 1;
+        return Nbf.get(this.nzcv);
     }
 
     set N(n) {
-        this.nzcv |= (n & 1) << 3;
+        this.nzcv = Nbf.set(this.nzcv, n);
     }
 
     get Z() {
-        return (this.nzcv >>> 2) & 1;
+        return Zbf.get(this.nzcv);
     }
 
     set Z(z) {
-        this.nzcv |= (z & 1) << 2;
+        this.nzcv = Zbf.set(this.nzcv, z);
     }
 
     get C() {
-        return (this.nzcv >>> 1) & 1;
+        return Cbf.get(this.nzcv);
     }
 
     set C(c) {
-        this.nzcv |= (c & 1) << 1;
+        this.nzcv = Cbf.set(this.nzcv, c);
     }
 
     get V() {
-        return this.nzcv & 1;
+        return Vbf.get(this.nzcv);
     }
 
     set V(v) {
-        this.nzcv |= v & 1;
+        this.nzcv = Vbf.set(this.nzcv, v);
     }
 
     static reconstruct(o) {

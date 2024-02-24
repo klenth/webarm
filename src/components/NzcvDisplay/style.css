@@ -1,4 +1,4 @@
-.register-display {
+.nzcv-display {
     border: 3px solid #00b5e2;
     border-radius: 8px;
     color: #00b5e2;
@@ -12,7 +12,7 @@
     user-select: none;
 }
 
-.register-display .label {
+.nzcv-display .label {
     padding: 0 8px;
     /*font-family: monospace;*/
     margin-right: 8px;
@@ -23,9 +23,9 @@
     background-color: #00b5e2;
 }
 
-.register-display .value {
+.nzcv-display .value {
     display: inline-block;
-    width: 192px;
+    width: 2em;
     font-family: monospace;
     color: black;
 
@@ -33,21 +33,4 @@
     white-space: nowrap;
     height: var(--display-height);
     line-height: var(--display-height);
-}
-
-.register-display .modes {
-    margin: 0 4px;
-    font-size: 0.7rem;
-}
-
-.register-display .mode {
-    color: #00B5E2;
-    background-color: white;
-    padding: 2px 3px;
-    cursor: pointer;
-}
-
-.register-display .mode.selected {
-    color: white;
-    background-color: #00B5E2;
 }

@@ -20,16 +20,19 @@ const Display = styled.div`
   margin: 4px;
   cursor: default;
   user-select: none;
+  
+  display: grid;
+  grid-template-columns: repeat(4, min-content 1fr);
 `;
 
 const Label = styled.div`
   padding: 0 8px;
   font-family: monospace;
-  margin-right: 8px;
+  margin-right: 2px;
   line-height: var(--display-height);
   height: var(--display-height);
   display: inline-block;
-  width: 32px;
+  width: 1em;
   text-align: center;
   color: ${foreColor};
   background-color: ${chromeColor};
@@ -37,7 +40,7 @@ const Label = styled.div`
 
 const Value = styled.div`
   display: inline-block;
-  width: 192px;
+  width: 1em;
   font-family: monospace;
   color: ${textColor};
 
@@ -45,6 +48,8 @@ const Value = styled.div`
   white-space: nowrap;
   height: var(--display-height);
   line-height: var(--display-height);
+
+  justify-self: center;
 `;
 
 const Modes = styled.span`
@@ -71,16 +76,16 @@ export default class NzcvDisplay extends React.Component {
 
     render() {
         return (
-            <div className={'nzcv-display'}>
-                <div className={'N label'}>N</div>
-                <div className={'N value'}>{this.props.N}</div>
-                <div className={'Z label'}>Z</div>
-                <div className={'Z value'}>{this.props.Z}</div>
-                <div className={'C label'}>C</div>
-                <div className={'C value'}>{this.props.C}</div>
-                <div className={'V label'}>V</div>
-                <div className={'V value'}>{this.props.V}</div>
-            </div>
+            <Display>
+                <Label>N</Label>
+                <Value>{this.props.N}</Value>
+                <Label>Z</Label>
+                <Value>{this.props.Z}</Value>
+                <Label>C</Label>
+                <Value>{this.props.C}</Value>
+                <Label>V</Label>
+                <Value>{this.props.V}</Value>
+            </Display>
         );
     }
 }

@@ -143,6 +143,20 @@ function executeDataProcessingInstruction(state, instr) {
         }
     }
 
+    function testCV(arg1, arg2, cin) {
+        let cout = 0, v = 0;
+        switch (OpCode) {
+            // TODO: logical operations
+            case 0b0100:    // ADD
+            case 0b1011:    // CMN
+
+        }
+        return {
+            'c': cout,
+            'v': v,
+        }
+    }
+
     const I = instr.get('I');   // is Operand2 an immediate?
     const S = instr.get('S');   // are we setting condition codes?
     const Rd = instr.get('Rd'); // destination register
@@ -178,17 +192,19 @@ function executeDataProcessingInstruction(state, instr) {
         result = evaluate(RnValue, operand);
     }
 
+    const C = (result & 0x1_0000_0000) >>> 32;
+    result &= 0xffff_ffff;
+
     console.debug('result = ' + result);
     if ((OpCode & 0b1100) !== 0b1000) {
         // The instruction is not TST, TEQ, CMP, or CMN - the value goes into Rd
         state.registers[Rd] = result;
     }
 
+    // TODO: handle logical operation status bits correctly
     if (S === 0b1) {
-        console.debug('Setting flags:');
         state.N = (result >>> 31) & 1;
         state.Z = (result === 0) ? 1 : 0;
-        console.debug('N = ' + state.N + ', Z = ' + state.Z);
         // TODO: handle C, V
     }
 }

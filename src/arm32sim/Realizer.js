@@ -20,7 +20,7 @@ export function realize(ast) {
         COND?)
             : 'EQ' | 'NE' | 'CS' | 'HS' | 'CC' | 'LO' | 'MI' | 'PL' | 'VS' | 'VC' | 'HI' | 'LS'
     | 'GE' | 'LT' | 'GT' | 'LE' | 'AL';*/
-const BASIC_MNEMONIC_PATTERN = /^(MOV|MVN|ADR|LDR|ADD|ADC|SUB|SBC|RSB|RSC|AND|EOR|BIC|ORR|ROR|RRX|LSR|ASR|LSL)(S?)(EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|)$/i;
+const BASIC_MNEMONIC_PATTERN = /^(CMP|CMN|TST|TEQ|MOV|MVN|ADR|LDR|ADD|ADC|SUB|SBC|RSB|RSC|AND|EOR|BIC|ORR|ROR|RRX|LSR|ASR|LSL)(S?)(EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|)$/i;
 
 function realizeInstruction(i) {
     let match = BASIC_MNEMONIC_PATTERN.exec(i.opcode);
@@ -28,7 +28,7 @@ function realizeInstruction(i) {
         const OpCode = match[1];
         const S = (match[2] !== '');
         const Cond = match[3];
-        if (['TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(OpCode) >= 0)
+        if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(OpCode) >= 0)
             return handleIntegerDataProcessingInstruction(i, OpCode, S, Cond);
     }
 
@@ -130,6 +130,9 @@ function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
         : (OpCode === 'MVN') ?         0b1111
         : null;
 
+    const Sbit = (S === 'S')
+        || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0;
+
     /*
     if (spec === 'RRI') {
         return new I.IntegerDataProcessingImmediateInstruction({
@@ -158,7 +161,7 @@ function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
             '[bits27-26]': 0b00,
             I: 0b1,
             OpCode: opc,
-            S: S ? 1 : 0,
+            S: Sbit,
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[2].value & 0xff
@@ -170,13 +173,39 @@ function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
             '[bits27-26]': 0b00,
             I: 0b0,
             OpCode: opc,
-            S: S ? 1 : 0,
+            S: Sbit,
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[2].number()
         });
     } else if (spec === 'RRRf') {
-
+        console.error("Unhandled operand specs: " + spec);
+    } else if (spec === 'RR'
+            && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
+        // No destination register
+        return new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: opc,
+            S: Sbit,
+            Rn: +i.operands[0].number(),
+            Rd: 0,
+            Operand2: +i.operands[1].number()
+        });
+    } else if (spec === 'RR'
+            && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
+        // No Rn
+        return new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: opc,
+            S: Sbit,
+            Rn: 0,
+            Rd: +i.operands[0].number(),
+            Operand2: +i.operands[1].number()
+        });
     } else
         throw "Invalid operands: " + spec;
 }

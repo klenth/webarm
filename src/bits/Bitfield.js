@@ -21,10 +21,14 @@ export default class Bitfield {
         return (word & this.mask) >>> this.offset;
     }
 
+    set(word, v) {
+        return (word & ~this.mask) | (v << this.offset);
+    }
+
     checkAndSet(word, v) {
         if (((v << this.offset) & ~this.mask) !== 0)
             throw new InvalidFieldValueError('Setting field value of ' + v + ' not in ' + this.bits + '-bit range');
-        return (word & ~this.mask) | (v << this.offset);
+        return this.set(word, v);
     }
 
     setZeros(word) {
