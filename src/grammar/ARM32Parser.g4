@@ -1,22 +1,26 @@
-grammar ARM32;
+parser grammar ARM32Parser;
 
 @header {
 import * as AST from './arm32Ast';
 }
 
+options {
+    tokenVocab = ARM32Lexer;
+}
+
 program
 returns [Program p]
-    : (lines+=line)* {
+    : NL* (lines+=line)* EOF {
         $p = new AST.Program($lines.map(l => l.l));
     }
     ;
 
 line
 returns [Line l]
-    : lab=label? inst=instruction NL {
+    : lab=label? inst=instruction NL+ {
         $l = new AST.Line($lab.text, $inst.i);
     }
-    | lab=label? dir=directive NL {
+    | lab=label? dir=directive NL+ {
         $l = new AST.Line($lab.text, $dir.d);;
     }
     ;
@@ -27,19 +31,18 @@ label
 
 instruction
 returns [Instruction i]
-    : op=opcode (operands+=operand (COMMA operands+=operand)*)? {
-        $i = new AST.Instruction($op.text, $operands.map(o => o.op));;
+    : op=opcode s=S? cond=COND? (operands+=operand (COMMA operands+=operand)*)? {
+        $i = new AST.Instruction($op.text, $s.text || '', $cond.text || '', $operands.map(o => o.op));;
     }
     ;
 
 opcode
-    : OPCODE_NONFLEX
-    | OPCODE_FLEX
+    : OPCODE
     ;
 
 operand
 returns [AstNode op]
-    : r=register COMMA f=flexOperandSpec {
+    : r=register f=flexOperandSpec {
         $op = new AST.FlexOperand($r.reg, $f.ctx.op.text, parseInt($f.ctx.amount.text));;
     }
     | r=register {
@@ -73,7 +76,7 @@ returns [Register reg]
     ;
 
 flexOperandSpec
-    : op=OPCODE_FLEX POUND amount=INT
+    : op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0}? POUND amount=INT
     ;
 
 offset
@@ -121,101 +124,4 @@ returns [Directive d]
     | FILL value=INT {
         $d = new AST.FillDirective(parseInt($value.text));;
     }
-    ;
-
-COMMENT
-    : ';' (~[\n])* -> skip
-    ;
-
-fragment COND
-    : 'EQ' | 'NE' | 'CS' | 'HS' | 'CC' | 'LO' | 'MI' | 'PL' | 'VS' | 'VC' | 'HI' | 'LS'
-    | 'GE' | 'LT' | 'GT' | 'LE' | 'AL';
-
-OPCODE_FLEX
-    : 'LSL'
-    | 'ASR'
-    | 'LSR'
-    ;
-
-OPCODE_NONFLEX
-    /* opcodes of the form XXX{S}{cond} */
-    : (('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
-            | 'ROR' | 'RRX' | OPCODE_FLEX)
-        'S'?
-        COND?)
-
-    /* opcodes of the form XXX{cond} */
-    | (('CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'END') COND?)
-
-    /* opcodes of the form XXX{B}{cond} */
-    | (('LDR' | 'STR') 'B'? COND?)
-
-    /* opcodes of the form XXX{dir}{cond} */
-    | (('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'DB')? COND?)
-    ;
-
-COMMA
-    : ','
-    ;
-
-LBRACK
-    : '['
-    ;
-
-RBRACK
-    : ']'
-    ;
-
-BANG
-    : '!'
-    ;
-
-REGISTER
-    : 'R' [0-9]
-    | 'R1' [0-5]
-    | 'SP'
-    | 'LR'
-    | 'PC'
-    ;
-
-POUND
-    : '#'
-    ;
-
-EQUALS
-    : '='
-    ;
-
-fragment INT_STEM
-    : [0-9] ([0-9_]* [0-9])?
-    | '0' ('x' | 'X') [0-9a-fA-F] ([_0-9a-fA-F]* [0-9a-fA-F])?
-    | '0' ('b' | 'B') [01] ([01_]* [01])?
-    ;
-
-INT
-    : '-'? INT_STEM
-    ;
-
-DCD
-    : 'DCD'
-    ;
-
-EQU
-    : 'equ'
-    ;
-
-FILL
-    : 'FILL'
-    ;
-
-ID
-    : [a-zA-Z_] [a-zA-Z0-9_]*
-    ;
-
-NL
-    : [\r\n]+
-    ;
-
-WS
-    : [ \t]+ -> skip
     ;

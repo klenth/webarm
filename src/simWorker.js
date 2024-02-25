@@ -49,6 +49,7 @@ import { realize } from './arm32sim/Realizer.js';
     });
 
     function parse(code) {
+        code = code + '\n'; // Make sure it ends in a newline!
         let valid = true;
         let ast = null;
         //try {

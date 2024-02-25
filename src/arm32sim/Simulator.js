@@ -152,6 +152,7 @@ function executeDataProcessingInstruction(state, instr) {
             case 0b0100:    // ADD
             case 0b1011:    // CMN
                 cin = 0;
+            // eslint-disable-next-line no-fallthrough
             case 0b0101:    // ADC
                 of = testAdditionOverflow(arg1, arg2, cin);
                 return { 'C': of.unsigned, 'V': of.signed };
@@ -161,6 +162,7 @@ function executeDataProcessingInstruction(state, instr) {
                 const temp = arg1;
                 arg1 = arg2;
                 arg2 = temp;
+            // eslint-disable-next-line no-fallthrough
             case 0b0010:    // SUB
             case 0b0110:    // SBC
             case 0b1010:    // CMP
@@ -217,6 +219,7 @@ function executeDataProcessingInstruction(state, instr) {
 
     console.debug('result = ' + result);
     if ((OpCode & 0b1100) !== 0b1000) {
+        console.debug('    saving in R' + Rd);
         // The instruction is not TST, TEQ, CMP, or CMN - the value goes into Rd
         state.registers[Rd] = result;
     }

@@ -66,9 +66,11 @@ export class Line extends AstNode {
 }
 
 export class Instruction extends AstNode {
-    constructor(opcode, operands) {
+    constructor(opcode, s, cond, operands) {
         super(opcode);
         this.opcode = opcode;
+        this.s = s;
+        this.cond = cond;
         this.operands = operands;
     }
 
@@ -77,7 +79,7 @@ export class Instruction extends AstNode {
     }
 
     static reconstruct(o) {
-        return new Instruction(o.opcode, o.operands.map(AstNode.reconstruct));
+        return new Instruction(o.opcode, o.s, o.cond, o.operands.map(AstNode.reconstruct));
     }
 }
 
@@ -273,3 +275,21 @@ export function logAst(node, log=console.log, levels=0) {
     for (let child of node.children())
         logAst(child, log, levels + 1);
 }
+
+const exports = {
+    'AstNode': AstNode,
+    'Program': Program,
+    'Line': Line,
+    'Instruction': Instruction,
+    'Directive': Directive,
+    'DCD': DCD,
+    'EquateDirective': EquateDirective,
+    'FillDirective': FillDirective,
+    'Register': Register,
+    'FlexOperand': FlexOperand,
+    'OffsetOperand': OffsetOperand,
+    'PreindexedOperand': PreindexedOperand,
+    'PostindexedOperand': PostindexedOperand,
+    'Immediate': Immediate,
+    'PseudoImmediate': PseudoImmediate,
+};

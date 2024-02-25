@@ -14,12 +14,7 @@ export function realize(ast) {
     });
 }
 
-/*(('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
-            | 'ROR' | 'RRX')
-        'S'?
-        COND?)
-            : 'EQ' | 'NE' | 'CS' | 'HS' | 'CC' | 'LO' | 'MI' | 'PL' | 'VS' | 'VC' | 'HI' | 'LS'
-    | 'GE' | 'LT' | 'GT' | 'LE' | 'AL';*/
+/*
 const BASIC_MNEMONIC_PATTERN = /^(CMP|CMN|TST|TEQ|MOV|MVN|ADR|LDR|ADD|ADC|SUB|SBC|RSB|RSC|AND|EOR|BIC|ORR|ROR|RRX|LSR|ASR|LSL)(S?)(EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|)$/i;
 
 function realizeInstruction(i) {
@@ -35,6 +30,16 @@ function realizeInstruction(i) {
     console.error("Unhandled opcode in realizeInstruction(): " + i.opcode);
     return [];
 }
+*/
+
+function realizeInstruction(i) {
+    if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(i.opcode) >= 0)
+        return handleIntegerDataProcessingInstruction(i);
+
+    console.error("Unhandled opcode in realizeInstruction(): " + i.opcode);
+    return [];
+}
+
 
 function parseCond(cond) {
     switch (cond.toUpperCase()) {
@@ -108,7 +113,11 @@ function handleIntegerTestCompareInstruction(i) {
         throw "Invalid operands: " + spec;
 }
 
-function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
+function handleIntegerDataProcessingInstruction(i) {
+    const OpCode = i.opcode;
+    const S = i.s;
+    const Cond = i.cond;
+
     const spec = operandSpec(i.operands);
 
     const cond = parseCond(Cond);
@@ -132,7 +141,7 @@ function handleIntegerDataProcessingInstruction(i, OpCode, S, Cond) {
         : null;
 
     console.debug('In realizer for ' + OpCode + ', S = ', S);
-    const Sbit = S
+    const Sbit = !!S
         || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0;
 
     /*

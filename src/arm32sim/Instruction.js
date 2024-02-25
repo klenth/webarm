@@ -52,7 +52,6 @@ export class Instruction {
 
     mnemonic() {
         return "mnemonic() not overridden";
-        return null;
     }
 
     get(fieldName) {
