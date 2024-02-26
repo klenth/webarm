@@ -1,130 +1,71 @@
-// Generated from /home/kathy/WebstormProjects/webarm/src/grammar/ARM32Parser.g4 by ANTLR 4.9.2
+// Generated from /home/kathy/WebstormProjects/webarm/src/grammar/ARM32Parser.g4 by ANTLR 4.13.1
 // jshint ignore: start
 import antlr4 from 'antlr4';
 
 import * as AST from './arm32Ast';
 
-
-const serializedATN = ["\u0003\u608b\ua72a\u8133\ub9ed\u417c\u3be7\u7786",
-    "\u5964\u0003\u0017\u00b9\u0004\u0002\t\u0002\u0004\u0003\t\u0003\u0004",
-    "\u0004\t\u0004\u0004\u0005\t\u0005\u0004\u0006\t\u0006\u0004\u0007\t",
-    "\u0007\u0004\b\t\b\u0004\t\t\t\u0004\n\t\n\u0004\u000b\t\u000b\u0004",
-    "\f\t\f\u0004\r\t\r\u0004\u000e\t\u000e\u0003\u0002\u0007\u0002\u001e",
-    "\n\u0002\f\u0002\u000e\u0002!\u000b\u0002\u0003\u0002\u0007\u0002$\n",
-    "\u0002\f\u0002\u000e\u0002\'\u000b\u0002\u0003\u0002\u0003\u0002\u0003",
-    "\u0002\u0003\u0003\u0005\u0003-\n\u0003\u0003\u0003\u0003\u0003\u0006",
-    "\u00031\n\u0003\r\u0003\u000e\u00032\u0003\u0003\u0003\u0003\u0003\u0003",
-    "\u0005\u00038\n\u0003\u0003\u0003\u0003\u0003\u0006\u0003<\n\u0003\r",
-    "\u0003\u000e\u0003=\u0003\u0003\u0003\u0003\u0005\u0003B\n\u0003\u0003",
-    "\u0004\u0003\u0004\u0003\u0005\u0003\u0005\u0005\u0005H\n\u0005\u0003",
-    "\u0005\u0005\u0005K\n\u0005\u0003\u0005\u0003\u0005\u0003\u0005\u0007",
-    "\u0005P\n\u0005\f\u0005\u000e\u0005S\u000b\u0005\u0005\u0005U\n\u0005",
-    "\u0003\u0005\u0003\u0005\u0003\u0006\u0003\u0006\u0003\u0007\u0003\u0007",
-    "\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007",
-    "\u0003\u0007\u0003\u0007\u0003\u0007\u0005\u0007f\n\u0007\u0003\u0007",
-    "\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007",
-    "\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007",
-    "\u0003\u0007\u0003\u0007\u0005\u0007w\n\u0007\u0003\u0007\u0003\u0007",
-    "\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007",
-    "\u0003\u0007\u0003\u0007\u0003\u0007\u0003\u0007\u0005\u0007\u0085\n",
-    "\u0007\u0003\b\u0003\b\u0003\b\u0003\t\u0003\t\u0003\t\u0003\t\u0003",
-    "\t\u0003\n\u0003\n\u0003\n\u0003\n\u0003\n\u0003\n\u0003\n\u0003\n\u0003",
-    "\n\u0003\n\u0003\n\u0005\n\u009a\n\n\u0003\u000b\u0003\u000b\u0003\u000b",
-    "\u0003\u000b\u0003\f\u0003\f\u0003\f\u0003\f\u0003\r\u0003\r\u0003\r",
-    "\u0003\u000e\u0003\u000e\u0003\u000e\u0003\u000e\u0007\u000e\u00ab\n",
-    "\u000e\f\u000e\u000e\u000e\u00ae\u000b\u000e\u0003\u000e\u0003\u000e",
-    "\u0003\u000e\u0003\u000e\u0003\u000e\u0003\u000e\u0003\u000e\u0005\u000e",
-    "\u00b7\n\u000e\u0003\u000e\u0002\u0002\u000f\u0002\u0004\u0006\b\n\f",
-    "\u000e\u0010\u0012\u0014\u0016\u0018\u001a\u0002\u0002\u0002\u00c4\u0002",
-    "\u001f\u0003\u0002\u0002\u0002\u0004A\u0003\u0002\u0002\u0002\u0006",
-    "C\u0003\u0002\u0002\u0002\bE\u0003\u0002\u0002\u0002\nX\u0003\u0002",
-    "\u0002\u0002\f\u0084\u0003\u0002\u0002\u0002\u000e\u0086\u0003\u0002",
-    "\u0002\u0002\u0010\u0089\u0003\u0002\u0002\u0002\u0012\u0099\u0003\u0002",
-    "\u0002\u0002\u0014\u009b\u0003\u0002\u0002\u0002\u0016\u009f\u0003\u0002",
-    "\u0002\u0002\u0018\u00a3\u0003\u0002\u0002\u0002\u001a\u00b6\u0003\u0002",
-    "\u0002\u0002\u001c\u001e\u0007\u0012\u0002\u0002\u001d\u001c\u0003\u0002",
-    "\u0002\u0002\u001e!\u0003\u0002\u0002\u0002\u001f\u001d\u0003\u0002",
-    "\u0002\u0002\u001f \u0003\u0002\u0002\u0002 %\u0003\u0002\u0002\u0002",
-    "!\u001f\u0003\u0002\u0002\u0002\"$\u0005\u0004\u0003\u0002#\"\u0003",
-    "\u0002\u0002\u0002$\'\u0003\u0002\u0002\u0002%#\u0003\u0002\u0002\u0002",
-    "%&\u0003\u0002\u0002\u0002&(\u0003\u0002\u0002\u0002\'%\u0003\u0002",
-    "\u0002\u0002()\u0007\u0002\u0002\u0003)*\b\u0002\u0001\u0002*\u0003",
-    "\u0003\u0002\u0002\u0002+-\u0005\u0006\u0004\u0002,+\u0003\u0002\u0002",
-    "\u0002,-\u0003\u0002\u0002\u0002-.\u0003\u0002\u0002\u0002.0\u0005\b",
-    "\u0005\u0002/1\u0007\u0012\u0002\u00020/\u0003\u0002\u0002\u000212\u0003",
-    "\u0002\u0002\u000220\u0003\u0002\u0002\u000223\u0003\u0002\u0002\u0002",
-    "34\u0003\u0002\u0002\u000245\b\u0003\u0001\u00025B\u0003\u0002\u0002",
-    "\u000268\u0005\u0006\u0004\u000276\u0003\u0002\u0002\u000278\u0003\u0002",
-    "\u0002\u000289\u0003\u0002\u0002\u00029;\u0005\u001a\u000e\u0002:<\u0007",
-    "\u0012\u0002\u0002;:\u0003\u0002\u0002\u0002<=\u0003\u0002\u0002\u0002",
-    "=;\u0003\u0002\u0002\u0002=>\u0003\u0002\u0002\u0002>?\u0003\u0002\u0002",
-    "\u0002?@\b\u0003\u0001\u0002@B\u0003\u0002\u0002\u0002A,\u0003\u0002",
-    "\u0002\u0002A7\u0003\u0002\u0002\u0002B\u0005\u0003\u0002\u0002\u0002",
-    "CD\u0007\u0011\u0002\u0002D\u0007\u0003\u0002\u0002\u0002EG\u0005\n",
-    "\u0006\u0002FH\u0007\u0015\u0002\u0002GF\u0003\u0002\u0002\u0002GH\u0003",
-    "\u0002\u0002\u0002HJ\u0003\u0002\u0002\u0002IK\u0007\u0016\u0002\u0002",
-    "JI\u0003\u0002\u0002\u0002JK\u0003\u0002\u0002\u0002KT\u0003\u0002\u0002",
-    "\u0002LQ\u0005\f\u0007\u0002MN\u0007\u0004\u0002\u0002NP\u0005\f\u0007",
-    "\u0002OM\u0003\u0002\u0002\u0002PS\u0003\u0002\u0002\u0002QO\u0003\u0002",
-    "\u0002\u0002QR\u0003\u0002\u0002\u0002RU\u0003\u0002\u0002\u0002SQ\u0003",
-    "\u0002\u0002\u0002TL\u0003\u0002\u0002\u0002TU\u0003\u0002\u0002\u0002",
-    "UV\u0003\u0002\u0002\u0002VW\b\u0005\u0001\u0002W\t\u0003\u0002\u0002",
-    "\u0002XY\u0007\b\u0002\u0002Y\u000b\u0003\u0002\u0002\u0002Z[\u0005",
-    "\u000e\b\u0002[\\\u0005\u0010\t\u0002\\]\b\u0007\u0001\u0002]\u0085",
-    "\u0003\u0002\u0002\u0002^_\u0005\u000e\b\u0002_`\b\u0007\u0001\u0002",
-    "`\u0085\u0003\u0002\u0002\u0002ab\u0007\u0005\u0002\u0002bc\u0005\u000e",
-    "\b\u0002ce\u0007\u0004\u0002\u0002df\u0005\u0012\n\u0002ed\u0003\u0002",
-    "\u0002\u0002ef\u0003\u0002\u0002\u0002fg\u0003\u0002\u0002\u0002gh\u0007",
-    "\u0006\u0002\u0002hi\u0007\u0007\u0002\u0002ij\b\u0007\u0001\u0002j",
-    "\u0085\u0003\u0002\u0002\u0002kl\u0007\u0005\u0002\u0002lm\u0005\u000e",
-    "\b\u0002mn\u0007\u0006\u0002\u0002no\u0007\u0004\u0002\u0002op\u0005",
-    "\u0012\n\u0002pq\b\u0007\u0001\u0002q\u0085\u0003\u0002\u0002\u0002",
-    "rs\u0007\u0005\u0002\u0002sv\u0005\u000e\b\u0002tu\u0007\u0004\u0002",
-    "\u0002uw\u0005\u0012\n\u0002vt\u0003\u0002\u0002\u0002vw\u0003\u0002",
-    "\u0002\u0002wx\u0003\u0002\u0002\u0002xy\u0007\u0006\u0002\u0002yz\b",
-    "\u0007\u0001\u0002z\u0085\u0003\u0002\u0002\u0002{|\u0005\u0014\u000b",
-    "\u0002|}\b\u0007\u0001\u0002}\u0085\u0003\u0002\u0002\u0002~\u007f\u0005",
-    "\u0016\f\u0002\u007f\u0080\b\u0007\u0001\u0002\u0080\u0085\u0003\u0002",
-    "\u0002\u0002\u0081\u0082\u0005\u0018\r\u0002\u0082\u0083\b\u0007\u0001",
-    "\u0002\u0083\u0085\u0003\u0002\u0002\u0002\u0084Z\u0003\u0002\u0002",
-    "\u0002\u0084^\u0003\u0002\u0002\u0002\u0084a\u0003\u0002\u0002\u0002",
-    "\u0084k\u0003\u0002\u0002\u0002\u0084r\u0003\u0002\u0002\u0002\u0084",
-    "{\u0003\u0002\u0002\u0002\u0084~\u0003\u0002\u0002\u0002\u0084\u0081",
-    "\u0003\u0002\u0002\u0002\u0085\r\u0003\u0002\u0002\u0002\u0086\u0087",
-    "\u0007\t\u0002\u0002\u0087\u0088\b\b\u0001\u0002\u0088\u000f\u0003\u0002",
-    "\u0002\u0002\u0089\u008a\u0007\b\u0002\u0002\u008a\u008b\u0006\t\u0002",
-    "\u0003\u008b\u008c\u0007\n\u0002\u0002\u008c\u008d\u0007\f\u0002\u0002",
-    "\u008d\u0011\u0003\u0002\u0002\u0002\u008e\u008f\u0005\u000e\b\u0002",
-    "\u008f\u0090\b\n\u0001\u0002\u0090\u009a\u0003\u0002\u0002\u0002\u0091",
-    "\u0092\u0005\u000e\b\u0002\u0092\u0093\u0007\u0004\u0002\u0002\u0093",
-    "\u0094\u0005\u0010\t\u0002\u0094\u0095\b\n\u0001\u0002\u0095\u009a\u0003",
-    "\u0002\u0002\u0002\u0096\u0097\u0005\u0014\u000b\u0002\u0097\u0098\b",
-    "\n\u0001\u0002\u0098\u009a\u0003\u0002\u0002\u0002\u0099\u008e\u0003",
-    "\u0002\u0002\u0002\u0099\u0091\u0003\u0002\u0002\u0002\u0099\u0096\u0003",
-    "\u0002\u0002\u0002\u009a\u0013\u0003\u0002\u0002\u0002\u009b\u009c\u0007",
-    "\n\u0002\u0002\u009c\u009d\u0007\f\u0002\u0002\u009d\u009e\b\u000b\u0001",
-    "\u0002\u009e\u0015\u0003\u0002\u0002\u0002\u009f\u00a0\u0007\u000b\u0002",
-    "\u0002\u00a0\u00a1\u0007\f\u0002\u0002\u00a1\u00a2\b\f\u0001\u0002\u00a2",
-    "\u0017\u0003\u0002\u0002\u0002\u00a3\u00a4\u0007\u0011\u0002\u0002\u00a4",
-    "\u00a5\b\r\u0001\u0002\u00a5\u0019\u0003\u0002\u0002\u0002\u00a6\u00a7",
-    "\u0007\r\u0002\u0002\u00a7\u00ac\u0007\f\u0002\u0002\u00a8\u00a9\u0007",
-    "\u0004\u0002\u0002\u00a9\u00ab\u0007\f\u0002\u0002\u00aa\u00a8\u0003",
-    "\u0002\u0002\u0002\u00ab\u00ae\u0003\u0002\u0002\u0002\u00ac\u00aa\u0003",
-    "\u0002\u0002\u0002\u00ac\u00ad\u0003\u0002\u0002\u0002\u00ad\u00af\u0003",
-    "\u0002\u0002\u0002\u00ae\u00ac\u0003\u0002\u0002\u0002\u00af\u00b7\b",
-    "\u000e\u0001\u0002\u00b0\u00b1\u0007\u000e\u0002\u0002\u00b1\u00b2\u0007",
-    "\f\u0002\u0002\u00b2\u00b7\b\u000e\u0001\u0002\u00b3\u00b4\u0007\u000f",
-    "\u0002\u0002\u00b4\u00b5\u0007\f\u0002\u0002\u00b5\u00b7\b\u000e\u0001",
-    "\u0002\u00b6\u00a6\u0003\u0002\u0002\u0002\u00b6\u00b0\u0003\u0002\u0002",
-    "\u0002\u00b6\u00b3\u0003\u0002\u0002\u0002\u00b7\u001b\u0003\u0002\u0002",
-    "\u0002\u0013\u001f%,27=AGJQTev\u0084\u0099\u00ac\u00b6"].join("");
+const serializedATN = [4,1,21,183,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
+4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,
+1,0,5,0,28,8,0,10,0,12,0,31,9,0,1,0,5,0,34,8,0,10,0,12,0,37,9,0,1,0,1,0,
+1,0,1,1,3,1,43,8,1,1,1,1,1,4,1,47,8,1,11,1,12,1,48,1,1,1,1,1,1,3,1,54,8,
+1,1,1,1,1,4,1,58,8,1,11,1,12,1,59,1,1,1,1,3,1,64,8,1,1,2,1,2,1,3,1,3,3,3,
+70,8,3,1,3,3,3,73,8,3,1,3,1,3,1,3,5,3,78,8,3,10,3,12,3,81,9,3,3,3,83,8,3,
+1,3,1,3,1,4,1,4,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,100,8,5,
+1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,117,8,5,
+1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,131,8,5,1,6,1,6,1,6,
+1,7,1,7,1,7,1,7,1,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,1,8,3,8,152,
+8,8,1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,11,1,11,1,11,1,12,1,12,1,12,1,
+12,5,12,169,8,12,10,12,12,12,172,9,12,1,12,1,12,1,12,1,12,1,12,1,12,1,12,
+3,12,181,8,12,1,12,0,0,13,0,2,4,6,8,10,12,14,16,18,20,22,24,0,0,194,0,29,
+1,0,0,0,2,63,1,0,0,0,4,65,1,0,0,0,6,67,1,0,0,0,8,86,1,0,0,0,10,130,1,0,0,
+0,12,132,1,0,0,0,14,135,1,0,0,0,16,151,1,0,0,0,18,153,1,0,0,0,20,157,1,0,
+0,0,22,161,1,0,0,0,24,180,1,0,0,0,26,28,5,16,0,0,27,26,1,0,0,0,28,31,1,0,
+0,0,29,27,1,0,0,0,29,30,1,0,0,0,30,35,1,0,0,0,31,29,1,0,0,0,32,34,3,2,1,
+0,33,32,1,0,0,0,34,37,1,0,0,0,35,33,1,0,0,0,35,36,1,0,0,0,36,38,1,0,0,0,
+37,35,1,0,0,0,38,39,5,0,0,1,39,40,6,0,-1,0,40,1,1,0,0,0,41,43,3,4,2,0,42,
+41,1,0,0,0,42,43,1,0,0,0,43,44,1,0,0,0,44,46,3,6,3,0,45,47,5,16,0,0,46,45,
+1,0,0,0,47,48,1,0,0,0,48,46,1,0,0,0,48,49,1,0,0,0,49,50,1,0,0,0,50,51,6,
+1,-1,0,51,64,1,0,0,0,52,54,3,4,2,0,53,52,1,0,0,0,53,54,1,0,0,0,54,55,1,0,
+0,0,55,57,3,24,12,0,56,58,5,16,0,0,57,56,1,0,0,0,58,59,1,0,0,0,59,57,1,0,
+0,0,59,60,1,0,0,0,60,61,1,0,0,0,61,62,6,1,-1,0,62,64,1,0,0,0,63,42,1,0,0,
+0,63,53,1,0,0,0,64,3,1,0,0,0,65,66,5,15,0,0,66,5,1,0,0,0,67,69,3,8,4,0,68,
+70,5,19,0,0,69,68,1,0,0,0,69,70,1,0,0,0,70,72,1,0,0,0,71,73,5,20,0,0,72,
+71,1,0,0,0,72,73,1,0,0,0,73,82,1,0,0,0,74,79,3,10,5,0,75,76,5,2,0,0,76,78,
+3,10,5,0,77,75,1,0,0,0,78,81,1,0,0,0,79,77,1,0,0,0,79,80,1,0,0,0,80,83,1,
+0,0,0,81,79,1,0,0,0,82,74,1,0,0,0,82,83,1,0,0,0,83,84,1,0,0,0,84,85,6,3,
+-1,0,85,7,1,0,0,0,86,87,5,6,0,0,87,9,1,0,0,0,88,89,3,12,6,0,89,90,3,14,7,
+0,90,91,6,5,-1,0,91,131,1,0,0,0,92,93,3,12,6,0,93,94,6,5,-1,0,94,131,1,0,
+0,0,95,96,5,3,0,0,96,97,3,12,6,0,97,99,5,2,0,0,98,100,3,16,8,0,99,98,1,0,
+0,0,99,100,1,0,0,0,100,101,1,0,0,0,101,102,5,4,0,0,102,103,5,5,0,0,103,104,
+6,5,-1,0,104,131,1,0,0,0,105,106,5,3,0,0,106,107,3,12,6,0,107,108,5,4,0,
+0,108,109,5,2,0,0,109,110,3,16,8,0,110,111,6,5,-1,0,111,131,1,0,0,0,112,
+113,5,3,0,0,113,116,3,12,6,0,114,115,5,2,0,0,115,117,3,16,8,0,116,114,1,
+0,0,0,116,117,1,0,0,0,117,118,1,0,0,0,118,119,5,4,0,0,119,120,6,5,-1,0,120,
+131,1,0,0,0,121,122,3,18,9,0,122,123,6,5,-1,0,123,131,1,0,0,0,124,125,3,
+20,10,0,125,126,6,5,-1,0,126,131,1,0,0,0,127,128,3,22,11,0,128,129,6,5,-1,
+0,129,131,1,0,0,0,130,88,1,0,0,0,130,92,1,0,0,0,130,95,1,0,0,0,130,105,1,
+0,0,0,130,112,1,0,0,0,130,121,1,0,0,0,130,124,1,0,0,0,130,127,1,0,0,0,131,
+11,1,0,0,0,132,133,5,7,0,0,133,134,6,6,-1,0,134,13,1,0,0,0,135,136,5,6,0,
+0,136,137,4,7,0,1,137,138,5,8,0,0,138,139,5,10,0,0,139,15,1,0,0,0,140,141,
+3,12,6,0,141,142,6,8,-1,0,142,152,1,0,0,0,143,144,3,12,6,0,144,145,5,2,0,
+0,145,146,3,14,7,0,146,147,6,8,-1,0,147,152,1,0,0,0,148,149,3,18,9,0,149,
+150,6,8,-1,0,150,152,1,0,0,0,151,140,1,0,0,0,151,143,1,0,0,0,151,148,1,0,
+0,0,152,17,1,0,0,0,153,154,5,8,0,0,154,155,5,10,0,0,155,156,6,9,-1,0,156,
+19,1,0,0,0,157,158,5,9,0,0,158,159,5,10,0,0,159,160,6,10,-1,0,160,21,1,0,
+0,0,161,162,5,15,0,0,162,163,6,11,-1,0,163,23,1,0,0,0,164,165,5,11,0,0,165,
+170,5,10,0,0,166,167,5,2,0,0,167,169,5,10,0,0,168,166,1,0,0,0,169,172,1,
+0,0,0,170,168,1,0,0,0,170,171,1,0,0,0,171,173,1,0,0,0,172,170,1,0,0,0,173,
+181,6,12,-1,0,174,175,5,12,0,0,175,176,5,10,0,0,176,181,6,12,-1,0,177,178,
+5,13,0,0,178,179,5,10,0,0,179,181,6,12,-1,0,180,164,1,0,0,0,180,174,1,0,
+0,0,180,177,1,0,0,0,181,25,1,0,0,0,17,29,35,42,48,53,59,63,69,72,79,82,99,
+116,130,151,170,180];
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
 
 const decisionsToDFA = atn.decisionToState.map( (ds, index) => new antlr4.dfa.DFA(ds, index) );
 
-const sharedContextCache = new antlr4.PredictionContextCache();
+const sharedContextCache = new antlr4.atn.PredictionContextCache();
 
 export default class ARM32Parser extends antlr4.Parser {
 
@@ -149,10 +90,6 @@ export default class ARM32Parser extends antlr4.Parser {
         this.symbolicNames = ARM32Parser.symbolicNames;
     }
 
-    get atn() {
-        return atn;
-    }
-
     sempred(localctx, ruleIndex, predIndex) {
     	switch(ruleIndex) {
     	case 7:
@@ -165,7 +102,7 @@ export default class ARM32Parser extends antlr4.Parser {
     flexOperandSpec_sempred(localctx, predIndex) {
     	switch(predIndex) {
     		case 0:
-    			return ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op===null ? null : localctx.op.text)) >= 0;
+    			return ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text)) >= 0;
     		default:
     			throw "No predicate with index:" + predIndex;
     	}
@@ -177,13 +114,13 @@ export default class ARM32Parser extends antlr4.Parser {
 	program() {
 	    let localctx = new ProgramContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 0, ARM32Parser.RULE_program);
-	    var _la = 0; // Token type
+	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 29;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while(_la===ARM32Parser.NL) {
+	        while(_la===16) {
 	            this.state = 26;
 	            this.match(ARM32Parser.NL);
 	            this.state = 31;
@@ -193,7 +130,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 35;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ARM32Parser.OPCODE) | (1 << ARM32Parser.DCD) | (1 << ARM32Parser.EQU) | (1 << ARM32Parser.FILL) | (1 << ARM32Parser.ID))) !== 0)) {
+	        while((((_la) & ~0x1f) === 0 && ((1 << _la) & 47168) !== 0)) {
 	            this.state = 32;
 	            localctx._line = this.line();
 	            localctx.lines.push(localctx._line);
@@ -225,7 +162,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	line() {
 	    let localctx = new LineContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 2, ARM32Parser.RULE_line);
-	    var _la = 0; // Token type
+	    var _la = 0;
 	    try {
 	        this.state = 63;
 	        this._errHandler.sync(this);
@@ -236,7 +173,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 42;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===ARM32Parser.ID) {
+	            if(_la===15) {
 	                this.state = 41;
 	                localctx.lab = this.label();
 	            }
@@ -252,9 +189,9 @@ export default class ARM32Parser extends antlr4.Parser {
 	                this.state = 48; 
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
-	            } while(_la===ARM32Parser.NL);
+	            } while(_la===16);
 
-	                    localctx.l =  new AST.Line((localctx.lab===null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.inst.i)
+	                    localctx.l =  new AST.Line((localctx.lab == null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.inst.i)
 	                
 	            break;
 
@@ -263,7 +200,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 53;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===ARM32Parser.ID) {
+	            if(_la===15) {
 	                this.state = 52;
 	                localctx.lab = this.label();
 	            }
@@ -279,9 +216,9 @@ export default class ARM32Parser extends antlr4.Parser {
 	                this.state = 59; 
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
-	            } while(_la===ARM32Parser.NL);
+	            } while(_la===16);
 
-	                    localctx.l =  new AST.Line((localctx.lab===null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.dir.d);
+	                    localctx.l =  new AST.Line((localctx.lab == null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.dir.d);
 	                
 	            break;
 
@@ -328,7 +265,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	instruction() {
 	    let localctx = new InstructionContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 6, ARM32Parser.RULE_instruction);
-	    var _la = 0; // Token type
+	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
 	        this.state = 67;
@@ -336,7 +273,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 69;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===ARM32Parser.S) {
+	        if(_la===19) {
 	            this.state = 68;
 	            localctx.s = this.match(ARM32Parser.S);
 	        }
@@ -344,7 +281,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 72;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===ARM32Parser.COND) {
+	        if(_la===20) {
 	            this.state = 71;
 	            localctx.cond = this.match(ARM32Parser.COND);
 	        }
@@ -352,14 +289,14 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 82;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if((((_la) & ~0x1f) == 0 && ((1 << _la) & ((1 << ARM32Parser.LBRACK) | (1 << ARM32Parser.REGISTER) | (1 << ARM32Parser.POUND) | (1 << ARM32Parser.EQUALS) | (1 << ARM32Parser.ID))) !== 0)) {
+	        if((((_la) & ~0x1f) === 0 && ((1 << _la) & 33672) !== 0)) {
 	            this.state = 74;
 	            localctx._operand = this.operand();
 	            localctx.operands.push(localctx._operand);
 	            this.state = 79;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            while(_la===ARM32Parser.COMMA) {
+	            while(_la===2) {
 	                this.state = 75;
 	                this.match(ARM32Parser.COMMA);
 	                this.state = 76;
@@ -372,7 +309,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        }
 
 
-	                localctx.i =  new AST.Instruction((localctx.op===null ? null : this._input.getText(new antlr4.Interval(localctx.op.start,localctx.op.stop))), (localctx.s===null ? null : localctx.s.text) || '', (localctx.cond===null ? null : localctx.cond.text) || '', localctx.operands.map(o => o.op));
+	                localctx.i =  new AST.Instruction((localctx.op == null ? null : this._input.getText(new antlr4.Interval(localctx.op.start,localctx.op.stop))), (localctx.s == null ? null : localctx.s.text) || '', (localctx.cond == null ? null : localctx.cond.text) || '', localctx.operands.map(o => o.op));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -416,7 +353,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	operand() {
 	    let localctx = new OperandContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 10, ARM32Parser.RULE_operand);
-	    var _la = 0; // Token type
+	    var _la = 0;
 	    try {
 	        this.state = 130;
 	        this._errHandler.sync(this);
@@ -453,7 +390,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 99;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===ARM32Parser.REGISTER || _la===ARM32Parser.POUND) {
+	            if(_la===7 || _la===8) {
 	                this.state = 98;
 	                localctx.o = this.offset();
 	            }
@@ -493,7 +430,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 116;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===ARM32Parser.COMMA) {
+	            if(_la===2) {
 	                this.state = 114;
 	                this.match(ARM32Parser.COMMA);
 	                this.state = 115;
@@ -559,7 +496,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 132;
 	        localctx.r = this.match(ARM32Parser.REGISTER);
 
-	                localctx.reg =  new AST.Register((localctx.r===null ? null : localctx.r.text));
+	                localctx.reg =  new AST.Register((localctx.r == null ? null : localctx.r.text));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -585,7 +522,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 135;
 	        localctx.op = this.match(ARM32Parser.OPCODE);
 	        this.state = 136;
-	        if (!( ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op===null ? null : localctx.op.text)) >= 0)) {
+	        if (!( ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text)) >= 0)) {
 	            throw new antlr4.error.FailedPredicateException(this, "['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0");
 	        }
 	        this.state = 137;
@@ -674,7 +611,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 154;
 	        localctx.v = this.match(ARM32Parser.INT);
 
-	                localctx.value =  new AST.Immediate(parseInt((localctx.v===null ? null : localctx.v.text)));
+	                localctx.value =  new AST.Immediate(parseInt((localctx.v == null ? null : localctx.v.text)));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -702,7 +639,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 158;
 	        localctx.v = this.match(ARM32Parser.INT);
 
-	                localctx.value =  new AST.PseudoImmediate(parseInt((localctx.v===null ? null : localctx.v.text)));
+	                localctx.value =  new AST.PseudoImmediate(parseInt((localctx.v == null ? null : localctx.v.text)));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -728,7 +665,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 161;
 	        localctx.t = this.match(ARM32Parser.ID);
 
-	                localctx.text =  (localctx.t===null ? null : localctx.t.text);
+	                localctx.text =  (localctx.t == null ? null : localctx.t.text);
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -749,12 +686,12 @@ export default class ARM32Parser extends antlr4.Parser {
 	directive() {
 	    let localctx = new DirectiveContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 24, ARM32Parser.RULE_directive);
-	    var _la = 0; // Token type
+	    var _la = 0;
 	    try {
 	        this.state = 180;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case ARM32Parser.DCD:
+	        case 11:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 164;
 	            this.match(ARM32Parser.DCD);
@@ -765,7 +702,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 170;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            while(_la===ARM32Parser.COMMA) {
+	            while(_la===2) {
 	                this.state = 166;
 	                this.match(ARM32Parser.COMMA);
 	                this.state = 167;
@@ -779,24 +716,24 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.DCD(localctx.values.map(s => parseInt(s.text)));
 	                
 	            break;
-	        case ARM32Parser.EQU:
+	        case 12:
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 174;
 	            this.match(ARM32Parser.EQU);
 	            this.state = 175;
 	            localctx.value = this.match(ARM32Parser.INT);
 
-	                    localctx.d =  new AST.EquateDirective(parseInt((localctx.value===null ? null : localctx.value.text)));
+	                    localctx.d =  new AST.EquateDirective(parseInt((localctx.value == null ? null : localctx.value.text)));
 	                
 	            break;
-	        case ARM32Parser.FILL:
+	        case 13:
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 177;
 	            this.match(ARM32Parser.FILL);
 	            this.state = 178;
 	            localctx.value = this.match(ARM32Parser.INT);
 
-	                    localctx.d =  new AST.FillDirective(parseInt((localctx.value===null ? null : localctx.value.text)));
+	                    localctx.d =  new AST.FillDirective(parseInt((localctx.value == null ? null : localctx.value.text)));
 	                
 	            break;
 	        default:
@@ -869,8 +806,8 @@ class ProgramContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_program;
         this.p = null
-        this._line = null; // LineContext
-        this.lines = []; // of LineContexts
+        this._line = null;
+        this.lines = [];
     }
 
 	EOF() {
@@ -918,9 +855,9 @@ class LineContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_line;
         this.l = null
-        this.lab = null; // LabelContext
-        this.inst = null; // InstructionContext
-        this.dir = null; // DirectiveContext
+        this.lab = null;
+        this.inst = null;
+        this.dir = null;
     }
 
 	instruction() {
@@ -988,11 +925,11 @@ class InstructionContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_instruction;
         this.i = null
-        this.op = null; // OpcodeContext
-        this.s = null; // Token
-        this.cond = null; // Token
-        this._operand = null; // OperandContext
-        this.operands = []; // of OperandContexts
+        this.op = null;
+        this.s = null;
+        this.cond = null;
+        this._operand = null;
+        this.operands = [];
     }
 
 	opcode() {
@@ -1071,12 +1008,12 @@ class OperandContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_operand;
         this.op = null
-        this.r = null; // RegisterContext
-        this.f = null; // FlexOperandSpecContext
-        this.o = null; // OffsetContext
-        this.i = null; // ImmediateContext
-        this.pi = null; // PseudoImmediateContext
-        this.s = null; // SymbolContext
+        this.r = null;
+        this.f = null;
+        this.o = null;
+        this.i = null;
+        this.pi = null;
+        this.s = null;
     }
 
 	register() {
@@ -1137,7 +1074,7 @@ class RegisterContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_register;
         this.reg = null
-        this.r = null; // Token
+        this.r = null;
     }
 
 	REGISTER() {
@@ -1161,8 +1098,8 @@ class FlexOperandSpecContext extends antlr4.ParserRuleContext {
         super(parent, invokingState);
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_flexOperandSpec;
-        this.op = null; // Token
-        this.amount = null; // Token
+        this.op = null;
+        this.amount = null;
     }
 
 	POUND() {
@@ -1195,9 +1132,9 @@ class OffsetContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_offset;
         this.off = null
-        this.r = null; // RegisterContext
-        this.f = null; // FlexOperandSpecContext
-        this.i = null; // ImmediateContext
+        this.r = null;
+        this.f = null;
+        this.i = null;
     }
 
 	register() {
@@ -1234,7 +1171,7 @@ class ImmediateContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_immediate;
         this.value = null
-        this.v = null; // Token
+        this.v = null;
     }
 
 	POUND() {
@@ -1263,7 +1200,7 @@ class PseudoImmediateContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_pseudoImmediate;
         this.value = null
-        this.v = null; // Token
+        this.v = null;
     }
 
 	EQUALS() {
@@ -1292,7 +1229,7 @@ class SymbolContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_symbol;
         this.text = null
-        this.t = null; // Token
+        this.t = null;
     }
 
 	ID() {
@@ -1317,9 +1254,9 @@ class DirectiveContext extends antlr4.ParserRuleContext {
         this.parser = parser;
         this.ruleIndex = ARM32Parser.RULE_directive;
         this.d = null
-        this._INT = null; // Token
-        this.values = []; // of Tokens
-        this.value = null; // Token
+        this._INT = null;
+        this.values = [];
+        this.value = null;
     }
 
 	DCD() {
