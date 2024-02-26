@@ -41,11 +41,14 @@ import { realize } from './arm32sim/Realizer.js';
     console.log('Worker: adding event listener (' + counter.count() + ')');
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
+        console.debug('Worker received message: ');
+        console.debug(e.data);
         if (e.data.command === 'parse') {
             handleParseMessage(e.data.params);
-        } if (e.data.command === 'run') {
+        } else if (e.data.command === 'run') {
             handleRunMessage(e.data.params);
-        }
+        } else if (e.data.command === 'stop')
+            console.log('Received stop message');
     });
 
     function parse(code) {

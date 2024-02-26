@@ -311,14 +311,14 @@ export class DataProcessingInstruction extends Instruction {
     }
 
     static fromCode(word) {
-        console.log("DataProcessingInstruction.fromCode()");
+        //console.log("DataProcessingInstruction.fromCode()");
         const fieldValues = decodeFieldValues(word, DataProcessingInstruction._format);
         return new DataProcessingInstruction(fieldValues);
     }
 }
 
 registerInstructionDecoder(code => {
-    console.debug("Opcode " + new Bitfield(4, 21).get(code).toString(2));
+    //console.debug("Opcode " + new Bitfield(4, 21).get(code).toString(2));
     return null;
 });
 

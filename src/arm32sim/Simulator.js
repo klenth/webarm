@@ -22,6 +22,9 @@ class UnimplementedException {
 }
 
 export function step(state) {
+    if (state.numSteps >= 1_000_000) {
+        return state;
+    }
     const newState = state.clone();
     ++newState.numSteps;
     const pc = newState.getPC();
@@ -96,7 +99,7 @@ function execute(instrCode, state) {
         console.error("Error decoding instruction: " + instrCode.toString(16));
         return;
     }
-    console.log("Executing " + instr.mnemonic());
+    //console.log("Executing " + instr.mnemonic());
 
     if (instr instanceof DataProcessingInstruction) {
         executeDataProcessingInstruction(state, instr);
@@ -189,7 +192,6 @@ function executeDataProcessingInstruction(state, instr) {
         const Rotate = new Bitfield(4, 8).get(Operand2);
         const Imm = new Bitfield(8, 0).get(Operand2);
         const rotatedOperand = rotateRight(Imm, 2 * Rotate);
-        console.debug('rotatedOperand = ' + rotatedOperand + ', Imm = ' + Imm);
         // TODO: handle carry in
         result = evaluate(RnValue, rotatedOperand, state.C);
         if (S === 0b1)
@@ -218,17 +220,17 @@ function executeDataProcessingInstruction(state, instr) {
 
     result &= 0xffff_ffff;
 
-    console.debug('result = ' + result);
+    //console.debug('result = ' + result);
     if ((OpCode & 0b1100) !== 0b1000) {
-        console.debug('    saving in R' + Rd);
+        //console.debug('    saving in R' + Rd);
         // The instruction is not TST, TEQ, CMP, or CMN - the value goes into Rd
         state.registers[Rd] = result;
     }
 
-    console.debug('S = ', S);
+    //console.debug('S = ', S);
     // TODO: handle logical operation status bits correctly
     if (S) {
-        console.debug('Updating condition codes');
+        //console.debug('Updating condition codes');
         state.N = (result >>> 31) & 1;
         state.Z = (result === 0) ? 1 : 0;
 

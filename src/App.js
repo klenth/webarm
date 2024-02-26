@@ -59,8 +59,9 @@ class App extends React.Component {
                     <button
                         onClick={() => this.handleRun()}
                     >Run</button>
-                    <button>Stop</button>
-                    <button>Reset</button>
+                    <button
+                        onClick={() => this.handleStop()}
+                    >Stop</button>
                 </Controls>
                 <Center>
                     <Editor
@@ -116,6 +117,13 @@ class App extends React.Component {
             params: {
                 code: this.state.code,
             },
+        });
+    }
+
+    handleStop() {
+        console.log('Posting stop message to worker');
+        simWorker.postMessage({
+            command: 'stop',
         });
     }
 
