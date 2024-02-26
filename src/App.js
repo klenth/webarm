@@ -6,6 +6,7 @@ import * as AST from './grammar/arm32Ast';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import './App.css';
 import NzcvDisplay from './components/NzcvDisplay';
+import 'ace-builds/src-noconflict/mode-text';
 
 const Controls = styled.div`
   text-align: right;
@@ -66,6 +67,7 @@ class App extends React.Component {
                         value={this.state.code}
                         fontSize={24}
                         onChange={(s) => this.handleCodeChange(s)}
+                        mode={'text'}
                     />
                     <Registers>
                         {registers}

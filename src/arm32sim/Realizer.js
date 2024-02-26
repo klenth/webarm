@@ -81,38 +81,6 @@ function parseCond(cond) {
     }
 }
 
-function handleIntegerTestCompareInstruction(i) {
-    const spec = operandSpec(i.operands);
-
-    const cond = 0b0000;
-    const opc = (i.opcode === 'TST') ?  0b00
-        : (i.opcode === 'TEQ') ?        0b01
-        : (i.opcode === 'CMP') ?        0b10
-        : (i.opcode === 'CMN') ?        0b11
-        : null;
-
-    if (spec === "RI") {
-        return new I.IntegerTestCompareImmediateInstruction({
-            cond: cond,
-            opc: opc,
-            Rn: i.operands[0].number(),
-            imm12: i.operands[1].value,
-        });
-    } else if (spec === "RR") {
-        return new I.IntegerTestCompareRegisterInstruction({
-            cond: cond,
-            opc: opc,
-            Rn: i.operands[0].number(),
-            imm5: 0b00000,
-            stype: 0b00,
-            Rm: i.operands[1].number(),
-        });
-    } else if (spec === "RRf") {
-        throw "Not yet handled";
-    } else
-        throw "Invalid operands: " + spec;
-}
-
 function handleIntegerDataProcessingInstruction(i) {
     const OpCode = i.opcode;
     const S = i.s;
