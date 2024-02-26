@@ -95,7 +95,7 @@ returns [AstNode off]
 immediate
 returns [Immediate value]
     : POUND v=INT {
-        $value = new AST.Immediate(parseInt($v.text));;
+        $value = new AST.Immediate($v.text);;
     }
     ;
 

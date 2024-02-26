@@ -23,6 +23,7 @@ class UnimplementedException {
 
 export function step(state) {
     const newState = state.clone();
+    ++newState.numSteps;
     const pc = newState.getPC();
     newState.advancePC();
     const instr = state.memory.readWord(pc);

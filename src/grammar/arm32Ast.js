@@ -242,17 +242,27 @@ export class PostindexedOperand extends AstNode {
 }
 
 export class Immediate extends AstNode {
-    constructor(value) {
+    constructor(text) {
         super('immediate');
-        this.value = value;
+        this.text = text;
     }
 
     toString() {
-        return 'immediate [' + this.value + ']';
+        return 'immediate [' + this.text + ']';
+    }
+
+    get value() {
+        const text = this.text.replaceAll("_", "").toLowerCase();
+        if (text.startsWith("0x"))
+            return parseInt(text.slice(2), 16);
+        else if (text.startsWith("0b"))
+            return parseInt(text.slice(2), 2);
+        else
+            return parseInt(text, 10);
     }
 
     static reconstruct(o) {
-        return new Immediate(o.value);
+        return new Immediate(o.text);
     }
 }
 
