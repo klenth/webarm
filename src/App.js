@@ -45,7 +45,7 @@ class App extends React.Component {
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
-                label={'R' + i}
+                label={(i === 13) ? 'SP' : (i === 14) ? 'LR' : (i === 15) ? 'PC' : 'R' + i}
                 value={stateRegisters[i]}
             />
         ));
