@@ -150,7 +150,7 @@ function handleIntegerDataProcessingInstruction(i) {
         return new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
-            I: 0b0,
+            I: 0b1,
             OpCode: opc,
             S: Sbit,
             Rn: +i.operands[1].number(),
@@ -184,6 +184,19 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: 0,
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[1].number()
+        });
+    } else if (spec === 'RI'
+            && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
+        // No Rn
+        return new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b1,
+            OpCode: opc,
+            S: Sbit,
+            Rn: 0,
+            Rd: +i.operands[0].number(),
+            Operand2: +i.operands[1].value & 0xff
         });
     } else
         throw "Invalid operands: " + spec;
