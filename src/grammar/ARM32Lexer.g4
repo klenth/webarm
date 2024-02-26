@@ -35,7 +35,6 @@ REGISTER
     | 'SP'
     | 'LR'
     | 'PC'
-    | 'BL'
     ;
 
 POUND

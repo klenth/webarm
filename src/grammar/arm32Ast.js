@@ -144,7 +144,16 @@ export class Register extends AstNode {
     }
 
     number() {
-        return parseInt(this.name.slice(1));
+        switch (this.name) {
+            case 'SP':
+                return 13;
+            case 'LR':
+                return 14;
+            case 'PC':
+                return 15;
+            default:
+                return parseInt(this.name.slice(1));
+        }
     }
 }
 
