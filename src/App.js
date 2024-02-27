@@ -41,12 +41,12 @@ class App extends React.Component {
             code: '',
             simulatorState: new SimulatorState(),
             message: '',
+            state: '',
         };
     }
 
     render() {
         const stateRegisters = this.state.simulatorState.registers || [];
-        console.log(this.state);
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
@@ -55,18 +55,30 @@ class App extends React.Component {
             />
         ));
 
+        const parseButton = (
+            <button
+                onClick={() => this.handleParse()}
+            >Parse</button>
+        );
+        const runButton = (
+            <button
+                onClick={() => this.handleRun()}
+            >Run</button>
+        );
+        const stopButton = (
+            <button
+                onClick={() => this.handleStop()}
+            >Stop</button>
+        );
+
+        const buttons = (this.state.state === '') ? [ parseButton, runButton ]
+            : (this.state.state === 'running') ? [ stopButton ]
+            : [];
+
         return (
             <div className="App">
                 <Controls>
-                    <button
-                        onClick={() => this.handleParse()}
-                    >Parse</button>
-                    <button
-                        onClick={() => this.handleRun()}
-                    >Run</button>
-                    <button
-                        onClick={() => this.handleStop()}
-                    >Stop</button>
+                    {buttons}
                 </Controls>
                 <Center>
                     <Editor
@@ -89,6 +101,11 @@ class App extends React.Component {
                 <MessageDisplay>{this.state.message}</MessageDisplay>
             </div>
         );
+    }
+
+    updateState(changedProperties) {
+        const newState = { ...this.state, ...changedProperties };
+        this.setState(newState);
     }
 
     getWorker() {
@@ -116,9 +133,7 @@ class App extends React.Component {
     }
 
     handleCodeChange(s) {
-        const newState = Object.assign({}, this.state);
-        newState.code = s;
-        this.setState(newState);
+        this.updateState({ code: s });
     }
 
     handleParse() {
@@ -131,7 +146,7 @@ class App extends React.Component {
     }
 
     handleRun() {
-        console.log('Posting message to worker');
+        this.updateState({ state: 'running' });
         this.getWorker().postMessage({
             command: 'run',
             params: {
@@ -141,17 +156,19 @@ class App extends React.Component {
 
         workerTimeout = window.setTimeout(() => {
             this.stopWorker();
-            const newState = { ...this.state };
-            newState.message = "Execution halted (appeared to be stuck in a loop)";
-            this.setState(newState);
+            this.updateState({
+                message: "Execution halted (appeared to be stuck in a loop)",
+                state: '',
+            });
         }, 5000);
     }
 
     handleStop() {
         this.stopWorker();
-        const newState = { ...this.state };
-        newState.message = "Execution halted (stop button pushed)";
-        this.setState(newState);
+        this.updateState({
+            message: "Execution halted (stop button pushed)",
+            state: '',
+        });
     }
 
     handleParseComplete(data) {
@@ -169,10 +186,10 @@ class App extends React.Component {
         if (data.status === 'complete') {
             if (workerTimeout)
                 clearTimeout(workerTimeout);
-            const newState = { ...this.state };
-            newState.simulatorState = SimulatorState.reconstruct(data.finalState);
-            console.log(data.finalState);
-            this.setState(newState);
+            this.updateState({
+                simulatorState: SimulatorState.reconstruct(data.finalState),
+                state: '',
+            });
         }
     }
 }
