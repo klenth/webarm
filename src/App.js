@@ -23,10 +23,14 @@ const Center = styled.div`
 
 const Editor = styled(AceEditor)`
   flex-grow: 1;
+  height: 100%;
 `;
 
 const Registers = styled.div`
   flex-grow: 0;
+`;
+
+const MessageDisplay = styled.div`
 `;
 
 class App extends React.Component {
@@ -36,6 +40,7 @@ class App extends React.Component {
         this.state = {
             code: '',
             simulatorState: new SimulatorState(),
+            message: '',
         };
     }
 
@@ -69,6 +74,7 @@ class App extends React.Component {
                         fontSize={24}
                         onChange={(s) => this.handleCodeChange(s)}
                         mode={'text'}
+                        height={'inherit'}
                     />
                     <Registers>
                         {registers}
@@ -80,19 +86,33 @@ class App extends React.Component {
                         />
                     </Registers>
                 </Center>
+                <MessageDisplay>{this.state.message}</MessageDisplay>
             </div>
         );
     }
 
-    componentDidMount() {
-        simWorker = new Worker(new URL('./simWorker.js', import.meta.url));
-        simWorker.addEventListener('message', e => {
-            console.log('Received message from worker');
-            if (e.data.command === 'parse')
-                this.handleParseComplete(e.data);
-            else if (e.data.command === 'run')
-                this.handleRunComplete(e.data);
-        });
+    getWorker() {
+        if (!simWorker) {
+            simWorker = new Worker(new URL('./simWorker.js', import.meta.url));
+            simWorker.addEventListener('message', e => {
+                console.log('Received message from worker');
+                if (e.data.command === 'parse')
+                    this.handleParseComplete(e.data);
+                else if (e.data.command === 'run')
+                    this.handleRunComplete(e.data);
+            });
+        }
+
+        return simWorker;
+    }
+
+    stopWorker() {
+        if (simWorker)
+            simWorker.terminate();
+        if (workerTimeout)
+            clearTimeout(workerTimeout);
+
+        simWorker = null;
     }
 
     handleCodeChange(s) {
@@ -102,7 +122,7 @@ class App extends React.Component {
     }
 
     handleParse() {
-        simWorker.postMessage({
+        this.getWorker().postMessage({
             command: 'parse',
             params: {
                 code: this.state.code,
@@ -112,19 +132,26 @@ class App extends React.Component {
 
     handleRun() {
         console.log('Posting message to worker');
-        simWorker.postMessage({
+        this.getWorker().postMessage({
             command: 'run',
             params: {
                 code: this.state.code,
             },
         });
+
+        workerTimeout = window.setTimeout(() => {
+            this.stopWorker();
+            const newState = { ...this.state };
+            newState.message = "Execution halted (appeared to be stuck in a loop)";
+            this.setState(newState);
+        }, 5000);
     }
 
     handleStop() {
-        console.log('Posting stop message to worker');
-        simWorker.postMessage({
-            command: 'stop',
-        });
+        this.stopWorker();
+        const newState = { ...this.state };
+        newState.message = "Execution halted (stop button pushed)";
+        this.setState(newState);
     }
 
     handleParseComplete(data) {
@@ -140,6 +167,8 @@ class App extends React.Component {
 
     handleRunComplete(data) {
         if (data.status === 'complete') {
+            if (workerTimeout)
+                clearTimeout(workerTimeout);
             const newState = { ...this.state };
             newState.simulatorState = SimulatorState.reconstruct(data.finalState);
             console.log(data.finalState);
@@ -149,5 +178,6 @@ class App extends React.Component {
 }
 
 let simWorker = null;
+let workerTimeout = null;
 
 export default App;
