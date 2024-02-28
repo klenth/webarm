@@ -43,7 +43,7 @@ opcode
 operand
 returns [AstNode op]
     : r=register f=flexOperandSpec {
-        $op = new AST.FlexOperand($r.reg, $f.ctx.op.text, parseInt($f.ctx.amount.text));;
+        $op = new AST.FlexOperand($r.reg, $f.ctx.op.text, $f.ctx.amount !== null ? $f.ctx.amount.text : null, $f.ctx.register() !== null ? $f.ctx.register().reg : null);;
     }
     | r=register {
         $op = $r.reg;;
@@ -77,6 +77,7 @@ returns [Register reg]
 
 flexOperandSpec
     : op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0}? POUND amount=INT
+    | op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0}? register
     ;
 
 offset

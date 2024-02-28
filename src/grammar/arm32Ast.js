@@ -1,3 +1,13 @@
+function parseImmediate(text) {
+    text = text.replaceAll("_", "").toLowerCase();
+    if (text.startsWith("0x"))
+        return parseInt(text.slice(2), 16);
+    else if (text.startsWith("0b"))
+        return parseInt(text.slice(2), 2);
+    else
+        return parseInt(text, 10);
+}
+
 export class AstNode {
     constructor(name) {
         this.name = name;
@@ -158,23 +168,41 @@ export class Register extends AstNode {
 }
 
 export class FlexOperand extends AstNode {
-    constructor(register, shift, amount) {
+    constructor(register, shift, amountImmediate, amountRegister) {
         super('flex');
         this.register = register;
         this.shift = shift;
-        this.amount = amount;
+        if (!amountImmediate && !amountRegister)
+            throw "Exactly one of amountImmediate and amountRegister should be specified";
+        this.amountImmediateText = amountImmediate;
+        this.amountRegister = amountRegister;
     }
 
     children() {
-        return [this.register];
+        if (this.amountRegister)
+            return [this.register, this.amountRegister];
+        else
+            return [this.register];
     }
 
     toString() {
-        return 'flex: ' + this.shift + ' #' + this.amount;
+        if (this.amountRegister)
+            return 'flex: ' + this.shift;
+        else
+            return 'flex: ' + this.shift + ' #' + this.amount;
     }
 
     static reconstruct(o) {
-        return new FlexOperand(AstNode.reconstruct(o.register), o.shift, o.amount);
+        return new FlexOperand(AstNode.reconstruct(o.register), o.shift,
+            o.amountImmediateText,
+            o.amountRegister ? AstNode.reconstruct(o.amountRegister) : null);
+    }
+
+    get amountImmediate() {
+        if (this.amountImmediateText !== null)
+            return parseImmediate(this.amountImmediateText);
+        else
+            return null;
     }
 }
 
@@ -252,13 +280,7 @@ export class Immediate extends AstNode {
     }
 
     get value() {
-        const text = this.text.replaceAll("_", "").toLowerCase();
-        if (text.startsWith("0x"))
-            return parseInt(text.slice(2), 16);
-        else if (text.startsWith("0b"))
-            return parseInt(text.slice(2), 2);
-        else
-            return parseInt(text, 10);
+        return parseImmediate(this.text);
     }
 
     static reconstruct(o) {

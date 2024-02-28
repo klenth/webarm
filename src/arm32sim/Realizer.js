@@ -81,6 +81,37 @@ function parseCond(cond) {
     }
 }
 
+function packFlexOperand(flex) {
+    let bits = 0;
+    const amountImm = flex.amountImmediate, amountReg = flex.amountRegister;
+
+    let shiftBits;
+    switch (flex.shift) {
+        case "LSL":
+            shiftBits = 0b00;
+            break;
+        case "LSR":
+            shiftBits = 0b01;
+            break;
+        case "ASR":
+            shiftBits = 0b10;
+            break;
+        case "ROR":
+            shiftBits = 0b11;
+            break;
+        default:
+            throw "Invalid shift: " + flex.shift;
+    }
+
+    bits = flex.register.number() | (shiftBits << 5);
+    if (amountImm !== null)
+        bits |= ((amountImm & 0x1f) << 7);
+    else if (amountReg !== null)
+        bits |= 0b10000 | (amountReg.number() << 8);
+
+    return bits;
+}
+
 function handleIntegerDataProcessingInstruction(i) {
     const OpCode = i.opcode;
     const S = i.s;
@@ -112,27 +143,6 @@ function handleIntegerDataProcessingInstruction(i) {
     const Sbit = !!S
         || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0;
 
-    /*
-    if (spec === 'RRI') {
-        return new I.IntegerDataProcessingImmediateInstruction({
-            cond: cond,
-            '[bits27-24]': 0b0010,
-            opc: opc,
-            S: i.S,
-            Rn: +i.operands[1].number(),
-            Rd: +i.operands[0].number(),
-            imm12: +i.operands[2].value,
-        });
-    } else if (spec === 'RRR') {
-        return new I.IntegerDataProcessingRegisterInstruction({
-            cond: cond,
-            '[bits27-24]': 0b0000,
-            'opc': opc,
-            S: i.S,
-            Rn: +i.operands[0].number(),
-
-        });
-    } */
     if (spec === 'RRI') {
         // TODO: handle rotated immediates
         return new I.DataProcessingInstruction({
@@ -158,7 +168,16 @@ function handleIntegerDataProcessingInstruction(i) {
             Operand2: +i.operands[2].number()
         });
     } else if (spec === 'RRRf') {
-        console.error("Unhandled operand specs: " + spec);
+        return new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: opc,
+            S: Sbit,
+            Rn: +i.operands[1].number(),
+            Rd: +i.operands[0].number(),
+            Operand2: packFlexOperand(i.operands[2])
+        });
     } else if (spec === 'RR'
             && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
         // No destination register
