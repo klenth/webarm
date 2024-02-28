@@ -76,8 +76,8 @@ returns [Register reg]
     ;
 
 flexOperandSpec
-    : op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0}? POUND amount=INT
-    | op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0}? register
+    : op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0}? POUND amount=INT
+    | op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0}? register
     ;
 
 offset

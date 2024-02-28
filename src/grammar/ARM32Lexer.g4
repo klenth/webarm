@@ -1,5 +1,9 @@
 lexer grammar ARM32Lexer;
 
+options {
+    caseInsensitive = true;
+}
+
 COMMENT
     : ';' -> skip, mode(M_COMMENT)
     ;
@@ -47,8 +51,8 @@ EQUALS
 
 fragment INT_STEM
     : [0-9] ([0-9_]* [0-9])?
-    | '0' ('x' | 'X') [0-9a-fA-F] ([_0-9a-fA-F]* [0-9a-fA-F])?
-    | '0' ('b' | 'B') [01] ([01_]* [01])?
+    | '0x' [0-9a-f] ([_0-9a-f]* [0-9a-f])?
+    | '0b' [01] ([01_]* [01])?
     ;
 
 INT
@@ -72,7 +76,7 @@ SHIFT
     ;
 
 ID
-    : '.' [a-zA-Z_] [a-zA-Z0-9_]*
+    : '.' [a-z_] [a-z0-9_]*
     ;
 
 NL

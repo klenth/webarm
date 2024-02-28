@@ -33,9 +33,10 @@ function realizeInstruction(i) {
 */
 
 function realizeInstruction(i) {
-    if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(i.opcode) >= 0)
+    const opcode = i.opcode.toUpperCase();
+    if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
         return handleIntegerDataProcessingInstruction(i);
-    else if (i.opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
+    else if (opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
         return handleLdrPseudoInstruction(i);
 
     console.error("Unhandled opcode in realizeInstruction(): " + i.opcode);
@@ -88,7 +89,7 @@ function packFlexOperand(flex) {
     const amountImm = flex.amountImmediate, amountReg = flex.amountRegister;
 
     let shiftBits;
-    switch (flex.shift) {
+    switch (flex.shift.toUpperCase()) {
         case "LSL":
             shiftBits = 0b00;
             break;
@@ -115,7 +116,7 @@ function packFlexOperand(flex) {
 }
 
 function handleIntegerDataProcessingInstruction(i) {
-    const OpCode = i.opcode;
+    const OpCode = i.opcode.toUpperCase();
     const S = i.s;
     const Cond = i.cond;
 

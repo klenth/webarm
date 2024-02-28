@@ -1,6 +1,6 @@
 # TODO
 
-- Case insensitivity
+- [DONE] Case insensitivity
   - Instruction opcodes
   - Register names (Rn but also LR etc.)
   - Hex/binary literals

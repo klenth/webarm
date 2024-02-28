@@ -154,7 +154,7 @@ export class Register extends AstNode {
     }
 
     number() {
-        switch (this.name) {
+        switch (this.name.toUpperCase()) {
             case 'SP':
                 return 13;
             case 'LR':

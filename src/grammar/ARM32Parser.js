@@ -103,9 +103,9 @@ export default class ARM32Parser extends antlr4.Parser {
     flexOperandSpec_sempred(localctx, predIndex) {
     	switch(predIndex) {
     		case 0:
-    			return ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text)) >= 0;
+    			return ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0;
     		case 1:
-    			return ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text)) >= 0;
+    			return ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0;
     		default:
     			throw "No predicate with index:" + predIndex;
     	}
@@ -530,8 +530,8 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 135;
 	            localctx.op = this.match(ARM32Parser.OPCODE);
 	            this.state = 136;
-	            if (!( ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text)) >= 0)) {
-	                throw new antlr4.error.FailedPredicateException(this, "['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0");
+	            if (!( ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0)) {
+	                throw new antlr4.error.FailedPredicateException(this, "['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0");
 	            }
 	            this.state = 137;
 	            this.match(ARM32Parser.POUND);
@@ -544,8 +544,8 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 139;
 	            localctx.op = this.match(ARM32Parser.OPCODE);
 	            this.state = 140;
-	            if (!( ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text)) >= 0)) {
-	                throw new antlr4.error.FailedPredicateException(this, "['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text) >= 0");
+	            if (!( ['LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0)) {
+	                throw new antlr4.error.FailedPredicateException(this, "['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0");
 	            }
 	            this.state = 141;
 	            this.register();
