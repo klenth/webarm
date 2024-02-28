@@ -10,3 +10,4 @@
 - Remaining instructions
 - Load/save
 - NZVC for all relevant instructions
+- Assembler module
