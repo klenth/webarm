@@ -8,6 +8,8 @@
 - Debugging
   - Step backward
 - Remaining instructions
+  - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
 - Load/save
 - NZVC for all relevant instructions
 - Assembler module
+- Error messages on parse/assembly error

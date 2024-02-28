@@ -58,16 +58,19 @@ class App extends React.Component {
         const parseButton = (
             <button
                 onClick={() => this.handleParse()}
+                key={'parseButton'}
             >Parse</button>
         );
         const runButton = (
             <button
                 onClick={() => this.handleRun()}
+                key={'runButton'}
             >Run</button>
         );
         const stopButton = (
             <button
                 onClick={() => this.handleStop()}
+                key={'stopButton'}
             >Stop</button>
         );
 
@@ -146,14 +149,7 @@ class App extends React.Component {
     }
 
     handleRun() {
-        this.updateState({ state: 'running' });
-        this.getWorker().postMessage({
-            command: 'run',
-            params: {
-                code: this.state.code,
-            },
-        });
-
+        this.updateState({ state: 'running', message: '' });
         workerTimeout = window.setTimeout(() => {
             this.stopWorker();
             this.updateState({
@@ -161,6 +157,14 @@ class App extends React.Component {
                 state: '',
             });
         }, 5000);
+
+        this.getWorker().postMessage({
+            command: 'run',
+            params: {
+                code: this.state.code,
+            },
+        });
+
     }
 
     handleStop() {
@@ -173,23 +177,46 @@ class App extends React.Component {
 
     handleParseComplete(data) {
         if (data.status === 'complete') {
-            console.log('Parsed code!');
-            const ast = AST.AstNode.reconstruct(data.params.ast);
-            console.log(ast);
-            AST.logAst(ast);
+            this.updateState({
+                message: 'Parse complete - looks good!'
+            });
         } else if (data.status === 'error') {
-            console.log('Unable to parse!');
+            if (data.params.error_context === 'assembly')
+                this.updateState({
+                    message: 'Line ' + (data.params.lineNumber || '?') + ': ' + data.params.message
+                });
+            else if (data.params.error_context === 'parse')
+                this.updateState({
+                    message: 'Line ' + (data.params.line || '?') + ': ' + data.params.message
+                });
         }
     }
 
     handleRunComplete(data) {
+        if (workerTimeout)
+            clearTimeout(workerTimeout);
+
         if (data.status === 'complete') {
-            if (workerTimeout)
-                clearTimeout(workerTimeout);
             this.updateState({
                 simulatorState: SimulatorState.reconstruct(data.finalState),
                 state: '',
             });
+        } else if (data.status === 'error') {
+            if (data.params.error_context === 'assembly')
+                this.updateState({
+                    message: 'Line ' + (data.params.lineNumber || '?') + ': ' + data.params.message,
+                    state: ''
+                });
+            else if (data.params.error_context === 'parse')
+                this.updateState({
+                    message: 'Line ' + (data.params.line || '?') + ': ' + data.params.message,
+                    state: ''
+                });
+            else
+                this.updateState({
+                    message: 'Unspecified error while running code',
+                    state: ''
+                });
         }
     }
 }

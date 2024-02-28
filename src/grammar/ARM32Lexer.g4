@@ -79,7 +79,7 @@ ID
     : '.' [a-z_] [a-z0-9_]*
     ;
 
-NL
+NEWLINE
     : [\r\n]+
     ;
 
@@ -91,7 +91,7 @@ WS
 mode M_COMMENT;
 
 COMMENT_NL
-    : [\r\n] -> mode(DEFAULT_MODE), type(NL)
+    : [\r\n] -> mode(DEFAULT_MODE), type(NEWLINE)
     ;
 
 COMMENT_TEXT

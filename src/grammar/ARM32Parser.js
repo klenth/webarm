@@ -78,7 +78,8 @@ export default class ARM32Parser extends antlr4.Parser {
     static symbolicNames = [ null, "COMMENT", "COMMA", "LBRACK", "RBRACK", 
                              "BANG", "OPCODE", "REGISTER", "POUND", "EQUALS", 
                              "INT", "DCD", "EQU", "FILL", "SHIFT", "ID", 
-                             "NL", "WS", "COMMENT_TEXT", "S", "COND", "MNEMONIC_WS" ];
+                             "NEWLINE", "WS", "COMMENT_TEXT", "S", "COND", 
+                             "MNEMONIC_WS" ];
     static ruleNames = [ "program", "line", "label", "instruction", "opcode", 
                          "operand", "register", "flexOperandSpec", "offset", 
                          "immediate", "pseudoImmediate", "symbol", "directive" ];
@@ -125,7 +126,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        _la = this._input.LA(1);
 	        while(_la===16) {
 	            this.state = 26;
-	            this.match(ARM32Parser.NL);
+	            this.match(ARM32Parser.NEWLINE);
 	            this.state = 31;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
@@ -188,7 +189,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            _la = this._input.LA(1);
 	            do {
 	                this.state = 45;
-	                this.match(ARM32Parser.NL);
+	                this.match(ARM32Parser.NEWLINE);
 	                this.state = 48; 
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
@@ -215,7 +216,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            _la = this._input.LA(1);
 	            do {
 	                this.state = 56;
-	                this.match(ARM32Parser.NL);
+	                this.match(ARM32Parser.NEWLINE);
 	                this.state = 59; 
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
@@ -795,7 +796,7 @@ ARM32Parser.EQU = 12;
 ARM32Parser.FILL = 13;
 ARM32Parser.SHIFT = 14;
 ARM32Parser.ID = 15;
-ARM32Parser.NL = 16;
+ARM32Parser.NEWLINE = 16;
 ARM32Parser.WS = 17;
 ARM32Parser.COMMENT_TEXT = 18;
 ARM32Parser.S = 19;
@@ -837,14 +838,14 @@ class ProgramContext extends antlr4.ParserRuleContext {
 	    return this.getToken(ARM32Parser.EOF, 0);
 	};
 
-	NL = function(i) {
+	NEWLINE = function(i) {
 		if(i===undefined) {
 			i = null;
 		}
 	    if(i===null) {
-	        return this.getTokens(ARM32Parser.NL);
+	        return this.getTokens(ARM32Parser.NEWLINE);
 	    } else {
-	        return this.getToken(ARM32Parser.NL, i);
+	        return this.getToken(ARM32Parser.NEWLINE, i);
 	    }
 	};
 
@@ -887,14 +888,14 @@ class LineContext extends antlr4.ParserRuleContext {
 	    return this.getTypedRuleContext(InstructionContext,0);
 	};
 
-	NL = function(i) {
+	NEWLINE = function(i) {
 		if(i===undefined) {
 			i = null;
 		}
 	    if(i===null) {
-	        return this.getTokens(ARM32Parser.NL);
+	        return this.getTokens(ARM32Parser.NEWLINE);
 	    } else {
-	        return this.getToken(ARM32Parser.NL, i);
+	        return this.getToken(ARM32Parser.NEWLINE, i);
 	    }
 	};
 

@@ -10,17 +10,17 @@ options {
 
 program
 returns [Program p]
-    : NL* (lines+=line)* EOF {
+    : NEWLINE* (lines+=line)* EOF {
         $p = new AST.Program($lines.map(l => l.l));
     }
     ;
 
 line
 returns [Line l]
-    : lab=label? inst=instruction NL+ {
+    : lab=label? inst=instruction NEWLINE+ {
         $l = new AST.Line($lab.text, $inst.i);
     }
-    | lab=label? dir=directive NL+ {
+    | lab=label? dir=directive NEWLINE+ {
         $l = new AST.Line($lab.text, $dir.d);;
     }
     ;

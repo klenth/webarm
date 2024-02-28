@@ -144,13 +144,13 @@ export default class ARM32Lexer extends antlr4.Lexer {
                          null, null, null, null, null, "'S'", null, "' '" ];
 	static symbolicNames = [ null, "COMMENT", "COMMA", "LBRACK", "RBRACK", 
                           "BANG", "OPCODE", "REGISTER", "POUND", "EQUALS", 
-                          "INT", "DCD", "EQU", "FILL", "SHIFT", "ID", "NL", 
+                          "INT", "DCD", "EQU", "FILL", "SHIFT", "ID", "NEWLINE", 
                           "WS", "COMMENT_TEXT", "S", "COND", "MNEMONIC_WS" ];
 	static ruleNames = [ "COMMENT", "COMMA", "LBRACK", "RBRACK", "BANG", "OPCODE", 
                       "REGISTER", "POUND", "EQUALS", "INT_STEM", "INT", 
-                      "DCD", "EQU", "FILL", "SHIFT", "ID", "NL", "WS", "COMMENT_NL", 
-                      "COMMENT_TEXT", "MNEMONIC_SEMI", "S", "COND", "MNEMONIC_WS", 
-                      "MNEMONIC_OTHER" ];
+                      "DCD", "EQU", "FILL", "SHIFT", "ID", "NEWLINE", "WS", 
+                      "COMMENT_NL", "COMMENT_TEXT", "MNEMONIC_SEMI", "S", 
+                      "COND", "MNEMONIC_WS", "MNEMONIC_OTHER" ];
 
     constructor(input) {
         super(input)
@@ -174,7 +174,7 @@ ARM32Lexer.EQU = 12;
 ARM32Lexer.FILL = 13;
 ARM32Lexer.SHIFT = 14;
 ARM32Lexer.ID = 15;
-ARM32Lexer.NL = 16;
+ARM32Lexer.NEWLINE = 16;
 ARM32Lexer.WS = 17;
 ARM32Lexer.COMMENT_TEXT = 18;
 ARM32Lexer.S = 19;

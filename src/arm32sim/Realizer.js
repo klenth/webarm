@@ -1,6 +1,13 @@
 import * as AST from '../grammar/arm32Ast';
 import * as I from './Instruction';
 
+export class AssemblyError extends Error {
+    constructor(message, node) {
+        super(message);
+        this.node = node;
+    }
+}
+
 export function realize(ast) {
     return ast.lines.flatMap(line => {
         if (line.item instanceof AST.Directive)
@@ -14,24 +21,6 @@ export function realize(ast) {
     });
 }
 
-/*
-const BASIC_MNEMONIC_PATTERN = /^(CMP|CMN|TST|TEQ|MOV|MVN|ADR|LDR|ADD|ADC|SUB|SBC|RSB|RSC|AND|EOR|BIC|ORR|ROR|RRX|LSR|ASR|LSL)(S?)(EQ|NE|CS|HS|CC|LO|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL|)$/i;
-
-function realizeInstruction(i) {
-    let match = BASIC_MNEMONIC_PATTERN.exec(i.opcode);
-    if (match) {
-        const OpCode = match[1];
-        const S = (match[2] !== '');
-        const Cond = match[3];
-        if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(OpCode) >= 0)
-            return handleIntegerDataProcessingInstruction(i, OpCode, S, Cond);
-    }
-
-    console.error("Unhandled opcode in realizeInstruction(): " + i.opcode);
-    return [];
-}
-*/
-
 function realizeInstruction(i) {
     const opcode = i.opcode.toUpperCase();
     if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
@@ -39,8 +28,7 @@ function realizeInstruction(i) {
     else if (opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
         return handleLdrPseudoInstruction(i);
 
-    console.error("Unhandled opcode in realizeInstruction(): " + i.opcode);
-    return [];
+    throw new AssemblyError("Unhandled opcode: " + i.opcode, i);
 }
 
 
@@ -103,7 +91,7 @@ function packFlexOperand(flex) {
             shiftBits = 0b11;
             break;
         default:
-            throw "Invalid shift: " + flex.shift;
+            console.assert(false,  "Invalid shift: " + flex.shift);
     }
 
     bits = flex.register.number() | (shiftBits << 5);
@@ -142,12 +130,10 @@ function handleIntegerDataProcessingInstruction(i) {
         : (OpCode === 'MVN') ?         0b1111
         : null;
 
-    console.debug('In realizer for ' + OpCode + ', S = ', S);
     const Sbit = !!S
         || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0;
 
     if (spec === 'RRI') {
-        // TODO: handle rotated immediates
         return new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
@@ -159,7 +145,6 @@ function handleIntegerDataProcessingInstruction(i) {
             Operand2: +i.operands[2].value & 0xff
         });
     } else if (spec === 'RRR') {
-        // TODO: handle shifts
         return new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
@@ -234,6 +219,7 @@ function handleIntegerDataProcessingInstruction(i) {
             Operand2: +i.operands[1].value & 0xff
         });
     } else
+        throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
         throw "Invalid operands " + spec + " for opcode " + OpCode;
 }
 
@@ -246,7 +232,7 @@ function handleLdrPseudoInstruction(i) {
     const reg = i.operands[0].number();
 
     if (!!S)
-        throw "LDR with pseudo-immediate cannot be used with S";
+        throw new AssemblyError("LDRS should not be used with '=number'", i)
 
     const instrs = [
         new I.DataProcessingInstruction({
@@ -265,7 +251,6 @@ function handleLdrPseudoInstruction(i) {
     for (imm >>>= 8; imm !== 0; imm >>>= 8, rot -= 4) {
         const bottomByte = imm & 0xff;
         if (bottomByte) {
-            console.debug('For byte 1 of LDR=, rot=' + rot + ' imm=' + bottomByte.toString(16));
             const operand2 = (rot << 8) | bottomByte;
             instrs.push(new I.DataProcessingInstruction({
                 Cond: cond,
@@ -295,7 +280,7 @@ function operandSpec(operands) {
         else if (op instanceof AST.PseudoImmediate)
             spec += "Ip";
         else
-            throw "Invalid operand type: " + op.prototype.constructor.name;
+            console.assert(false, "Invalid operand type: " + op.prototype.constructor.name);
     }
 
     return spec;
