@@ -35,6 +35,8 @@ function realizeInstruction(i) {
 function realizeInstruction(i) {
     if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(i.opcode) >= 0)
         return handleIntegerDataProcessingInstruction(i);
+    else if (i.opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
+        return handleLdrPseudoInstruction(i);
 
     console.error("Unhandled opcode in realizeInstruction(): " + i.opcode);
     return [];
@@ -232,6 +234,52 @@ function handleIntegerDataProcessingInstruction(i) {
         });
     } else
         throw "Invalid operands " + spec + " for opcode " + OpCode;
+}
+
+function handleLdrPseudoInstruction(i) {
+    // Already know this is LDR of an Ip (pseudo-immediate)
+    let imm = i.operands[1].value;
+    const S = i.s;
+    const Cond = i.cond;
+    const cond = parseCond(Cond);
+    const reg = i.operands[0].number();
+
+    if (!!S)
+        throw "LDR with pseudo-immediate cannot be used with S";
+
+    const instrs = [
+        new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b1,
+            OpCode: 0b1101, // MOV
+            S: 0b0,
+            Rn: 0,
+            Rd: reg,
+            Operand2: imm & 0xff
+        })
+    ];
+
+    let rot = 12;
+    for (imm >>>= 8; imm !== 0; imm >>>= 8, rot -= 4) {
+        const bottomByte = imm & 0xff;
+        if (bottomByte) {
+            console.debug('For byte 1 of LDR=, rot=' + rot + ' imm=' + bottomByte.toString(16));
+            const operand2 = (rot << 8) | bottomByte;
+            instrs.push(new I.DataProcessingInstruction({
+                Cond: cond,
+                '[bits27-26]': 0b00,
+                I: 0b1,
+                OpCode: 0b1100, // ORR
+                S: 0b0,
+                Rn: reg,
+                Rd: reg,
+                Operand2: operand2
+            }));
+        }
+    }
+
+    return instrs;
 }
 
 function operandSpec(operands) {

@@ -192,6 +192,7 @@ function executeDataProcessingInstruction(state, instr) {
         const Rotate = new Bitfield(4, 8).get(Operand2);
         const Imm = new Bitfield(8, 0).get(Operand2);
         const rotatedOperand = rotateRight(Imm, 2 * Rotate);
+        console.debug('rotatedOperand = ' + rotatedOperand.toString(16));
         // TODO: handle carry in
         result = evaluate(RnValue, rotatedOperand, state.C);
         if (S === 0b1)

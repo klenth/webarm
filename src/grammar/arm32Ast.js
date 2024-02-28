@@ -289,17 +289,21 @@ export class Immediate extends AstNode {
 }
 
 export class PseudoImmediate extends AstNode {
-    constructor(value) {
+    constructor(text) {
         super('pseudoimmediate');
-        this.value = value;
+        this.text = text;
     }
 
     toString() {
-        return 'pseudoimmediate [' + this.value + ']';
+        return 'pseudoimmediate [' + this.text + ']';
+    }
+
+    get value() {
+        return parseImmediate(this.text);
     }
 
     static reconstruct(o) {
-        return new PseudoImmediate(o.value);
+        return new PseudoImmediate(o.text);
     }
 }
 

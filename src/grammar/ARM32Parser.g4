@@ -103,7 +103,7 @@ returns [Immediate value]
 pseudoImmediate
 returns [PseudoImmediate value]
     : EQUALS v=INT {
-        $value = new AST.PseudoImmediate(parseInt($v.text));;
+        $value = new AST.PseudoImmediate($v.text);;
     }
     ;
 

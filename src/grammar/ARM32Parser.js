@@ -662,7 +662,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 162;
 	        localctx.v = this.match(ARM32Parser.INT);
 
-	                localctx.value =  new AST.PseudoImmediate(parseInt((localctx.v == null ? null : localctx.v.text)));
+	                localctx.value =  new AST.PseudoImmediate((localctx.v == null ? null : localctx.v.text));
 	            
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
