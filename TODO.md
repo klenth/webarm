@@ -13,3 +13,4 @@
 - NZVC for all relevant instructions
 - Assembler module
 - Error messages on parse/assembly error
+- Syscalls for printing/reading strings/numbers
