@@ -248,6 +248,19 @@ function handleIntegerDataProcessingInstruction(i) {
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[1].value & 0xff
         })];
+    } else if (spec === 'RRf'
+            && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
+        // No Rn
+        return [() => new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: opc,
+            S: Sbit,
+            Rn: 0,
+            Rd: +i.operands[0].number(),
+            Operand2: packFlexOperand(i.operands[1])
+        })];
     } else
         throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
 }
