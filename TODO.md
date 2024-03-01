@@ -9,7 +9,12 @@
   - Step backward
 - Remaining instructions
   - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
+- Directives
 - Load/save
 - NZVC for all relevant instructions
 - Assembler module
 - Error messages on parse/assembly error
+- Syntax highlighting (Ace mode)
+- Instruction reference
+- Keyboard shortcuts (at least for run/debug)
+- 

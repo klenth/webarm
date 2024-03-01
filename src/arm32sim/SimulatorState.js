@@ -27,6 +27,30 @@ export class SimulatorState {
         return new SimulatorState(this.registers, this.memory, this.nzcv, this.numSteps);
     }
 
+    get SP() {
+        return this.registers[13];
+    }
+
+    set SP(sp) {
+        this.registers[13] = sp & 0xffff_ffff;
+    }
+
+    get LR() {
+        return this.registers[14];
+    }
+
+    set LR(lr) {
+        this.registers[14] = lr & 0xffff_ffff;
+    }
+
+    get PC() {
+        return this.registers[15];
+    }
+
+    set PC(pc) {
+        this.registers[15] = pc & 0xffff_ffff;
+    }
+
     get N() {
         return Nbf.get(this.nzcv);
     }

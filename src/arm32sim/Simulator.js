@@ -1,11 +1,9 @@
 import SimulatorMemory from './SimulatorMemory';
 import SimulatorState from './SimulatorState';
 import {
-    Instruction,
     decode,
-    IntegerDataProcessingImmediateInstruction,
-    IntegerDataProcessingRegisterInstruction,
-    DataProcessingInstruction
+    DataProcessingInstruction,
+    BranchInstruction
 } from './Instruction.js';
 import Bitfield from '../bits/Bitfield';
 import * as arithmetic from '../bits/arithmetic';
@@ -27,7 +25,7 @@ export function step(state) {
     }
     const newState = state.clone();
     ++newState.numSteps;
-    const pc = newState.getPC();
+    const pc = newState.PC;
     newState.advancePC();
     const instr = state.memory.readWord(pc);
     execute(instr, newState);
@@ -101,9 +99,11 @@ function execute(instrCode, state) {
     }
     //console.log("Executing " + instr.mnemonic());
 
-    if (instr instanceof DataProcessingInstruction) {
+    if (instr instanceof DataProcessingInstruction)
         executeDataProcessingInstruction(state, instr);
-    } else
+    else if (instr instanceof BranchInstruction)
+        executeBranchInstruction(state, instr);
+    else
         console.error("Unimplemented instruction: " + instr.mnemonic());
 }
 
@@ -192,8 +192,7 @@ function executeDataProcessingInstruction(state, instr) {
         const Rotate = new Bitfield(4, 8).get(Operand2);
         const Imm = new Bitfield(8, 0).get(Operand2);
         const rotatedOperand = rotateRight(Imm, 2 * Rotate);
-        console.debug('rotatedOperand = ' + rotatedOperand.toString(16));
-        // TODO: handle carry in
+
         result = evaluate(RnValue, rotatedOperand, state.C);
         if (S === 0b1)
             resultCV = testCV(RnValue, rotatedOperand, state.C);
@@ -240,4 +239,21 @@ function executeDataProcessingInstruction(state, instr) {
             state.V = resultCV.V;
         }
     }
+}
+
+function executeBranchInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (!testCondition(Cond, state))
+        return;
+
+    const L = instr.get('L');
+    const offset = (instr.get('offset') << 24) >> 24;
+
+    const pc = state.getPC();
+
+    if (L)
+        state.LR = pc;
+
+    const newPC = (pc - 4) + offset;
+    state.PC = newPC;
 }

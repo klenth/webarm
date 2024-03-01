@@ -164,7 +164,7 @@ class ParseError extends Error {
             instrAddr += 4;
         }
 
-        while (state.memory.readWord(state.getPC()) !== 0) {
+        while (state.memory.readWord(state.PC) !== 0) {
             state = step(state);
         }
 

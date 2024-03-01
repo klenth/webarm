@@ -9,22 +9,50 @@ export class AssemblyError extends Error {
 }
 
 export function realize(ast) {
-    return ast.lines.flatMap(line => {
+    const symbols = {};
+    let instructionMaps = [];
+    ast.lines.forEach(line => {
         if (line.item instanceof AST.Directive)
-            return [];
-        else if (line.item instanceof AST.Instruction)
-            return realizeInstruction(line.item);
-        else {
-            console.error("Line that is neither a directive nor an instruction in AST: " + line);
-            return [];
+            return;
+        else if (line.item instanceof AST.Instruction) {
+            if (line.label) {
+                if (line.label in symbols)
+                    throw new AssemblyError('Duplicate symbol: ' + line.label);
+                symbols[line.label] = instructionMaps.length;
+            }
+            instructionMaps = [...instructionMaps, ...realizeInstruction(line.item)];
+        } else {
+            console.error("Line that is neither a directive nor an instruction in AST: " + line);;
         }
     });
+
+    let i;
+    const symbolAddressMapper = symbol => {
+        if (symbol === '.')
+            return 4 * i;
+        else if (symbol in symbols)
+            return 4 * symbols[symbol];
+        else
+            throw new AssemblyError("Unknown symbol: " + symbol);
+    };
+
+    console.debug(instructionMaps);
+    const realizedInstructions = [];
+    for (i = 0; i < instructionMaps.length; ++i) {
+        realizedInstructions.push(instructionMaps[i](symbolAddressMapper));
+    }
+
+    console.debug('Realized instructions: ', realizedInstructions);
+
+    return realizedInstructions;
 }
 
 function realizeInstruction(i) {
     const opcode = i.opcode.toUpperCase();
     if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
         return handleIntegerDataProcessingInstruction(i);
+    else if (['B', 'BL'].indexOf(opcode) >= 0)
+        return handleBranchInstruction(i);
     else if (opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
         return handleLdrPseudoInstruction(i);
 
@@ -134,7 +162,7 @@ function handleIntegerDataProcessingInstruction(i) {
         || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0;
 
     if (spec === 'RRI') {
-        return new I.DataProcessingInstruction({
+        return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b1,
@@ -143,9 +171,9 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[2].value & 0xff
-        });
+        })];
     } else if (spec === 'RRR') {
-        return new I.DataProcessingInstruction({
+        return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b0,
@@ -154,9 +182,9 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[2].number()
-        });
+        })];
     } else if (spec === 'RRRf') {
-        return new I.DataProcessingInstruction({
+        return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b0,
@@ -165,11 +193,11 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
             Operand2: packFlexOperand(i.operands[2])
-        });
+        })];
     } else if (spec === 'RR'
             && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
         // No destination register
-        return new I.DataProcessingInstruction({
+        return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b0,
@@ -178,11 +206,11 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: +i.operands[0].number(),
             Rd: 0,
             Operand2: +i.operands[1].number()
-        });
+        })];
     } else if (spec === 'RR'
             && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
         // No Rn
-        return new I.DataProcessingInstruction({
+        return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b0,
@@ -191,11 +219,11 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: 0,
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[1].number()
-        });
+        })];
     } else if (spec === 'RI'
             && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
         // No destination register
-        return new I.DataProcessingInstruction({
+        return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b1,
@@ -204,11 +232,11 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: +i.operands[0].number(),
             Rd: 0,
             Operand2: +i.operands[1].value & 0xff
-        });
+        })];
     } else if (spec === 'RI'
             && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
         // No Rn
-        return new I.DataProcessingInstruction({
+        return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b1,
@@ -217,10 +245,35 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: 0,
             Rd: +i.operands[0].number(),
             Operand2: +i.operands[1].value & 0xff
-        });
+        })];
     } else
         throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
-        throw "Invalid operands " + spec + " for opcode " + OpCode;
+}
+
+function handleBranchInstruction(i) {
+    const OpCode = i.opcode.toUpperCase();
+    if (!!i.S)
+        throw new AssemblyError("Opcode " + i.opcode + " cannot take an S!");
+
+    const spec = operandSpec(i.operands);
+    const cond = parseCond(i.cond);
+    if (spec === 'I') {
+        return [() => new I.BranchInstruction({
+            Cond: cond,
+            '[bits27-25]': 0b101,
+            'L': (OpCode === 'BL') ? 0b1 : 0b0,
+            'offset': i.operands[0].value & 0xff_ffff,
+        })];
+    } else if (spec === 'S') {
+        const symbol = i.operands[0];
+        return [(mapper) => new I.BranchInstruction({
+            Cond: cond,
+            '[bits27-25]': 0b101,
+            'L': (OpCode === 'BL') ? 0b1 : 0b0,
+            'offset': (mapper(symbol) - mapper('.')) & 0xff_ffff,
+        })];
+    } else
+        throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
 }
 
 function handleLdrPseudoInstruction(i) {
@@ -234,8 +287,9 @@ function handleLdrPseudoInstruction(i) {
     if (!!S)
         throw new AssemblyError("LDRS should not be used with '=number'", i)
 
+    let movByte = imm & 0xff;
     const instrs = [
-        new I.DataProcessingInstruction({
+        () => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b1,
@@ -243,7 +297,7 @@ function handleLdrPseudoInstruction(i) {
             S: 0b0,
             Rn: 0,
             Rd: reg,
-            Operand2: imm & 0xff
+            Operand2: movByte
         })
     ];
 
@@ -252,7 +306,7 @@ function handleLdrPseudoInstruction(i) {
         const bottomByte = imm & 0xff;
         if (bottomByte) {
             const operand2 = (rot << 8) | bottomByte;
-            instrs.push(new I.DataProcessingInstruction({
+            instrs.push(() => new I.DataProcessingInstruction({
                 Cond: cond,
                 '[bits27-26]': 0b00,
                 I: 0b1,
@@ -279,6 +333,8 @@ function operandSpec(operands) {
             spec += "Rf";
         else if (op instanceof AST.PseudoImmediate)
             spec += "Ip";
+        else if (typeof op === 'string')
+            spec += "S";
         else
             console.assert(false, "Invalid operand type: " + op.prototype.constructor.name);
     }

@@ -10,9 +10,9 @@ const registerInstructionDecoder = function(decoder) {
     INSTRUCTION_DECODERS.push(decoder);
 }
 
-const registerOpcodeDecoder = function(bitfield, value, decoder) {
+const registerOpcodeDecoder = function(mask, value, decoder) {
     registerInstructionDecoder(
-        code => (bitfield.get(code) === value) ? decoder(code) : null
+        code => ((code & mask) === value) ? decoder(code) : null
     );
 }
 
@@ -87,180 +87,35 @@ export class InstructionFormat {
     }
 }
 
-export class IntegerTestCompareRegisterInstruction extends Instruction {
-    format() {
-        return new InstructionFormat({
-            cond: new Bitfield(4, 28),
-            '[bits27-23]': new Bitfield(5, 23).asConstant(0b0_0010),
-            opc: new Bitfield(2, 21),
-            '[bit20]': new Bitfield(1, 20).asConstant(1),
-            Rn: new Bitfield(4, 16),
-            '[Rd]': new Bitfield(4, 12).asConstant(0),
-            imm5: new Bitfield(5, 7),
-            stype: new Bitfield(2, 5),
-            '[bit4]': new Bitfield(1, 4).asConstant(0),
-            Rm: new Bitfield(4, 0)
-        });
-    }
-
-    validate() {
-        if (this.get('cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111');
-    }
-
-    mnemonic() {
-        const opc = this.get('opc');
-        if (opc === 0b00)
-            return 'TST';
-        else if (opc === 0b01)
-            return 'TEQ';
-        else if (opc === 0b10)
-            return 'CMP';
-        else
-            return 'CMN';
-    }
-}
-
-export class IntegerTestCompareImmediateInstruction extends Instruction {
-    format() {
-        return new InstructionFormat({
-            cond: new Bitfield(4, 28),
-            '[bits27-23]': new Bitfield(5, 23).asConstant(0b0_0110),
-            opc: new Bitfield(2, 21),
-            '[bit20]': new Bitfield(1, 20).asConstant(1),
-            Rn: new Bitfield(4, 16),
-            '[bits15-12': new Bitfield(4, 12).asConstant(0),
-            imm12: new Bitfield(12, 0),
-        });
-    }
-
-    validate() {
-        if (this.get('cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111');
-    }
-
-    mnemonic() {
-        const opc = this.get('opc');
-        if (opc === 0b00)
-            return 'TST';
-        else if (opc === 0b01)
-            return 'TEQ';
-        else if (opc === 0b10)
-            return 'CMP';
-        else
-            return 'CMN';
-    }
-}
-
-export class IntegerDataProcessingRegisterInstruction extends Instruction {
-    format() {
-        return new InstructionFormat({
-            cond: new Bitfield(4, 28),
-            '[bits27-24]': new Bitfield(4, 24).asConstant(0b0000),
-            opc: new Bitfield(3, 21),
-            S: new Bitfield(1, 20),
-            Rn: new Bitfield(4, 16),
-            Rd: new Bitfield(4, 12),
-            imm5: new Bitfield(5, 7),
-            stype: new Bitfield(2, 5),
-            '[bit4]': new Bitfield(1, 4).asConstant(0b0),
-            Rm: new Bitfield(4, 0),
-        });
-    }
-
-    validate() {
-        if (this.get('cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111');
-    }
-
-    mnemonic() {
-        const opc = this.get('opc');
-        let m = null;
-        if (opc === 0b000)
-            m = 'AND';
-        else if (opc === 0b001)
-            m = 'EOR';
-        else if (opc === 0b010)
-            m = 'SUB';
-        else if (opc === 0b111)
-            m = 'RSB';
-        else if (opc === 0b100)
-            m = 'ADD';
-        else if (opc === 0b101)
-            m = 'ADC';
-        else if (opc === 0b110)
-            m = 'SBC';
-        else if (opc === 0b111)
-            m = 'RSC';
-
-        if (this.get('S'))
-            m += 'S';
-
-        return m;
-    }
-}
-
-/*[0b000, 0b001, 0b010, 0b111, 0b100, 0b101, 0b110, 0b111].forEach(value =>
-    registerOpcodeDecoder(new Bitfield(7, 21), value, IntegerDataProcessingRegisterInstruction)
-);*/
-
-export class IntegerDataProcessingImmediateInstruction extends Instruction {
+export class BranchInstruction extends Instruction {
     static _format = new InstructionFormat({
-        cond: new Bitfield(4, 28),
-        '[bits27-24]': new Bitfield(4, 24).asConstant(0b0010),
-        opc: new Bitfield(3, 21),
-        S: new Bitfield(1, 20),
-        Rn: new Bitfield(4, 16),
-        Rd: new Bitfield(4, 12),
-        imm12: new Bitfield(12, 0),
+        Cond: new Bitfield(4, 28),
+        '[bits27-25]': new Bitfield(3, 25).asConstant(0b101),
+        'L': new Bitfield(1, 24),
+        'offset': new Bitfield(24, 0)
     });
 
     format() {
-        return IntegerDataProcessingImmediateInstruction._format;
+        return BranchInstruction._format;
     }
 
     validate() {
-        if (this.get('cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111');
+        if (this.get('Cond') === 0b1111)
+            throw new InstructionFormatError('cond=1111')
     }
 
     mnemonic() {
-        const opc = this.get('opc');
-        let m = null;
-        if (opc === 0b000)
-            m = 'AND';
-        else if (opc === 0b001)
-            m = 'EOR';
-        else if (opc === 0b010)
-            m = 'SUB';
-        else if (opc === 0b111)
-            m = 'RSB';
-        else if (opc === 0b100)
-            m = 'ADD';
-        else if (opc === 0b101)
-            m = 'ADC';
-        else if (opc === 0b110)
-            m = 'SBC';
-        else if (opc === 0b111)
-            m = 'RSC';
-
-        if (this.get('S'))
-            m += 'S';
-
-        return m;
+        if (this.get('L'))
+            return 'BL';
+        else
+            return 'B';
     }
 
     static fromCode(word) {
-        console.log('fromCode(): word = 0x' + word.toString(0x10));
-        const fieldValues = decodeFieldValues(word, IntegerDataProcessingImmediateInstruction._format);
-        console.log(fieldValues);
-        return new IntegerDataProcessingImmediateInstruction(fieldValues);
+        const fieldValues = decodeFieldValues(word, BranchInstruction._format);
+        return new BranchInstruction(fieldValues);
     }
 }
-
-/*[0b000, 0b001, 0b010, 0b111, 0b100, 0b101, 0b110, 0b111].forEach(value =>
-    registerOpcodeDecoder(new Bitfield(7, 21), 0b0010_000 | value, IntegerDataProcessingImmediateInstruction)
-);*/
 
 export class DataProcessingInstruction extends Instruction {
     static _format = new InstructionFormat({
@@ -317,13 +172,12 @@ export class DataProcessingInstruction extends Instruction {
     }
 }
 
-registerInstructionDecoder(code => {
-    //console.debug("Opcode " + new Bitfield(4, 21).get(code).toString(2));
-    return null;
-});
+registerOpcodeDecoder(0x0e00_0000, 0x0a00_0000, BranchInstruction.fromCode);
+registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
 
+/*
 Object.keys(DataProcessingInstruction._opcodes).forEach(opcode => {
-        console.debug("Registering decoder for opcode " + (+opcode).toString(2));
         registerOpcodeDecoder(new Bitfield(4, 21), +opcode, DataProcessingInstruction.fromCode);
     }
 );
+ */
