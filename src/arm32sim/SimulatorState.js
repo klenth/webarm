@@ -6,13 +6,14 @@ const Nbf = new Bitfield(1, 3),
     Cbf = new Bitfield(1, 1),
     Vbf = new Bitfield(1, 0);
 export class SimulatorState {
-    constructor(registers, memory, nzcv, numSteps) {
+    constructor(registers, memory, nzcv, numSteps, running) {
         this.registers = Array(16).fill(0);
         for (let i = 0; registers && i < this.registers.length; ++i)
             this.registers[i] = registers[i] & 0xffff_ffff;
         this.memory = memory ? memory.clone() : new SimulatorMemory();
         this.nzcv = nzcv || 0b0000;
         this.numSteps = numSteps || 0;
+        this.running = running || true;
     }
 
     getPC() {
@@ -83,12 +84,17 @@ export class SimulatorState {
         this.nzcv = Vbf.set(this.nzcv, v);
     }
 
+    stop() {
+        this.running = false;
+    }
+
     static reconstruct(o) {
         return new SimulatorState(
             o.registers,
             o.memory ? SimulatorMemory.reconstruct(o.memory) : o.memory,
             o.nzcv,
-            o.numSteps
+            o.numSteps,
+            o.running,
         );
     }
 }

@@ -149,7 +149,7 @@ class App extends React.Component {
     }
 
     handleRun() {
-        this.updateState({ state: 'running', message: '' });
+        this.updateState({ state: 'running', message: '', simulatorState: new SimulatorState() });
         workerTimeout = window.setTimeout(() => {
             this.stopWorker();
             this.updateState({

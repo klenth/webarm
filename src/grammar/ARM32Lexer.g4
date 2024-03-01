@@ -29,7 +29,8 @@ OPCODE
             | 'ROR' | 'RRX' | 'LSL' | 'ASR' | 'LSR'
             | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'END'
             | ('LDR' | 'STR') 'B'?
-            | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'DB'))
+            | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'DB')
+            | 'STOP')
         -> mode(M_MNEMONIC)
     ;
 
@@ -115,6 +116,10 @@ COND
 
 MNEMONIC_WS
     : ' '   -> skip, mode(DEFAULT_MODE)
+    ;
+
+MNEMONIC_NEWLINE
+    : [\r\n] -> mode(DEFAULT_MODE), type(NEWLINE)
     ;
 
 MNEMONIC_OTHER

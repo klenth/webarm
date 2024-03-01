@@ -55,6 +55,8 @@ function realizeInstruction(i) {
         return handleBranchInstruction(i);
     else if (opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
         return handleLdrPseudoInstruction(i);
+    else if (opcode === 'STOP')
+        return handleStopInstruction(i);
 
     throw new AssemblyError("Unhandled opcode: " + i.opcode, i);
 }
@@ -320,6 +322,17 @@ function handleLdrPseudoInstruction(i) {
     }
 
     return instrs;
+}
+
+function handleStopInstruction(i) {
+    const cond = parseCond(i.cond);
+    return [() => new I.StopInstruction({
+        Cond: cond,
+        '[bits27-25]': 0b011,
+        '[bits24-5]': 0,
+        '[bit4]': 0b1,
+        '[bits3-0]': 0b000,
+    })];
 }
 
 function operandSpec(operands) {

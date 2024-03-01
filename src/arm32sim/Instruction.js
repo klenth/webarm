@@ -172,6 +172,35 @@ export class DataProcessingInstruction extends Instruction {
     }
 }
 
+export class StopInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        Cond: new Bitfield(4, 28),
+        '[bits27-25]': new Bitfield(3, 25).asConstant(0b011),
+        '[bits24-5]': new Bitfield(20, 5).asConstant(0),
+        '[bit4]': new Bitfield(1, 4).asConstant(1),
+        '[bits3-0]': new Bitfield(4, 0).asConstant(0b0000)
+    });
+
+    format() {
+        return StopInstruction._format;
+    }
+
+    validate() {
+        if (this.get('Cond') === 0b1111)
+            throw new InstructionFormatError('cond=1111')
+    }
+
+    mnemonic() {
+        return 'STOP';
+    }
+
+    static fromCode(word) {
+        const fieldValues = decodeFieldValues(word, StopInstruction._format);
+        return new StopInstruction(fieldValues);
+    }
+}
+
+registerOpcodeDecoder(0x0e00_0010, 0x0600_0010, StopInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_0000, 0x0a00_0000, BranchInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
 

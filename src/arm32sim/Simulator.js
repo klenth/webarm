@@ -3,7 +3,8 @@ import SimulatorState from './SimulatorState';
 import {
     decode,
     DataProcessingInstruction,
-    BranchInstruction
+    BranchInstruction,
+    StopInstruction
 } from './Instruction.js';
 import Bitfield from '../bits/Bitfield';
 import * as arithmetic from '../bits/arithmetic';
@@ -20,7 +21,7 @@ class UnimplementedException {
 }
 
 export function step(state) {
-    if (state.numSteps >= 1_000_000) {
+    if (!state.running || state.numSteps >= 1_000_000) {
         return state;
     }
     const newState = state.clone();
@@ -103,6 +104,8 @@ function execute(instrCode, state) {
         executeDataProcessingInstruction(state, instr);
     else if (instr instanceof BranchInstruction)
         executeBranchInstruction(state, instr);
+    else if (instr instanceof StopInstruction)
+        executeStopInstruction(state, instr);
     else
         console.error("Unimplemented instruction: " + instr.mnemonic());
 }
@@ -257,3 +260,11 @@ function executeBranchInstruction(state, instr) {
     const newPC = (pc - 4) + offset;
     state.PC = newPC;
 }
+
+function executeStopInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    console.debug('executeStopInstruction(): testing cond ', Cond.toString(2));
+    if (testCondition(Cond, state))
+        state.stop();
+}
+
