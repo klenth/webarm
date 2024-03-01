@@ -105,7 +105,7 @@ class ParseError extends Error {
     });
 
     function parse(code) {
-        code = code + '\n'; // Make sure it ends in a newline!
+        code = code + '\nSTOP\n'; // Make sure it ends in a newline and STOP instruction!
         let valid = true;
         let ast = null;
         //try {
