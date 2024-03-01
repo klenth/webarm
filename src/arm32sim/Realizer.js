@@ -249,6 +249,19 @@ function handleIntegerDataProcessingInstruction(i) {
             Operand2: +i.operands[1].value & 0xff
         })];
     } else if (spec === 'RRf'
+            && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
+        // No destination register
+        return [() => new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: opc,
+            S: Sbit,
+            Rn: +i.operands[0].number(),
+            Rd: 0,
+            Operand2: packFlexOperand(i.operands[1])
+        })];
+    } else if (spec === 'RRf'
             && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
         // No Rn
         return [() => new I.DataProcessingInstruction({
