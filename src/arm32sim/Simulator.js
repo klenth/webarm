@@ -253,7 +253,7 @@ function executeBranchInstruction(state, instr) {
         return;
 
     const L = instr.get('L');
-    const offset = (instr.get('offset') << 24) >> 24;
+    const offset = (instr.get('offset') << 8) >> 8;
 
     const pc = state.getPC();
 

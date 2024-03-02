@@ -75,7 +75,7 @@ function parseCond(cond) {
             return 0b1110;
         case 'EQ':
             return 0b0000;
-        case 'NEQ':
+        case 'NE':
             return 0b0001;
         case 'CS':
         case 'HS':
