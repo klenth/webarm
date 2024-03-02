@@ -24,6 +24,11 @@ const Center = styled.div`
 const Editor = styled(AceEditor)`
   flex-grow: 1;
   height: 100%;
+  
+  .debug-current-line {
+    background-color: rgba(142, 102, 199, 0.4);
+    position: absolute;
+  }
 `;
 
 const Registers = styled.div`
@@ -42,6 +47,7 @@ class App extends React.Component {
             simulatorState: new SimulatorState(),
             message: '',
             state: '',
+            debugCurrentLine: null,
         };
     }
 
@@ -88,6 +94,7 @@ class App extends React.Component {
         const continueButton = (
             <button
                 onClick={() => this.handleContinue()}
+                key={'continueButton'}
             >Continue</button>
         );
         const stopButton = (
@@ -103,6 +110,16 @@ class App extends React.Component {
             : (this.state.state === 'debugging/running') ? [ stopButton ]
             : [];
 
+        const markers = [];
+        if (this.state.debugCurrentLine !== null) {
+            markers.push({
+                startRow: this.state.debugCurrentLine - 1,
+                endRow: this.state.debugCurrentLine,
+                type: 'line',
+                className: 'debug-current-line'
+            });
+        }
+
         return (
             <div className="App">
                 <Controls>
@@ -115,6 +132,7 @@ class App extends React.Component {
                         onChange={(s) => this.handleCodeChange(s)}
                         mode={'text'}
                         height={'inherit'}
+                        markers={markers}
                     />
                     <Registers>
                         {registers}
@@ -140,7 +158,6 @@ class App extends React.Component {
         if (!simWorker) {
             simWorker = new Worker(new URL('./simWorker.js', import.meta.url));
             simWorker.addEventListener('message', e => {
-                console.log('Received message from worker');
                 if (e.data.command === 'parse')
                     this.handleParseComplete(e.data);
                 else if (e.data.command === 'run')
@@ -234,6 +251,7 @@ class App extends React.Component {
         this.updateState({
             message: "Execution halted (stop button pushed)",
             state: '',
+            debugCurrentLine: null,
         });
     }
 
@@ -288,6 +306,7 @@ class App extends React.Component {
                 this.updateState({
                     state: 'debugging/paused',
                     simulatorState: SimulatorState.reconstruct(data.state),
+                    debugCurrentLine: data.line,
                 });
             else if (data.status === 'error')
                 this.updateState({
@@ -300,11 +319,13 @@ class App extends React.Component {
                 this.updateState({
                     message: data.message,
                 });
-            else
+            else {
                 this.updateState({
                     simulatorState: newSimulatorState,
-                    ...(!newSimulatorState.running ? { state: '' } : {})
+                    debugCurrentLine: newSimulatorState.running ? data.line : null,
+                    ...(!newSimulatorState.running ? {state: ''} : {})
                 });
+            }
         }
     }
 }

@@ -195,7 +195,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	                _la = this._input.LA(1);
 	            } while(_la===16);
 
-	                    localctx.l =  new AST.Line((localctx.lab == null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.inst.i)
+	                    localctx.l =  new AST.Line(localctx.start.line, (localctx.lab == null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.inst.i)
 	                
 	            break;
 
@@ -222,7 +222,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	                _la = this._input.LA(1);
 	            } while(_la===16);
 
-	                    localctx.l =  new AST.Line((localctx.lab == null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.dir.d);
+	                    localctx.l =  new AST.Line(localctx.start.line, (localctx.lab == null ? null : this._input.getText(new antlr4.Interval(localctx.lab.start,localctx.lab.stop))), localctx.dir.d);
 	                
 	            break;
 

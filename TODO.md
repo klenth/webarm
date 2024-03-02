@@ -18,3 +18,4 @@
 - Instruction reference
 - Keyboard shortcuts (at least for run/debug)
 - Syscalls for printing/reading strings/numbers
+- Linter

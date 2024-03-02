@@ -18,10 +18,10 @@ returns [Program p]
 line
 returns [Line l]
     : lab=label? inst=instruction NEWLINE+ {
-        $l = new AST.Line($lab.text, $inst.i);
+        $l = new AST.Line($ctx.start.line, $lab.text, $inst.i);
     }
     | lab=label? dir=directive NEWLINE+ {
-        $l = new AST.Line($lab.text, $dir.d);;
+        $l = new AST.Line($ctx.start.line, $lab.text, $dir.d);;
     }
     ;
 

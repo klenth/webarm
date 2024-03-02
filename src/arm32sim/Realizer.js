@@ -10,6 +10,7 @@ export class AssemblyError extends Error {
 
 export function realize(ast) {
     const symbols = {};
+    let addressLineMap = {};
     let instructionMaps = [];
     ast.lines.forEach(line => {
         if (line.item instanceof AST.Directive)
@@ -20,6 +21,7 @@ export function realize(ast) {
                     throw new AssemblyError('Duplicate symbol: ' + line.label);
                 symbols[line.label] = instructionMaps.length;
             }
+            addressLineMap[4 * instructionMaps.length] = line.lineNumber;
             instructionMaps = [...instructionMaps, ...realizeInstruction(line.item)];
         } else {
             console.error("Line that is neither a directive nor an instruction in AST: " + line);;
@@ -36,15 +38,15 @@ export function realize(ast) {
             throw new AssemblyError("Unknown symbol: " + symbol);
     };
 
-    console.debug(instructionMaps);
     const realizedInstructions = [];
     for (i = 0; i < instructionMaps.length; ++i) {
         realizedInstructions.push(instructionMaps[i](symbolAddressMapper));
     }
 
-    console.debug('Realized instructions: ', realizedInstructions);
-
-    return realizedInstructions;
+    return {
+        code: realizedInstructions,
+        addressLineMap: addressLineMap,
+    };
 }
 
 function realizeInstruction(i) {

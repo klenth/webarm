@@ -19,7 +19,7 @@ class ParseError extends Error {
 
 //function main() {
 (function() {
-    let debugCode = null, debugStateStack = null;
+    let debugCode = null, debugStateStack = null, debugLineMap = null;
 
     function sendToApp(message) {
         // eslint-disable-next-line no-restricted-globals
@@ -30,8 +30,7 @@ class ParseError extends Error {
         try {
             const ast = parse(params.code);
             if (ast !== null) {
-                const code = realize(ast);
-                return code;
+                return realize(ast);
             }
         } catch (ex) {
             if (ex instanceof ParseError) {
@@ -82,9 +81,9 @@ class ParseError extends Error {
     }
 
     function handleRunMessage(params) {
-        const code = doParse(params, 'run');
-        if (code) {
-            const finalState = runProgram(code);
+        const parsed = doParse(params, 'run');
+        if (parsed) {
+            const finalState = runProgram(parsed.code, parsed.addressLineMap);
             sendToApp({
                 command: 'run',
                 status: 'complete',
@@ -94,9 +93,10 @@ class ParseError extends Error {
     }
 
     function handleDebugMessage(params) {
-        const code = doParse(params, 'debug');
-        if (code) {
-            debugCode = code;
+        const parsed = doParse(params, 'debug');
+        if (parsed) {
+            debugCode = parsed.code;
+            debugLineMap = parsed.addressLineMap;
             debugStateStack = [];
             debugStateStack.push(new SimulatorState());
             debugStateStack.peek = function() {
@@ -104,7 +104,7 @@ class ParseError extends Error {
             };
 
             let instrAddr = 0;
-            for (const instr of code) {
+            for (const instr of debugCode) {
                 debugStateStack.peek().memory.writeWord(instrAddr, instr.encode());
                 instrAddr += 4;
             }
@@ -113,6 +113,7 @@ class ParseError extends Error {
                 command: 'debug',
                 status: 'ready',
                 state: debugStateStack.peek(),
+                line: debugLineMap[0],
             });
         }
     }
@@ -130,6 +131,7 @@ class ParseError extends Error {
                     command: 'debug/step',
                     status: 'success',
                     state: newState,
+                    line: debugLineMap[newState.PC]
                 });
             } else
                 sendToApp({
@@ -151,6 +153,7 @@ class ParseError extends Error {
                     command: 'debug/step',
                     status: 'success',
                     state: debugStateStack.peek(),
+                    line: debugLineMap[debugStateStack.peek().PC]
                 });
             }
         }

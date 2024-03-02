@@ -54,8 +54,9 @@ export class Program extends AstNode {
 }
 
 export class Line extends AstNode {
-    constructor(label, item) {
+    constructor(lineNumber, label, item) {
         super('line');
+        this.lineNumber = lineNumber;
         this.label = label;
         this.item = item;
     }

@@ -59,7 +59,6 @@ export class Instruction {
     }
 
     encode() {
-        console.debug(this.format);
         const fields = this.format().fields;
         let word = 0;
         for (let name of Object.keys(fields))
@@ -73,13 +72,11 @@ export class InstructionFormat {
         this.fields = fields;
 
         let bits = 0;
-        console.debug('Checking for field overlap:');
         for (let name of Object.keys(this.fields)) {
             const field = this.fields[name];
             if (field.get(bits) !== 0)
                 throw new InstructionFormatError('Instruction format has field overlap! [' + name + ']');
             bits = field.setOnes(bits);
-            console.debug('After ' + name + ', bits = ' + ((bits >>> 0).toString(2)));
         }
 
         if ((bits ^ 0xffff_ffff) !== 0)
@@ -166,7 +163,6 @@ export class DataProcessingInstruction extends Instruction {
     }
 
     static fromCode(word) {
-        //console.log("DataProcessingInstruction.fromCode()");
         const fieldValues = decodeFieldValues(word, DataProcessingInstruction._format);
         return new DataProcessingInstruction(fieldValues);
     }
