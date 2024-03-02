@@ -5,10 +5,12 @@
   - Register names (Rn but also LR etc.)
   - Hex/binary literals
 - Memory viewer
-- Debugging
+- [DONE] Debugging
   - Step backward
 - Remaining instructions
   - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
+  - LDR, STR, etc.
+  - BX/BLX
 - Directives
 - Load/save
 - NZVC for all relevant instructions
