@@ -4,7 +4,8 @@ import {
     decode,
     DataProcessingInstruction,
     BranchInstruction,
-    StopInstruction
+    StopInstruction,
+    BreakInstruction
 } from './Instruction.js';
 import Bitfield from '../bits/Bitfield';
 import * as arithmetic from '../bits/arithmetic';
@@ -106,6 +107,8 @@ function execute(instrCode, state) {
         executeBranchInstruction(state, instr);
     else if (instr instanceof StopInstruction)
         executeStopInstruction(state, instr);
+    else if (instr instanceof BreakInstruction)
+        executeBreakInstruction(state, instr);
     else
         console.error("Unimplemented instruction: " + instr.mnemonic());
 }
@@ -263,8 +266,12 @@ function executeBranchInstruction(state, instr) {
 
 function executeStopInstruction(state, instr) {
     const Cond = instr.get('Cond');
-    console.debug('executeStopInstruction(): testing cond ', Cond.toString(2));
     if (testCondition(Cond, state))
         state.stop();
 }
 
+function executeBreakInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (testCondition(Cond, state))
+        state.break();
+}

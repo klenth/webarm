@@ -5,15 +5,16 @@ const Nbf = new Bitfield(1, 3),
     Zbf = new Bitfield(1, 2),
     Cbf = new Bitfield(1, 1),
     Vbf = new Bitfield(1, 0);
+
 export class SimulatorState {
-    constructor(registers, memory, nzcv, numSteps, running) {
+    constructor(registers, memory, nzcv, numSteps, state) {
         this.registers = Array(16).fill(0);
         for (let i = 0; registers && i < this.registers.length; ++i)
             this.registers[i] = registers[i] & 0xffff_ffff;
         this.memory = memory ? memory.clone() : new SimulatorMemory();
         this.nzcv = nzcv || 0b0000;
         this.numSteps = numSteps || 0;
-        this.running = (running === undefined) ? true : running;
+        this.state = state || 'running';
     }
 
     getPC() {
@@ -84,8 +85,20 @@ export class SimulatorState {
         this.nzcv = Vbf.set(this.nzcv, v);
     }
 
+    get running() {
+        return this.state !== 'stopped';
+    }
+
+    get broken() {
+        return this.state === 'broken';
+    }
+
     stop() {
-        this.running = false;
+        this.state = 'stopped';
+    }
+
+    break() {
+        this.state = 'broken';
     }
 
     static reconstruct(o) {
@@ -96,7 +109,7 @@ export class SimulatorState {
             o.memory ? SimulatorMemory.reconstruct(o.memory) : o.memory,
             o.nzcv,
             o.numSteps,
-            o.running,
+            o.state,
         );
     }
 }

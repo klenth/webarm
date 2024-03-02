@@ -30,7 +30,7 @@ OPCODE
             | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'END'
             | ('LDR' | 'STR') 'B'?
             | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'DB')
-            | 'STOP')
+            | 'STOP' | 'BREAK')
         -> mode(M_MNEMONIC)
     ;
 

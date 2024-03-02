@@ -160,7 +160,28 @@ class ParseError extends Error {
     }
 
     function handleContinueMessage(params) {
+        let state = debugStateStack.peek();
 
+        if (!state.running) {
+            sendToApp({
+                command: 'debug/continue',
+                status: 'error',
+                message: 'Program has ended.'
+            });
+            return;
+        }
+
+        do {
+            state = step(state);
+            debugStateStack.push(state);
+        } while (state.running && !state.broken);
+
+        sendToApp({
+            command: 'debug/continue',
+            status: 'success',
+            state: state,
+            ...(state.broken ? { line: debugLineMap[state.PC] } : {})
+        });
     }
 
     // eslint-disable-next-line no-restricted-globals

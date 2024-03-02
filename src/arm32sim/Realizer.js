@@ -59,6 +59,8 @@ function realizeInstruction(i) {
         return handleLdrPseudoInstruction(i);
     else if (opcode === 'STOP')
         return handleStopInstruction(i);
+    else if (opcode === 'BREAK')
+        return handleBreakInstruction(i);
 
     throw new AssemblyError("Unhandled opcode: " + i.opcode, i);
 }
@@ -359,7 +361,18 @@ function handleStopInstruction(i) {
         '[bits27-25]': 0b011,
         '[bits24-5]': 0,
         '[bit4]': 0b1,
-        '[bits3-0]': 0b000,
+        '[bits3-0]': 0b0000,
+    })];
+}
+
+function handleBreakInstruction(i) {
+    const cond = parseCond(i.cond);
+    return [() => new I.BreakInstruction({
+        Cond: cond,
+        '[bits27-25]': 0b011,
+        '[bits24-5]': 0,
+        '[bit4]': 0b1,
+        '[bits3-0]': 0b0001,
     })];
 }
 

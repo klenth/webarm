@@ -326,6 +326,13 @@ class App extends React.Component {
                     ...(!newSimulatorState.running ? {state: ''} : {})
                 });
             }
+        } else if (data.command === 'debug/continue') {
+            const newSimulatorState = SimulatorState.reconstruct(data.state);
+            this.updateState({
+                simulatorState: newSimulatorState,
+                debugCurrentLine: newSimulatorState.broken ? data.line : null,
+                state: newSimulatorState.broken ? 'debugging/paused' : ''
+            });
         }
     }
 }
