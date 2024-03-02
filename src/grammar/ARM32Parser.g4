@@ -17,7 +17,10 @@ returns [Program p]
 
 line
 returns [Line l]
-    : lab=label? inst=instruction NEWLINE+ {
+    : lab=label? NEWLINE+ {
+        $l = new AST.Line($ctx.start.line, $lab.text, null);;
+    }
+    | lab=label? inst=instruction NEWLINE+ {
         $l = new AST.Line($ctx.start.line, $lab.text, $inst.i);
     }
     | lab=label? dir=directive NEWLINE+ {

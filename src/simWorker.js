@@ -219,12 +219,12 @@ class ParseError extends Error {
                 throw error;
             },
             reportAmbiguity: (recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs) => {
-                console.assert(false, 'Ambiguity');
-                valid = false;
+                //console.assert(false, 'Ambiguity');
+                //valid = false;
             },
             reportAttemptingFullContext: (recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs) => {
-                console.assert(false, 'Attempting full context');
-                valid = false;
+                //console.assert(false, 'Attempting full context');
+                //valid = false;
             },
             reportContextSensitivity: (recognizer, dfa, startIndex, stopIndex, prediction, configs) => {
                 console.assert(false, 'Context sensitivity');

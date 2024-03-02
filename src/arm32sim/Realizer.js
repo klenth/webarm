@@ -13,7 +13,9 @@ export function realize(ast) {
     let addressLineMap = {};
     let instructionMaps = [];
     ast.lines.forEach(line => {
-        if (line.item instanceof AST.Directive)
+        if (line.item === null && line.label)
+            symbols[line.label] = instructionMaps.length;
+        else if (line.item instanceof AST.Directive)
             return;
         else if (line.item instanceof AST.Instruction) {
             if (line.label) {
