@@ -93,6 +93,10 @@ export class SimulatorState {
         return this.state === 'broken';
     }
 
+    get stopped() {
+        return this.state === 'stopped';
+    }
+
     stop() {
         this.state = 'stopped';
     }

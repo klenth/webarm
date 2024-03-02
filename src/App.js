@@ -120,6 +120,8 @@ class App extends React.Component {
             });
         }
 
+        const readOnly = (this.state.state !== '');
+
         return (
             <div className="App">
                 <Controls>
@@ -133,6 +135,12 @@ class App extends React.Component {
                         mode={'text'}
                         height={'inherit'}
                         markers={markers}
+                        readOnly={readOnly}
+                        className={readOnly ? 'read-only' : ''}
+                        setOptions={{
+                            highlightActiveLine: !readOnly,
+                            highlightGutterLine: !readOnly,
+                        }}
                     />
                     <Registers>
                         {registers}
