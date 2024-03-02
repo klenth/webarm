@@ -17,5 +17,10 @@
 - Syntax highlighting (Ace mode)
 - Instruction reference
 - Keyboard shortcuts (at least for run/debug)
-- Syscalls for printing/reading strings/numbers
+- Syscalls:
+  - print string
+  - print integer (unsigned decimal, signed decimal, hex)
+  - input line
+  - input integer (same types)
+  - generate random integer
 - Linter
