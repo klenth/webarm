@@ -13,7 +13,7 @@ export class SimulatorState {
         this.memory = memory ? memory.clone() : new SimulatorMemory();
         this.nzcv = nzcv || 0b0000;
         this.numSteps = numSteps || 0;
-        this.running = running || true;
+        this.running = (running === undefined) ? true : running;
     }
 
     getPC() {
@@ -89,6 +89,8 @@ export class SimulatorState {
     }
 
     static reconstruct(o) {
+        if (!o)
+            return new SimulatorState();
         return new SimulatorState(
             o.registers,
             o.memory ? SimulatorMemory.reconstruct(o.memory) : o.memory,

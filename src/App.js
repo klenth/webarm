@@ -67,6 +67,29 @@ class App extends React.Component {
                 key={'runButton'}
             >Run</button>
         );
+        const debugButton = (
+            <button
+                onClick={() => this.handleDebug()}
+                key={'debugButton'}
+            >Debug</button>
+        );
+        const stepBackButton = (
+            <button
+                onClick={() => this.handleStepBack()}
+                key={'stepBackButton'}
+            >Step back</button>
+        );
+        const stepForwardButton = (
+            <button
+                onClick={() => this.handleStepForward()}
+                key={'stepForwardButton'}
+            >Step forward</button>
+        );
+        const continueButton = (
+            <button
+                onClick={() => this.handleContinue()}
+            >Continue</button>
+        );
         const stopButton = (
             <button
                 onClick={() => this.handleStop()}
@@ -74,8 +97,10 @@ class App extends React.Component {
             >Stop</button>
         );
 
-        const buttons = (this.state.state === '') ? [ parseButton, runButton ]
+        const buttons = (this.state.state === '') ? [ parseButton, runButton, debugButton ]
             : (this.state.state === 'running') ? [ stopButton ]
+            : (this.state.state === 'debugging/paused') ? [ stepBackButton, stepForwardButton, continueButton, stopButton ]
+            : (this.state.state === 'debugging/running') ? [ stopButton ]
             : [];
 
         return (
@@ -120,6 +145,8 @@ class App extends React.Component {
                     this.handleParseComplete(e.data);
                 else if (e.data.command === 'run')
                     this.handleRunComplete(e.data);
+                else if (e.data.command.startsWith('debug'))
+                    this.handleDebugReturn(e.data);
             });
         }
 
@@ -165,6 +192,41 @@ class App extends React.Component {
             },
         });
 
+    }
+
+    handleDebug() {
+        this.updateState({ message: '', simulatorState: new SimulatorState() });
+        this.getWorker().postMessage({
+            command: 'debug',
+            params: {
+                code: this.state.code,
+            }
+        });
+    }
+
+    handleStepBack() {
+        this.getWorker().postMessage({
+            command: 'debug/step',
+            params: {
+                direction: 'backward',
+            }
+        });
+    }
+
+    handleStepForward() {
+        this.getWorker().postMessage({
+            command: 'debug/step',
+            params: {
+                direction: 'forward',
+            }
+        });
+    }
+
+    handleContinue() {
+        this.getWorker().postMessage({
+            command: 'debug/continue',
+            params: {}
+        });
     }
 
     handleStop() {
@@ -216,6 +278,32 @@ class App extends React.Component {
                 this.updateState({
                     message: 'Unspecified error while running code',
                     state: ''
+                });
+        }
+    }
+
+    handleDebugReturn(data) {
+        if (data.command === 'debug') {
+            if (data.status === 'ready')
+                this.updateState({
+                    state: 'debugging/paused',
+                    simulatorState: SimulatorState.reconstruct(data.state),
+                });
+            else if (data.status === 'error')
+                this.updateState({
+                    state: '',
+                    message: data.message,
+                });
+        } else if (data.command === 'debug/step') {
+            const newSimulatorState = SimulatorState.reconstruct(data.state);
+            if (data.status === 'error')
+                this.updateState({
+                    message: data.message,
+                });
+            else
+                this.updateState({
+                    simulatorState: newSimulatorState,
+                    ...(!newSimulatorState.running ? { state: '' } : {})
                 });
         }
     }

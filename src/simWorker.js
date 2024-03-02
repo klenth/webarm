@@ -19,6 +19,8 @@ class ParseError extends Error {
 
 //function main() {
 (function() {
+    let debugCode = null, debugStateStack = null;
+
     function sendToApp(message) {
         // eslint-disable-next-line no-restricted-globals
         self.postMessage(message);
@@ -91,17 +93,87 @@ class ParseError extends Error {
         }
     }
 
-    console.log('Worker: adding event listener (' + counter.count() + ')');
+    function handleDebugMessage(params) {
+        const code = doParse(params, 'debug');
+        if (code) {
+            debugCode = code;
+            debugStateStack = [];
+            debugStateStack.push(new SimulatorState());
+            debugStateStack.peek = function() {
+                return this[this.length - 1];
+            };
+
+            let instrAddr = 0;
+            for (const instr of code) {
+                debugStateStack.peek().memory.writeWord(instrAddr, instr.encode());
+                instrAddr += 4;
+            }
+
+            sendToApp({
+                command: 'debug',
+                status: 'ready',
+                state: debugStateStack.peek(),
+            });
+        }
+    }
+
+    function handleStepMessage(params) {
+        if (!params.direction || params.direction !== 'backward') {
+            // Step forward
+            const initState = debugStateStack.peek() || new SimulatorState();
+            if (debugStateStack.length === 0)
+                debugStateStack.push(initState);
+            if (initState.running) {
+                const newState = step(initState);
+                debugStateStack.push(newState);
+                sendToApp({
+                    command: 'debug/step',
+                    status: 'success',
+                    state: newState,
+                });
+            } else
+                sendToApp({
+                    command: 'debug/step',
+                    status: 'error',
+                    message: 'Program has ended.',
+                });
+        } else {
+            // Step back
+            if (debugStateStack.length === 1)
+                sendToApp({
+                    command: 'debug/step',
+                    status: 'error',
+                    message: 'No further history is available.'
+                });
+            else {
+                const lastState = debugStateStack.pop();
+                sendToApp({
+                    command: 'debug/step',
+                    status: 'success',
+                    state: debugStateStack.peek(),
+                });
+            }
+        }
+    }
+
+    function handleContinueMessage(params) {
+
+    }
+
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
-        console.debug('Worker received message: ');
-        console.debug(e.data);
-        if (e.data.command === 'parse') {
+        if (e.data.command === 'parse')
             handleParseMessage(e.data.params);
-        } else if (e.data.command === 'run') {
+        else if (e.data.command === 'run')
             handleRunMessage(e.data.params);
-        } else if (e.data.command === 'stop')
-            console.log('Received stop message');
+        else if (e.data.command === 'debug')
+            handleDebugMessage(e.data.params);
+        else if (e.data.command === 'debug/step')
+            handleStepMessage(e.data.params);
+        else if (e.data.command === 'debug/continue')
+            handleContinueMessage(e.data.params);
+        else
+            console.error('Unknown message received by worker: ', e.data);
     });
 
     function parse(code) {
@@ -156,8 +228,6 @@ class ParseError extends Error {
     function runProgram(code) {
         let state = new SimulatorState();
 
-        console.log("Program has " + code.length + " instructions");
-        console.log(code);
         let instrAddr = 0;
         for (const instr of code) {
             state.memory.writeWord(instrAddr, instr.encode());
