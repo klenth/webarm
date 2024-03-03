@@ -26,11 +26,11 @@ BANG
 
 OPCODE
     : ('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
-            | 'ROR' | 'RRX' | 'LSL' | 'ASR' | 'LSR'
+            | 'ROR' | 'RRX' | 'ASL' | 'LSL' | 'ASR' | 'LSR'
             | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'END'
             | ('LDR' | 'STR') 'B'?
             | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'DB')
-            | 'STOP' | 'BREAK')
+            | 'STOP' | 'BREAK' | 'NOP')
         -> mode(M_MNEMONIC)
     ;
 
@@ -48,6 +48,10 @@ POUND
 
 EQUALS
     : '='
+    ;
+
+SIGN
+    : [-+]
     ;
 
 fragment INT_STEM
@@ -73,7 +77,7 @@ FILL
     ;
 
 SHIFT
-    : 'LSL' | 'LSR' | 'ASR' | 'ROR'
+    : 'ASL' | 'LSL' | 'LSR' | 'ASR' | 'ROR'
     ;
 
 ID

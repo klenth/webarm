@@ -168,6 +168,31 @@ export class Register extends AstNode {
     }
 }
 
+export class SignedRegister extends AstNode {
+    constructor(sign, name) {
+        super(sign + name);
+        this.sign = sign;
+        this.name = name;
+    }
+
+    static reconstruct(o) {
+        return new SignedRegister(o.sign, o.name);
+    }
+
+    number() {
+        switch (this.name.toUpperCase()) {
+            case 'SP':
+                return 13;
+            case 'LR':
+                return 14;
+            case 'PC':
+                return 15;
+            default:
+                return parseInt(this.name.slice(1));
+        }
+    }
+}
+
 export class FlexOperand extends AstNode {
     constructor(register, shift, amountImmediate, amountRegister) {
         super('flex');
@@ -207,6 +232,7 @@ export class FlexOperand extends AstNode {
     }
 }
 
+/*
 export class OffsetOperand extends AstNode {
     constructor(register, offset) {
         super('offset');
@@ -229,12 +255,14 @@ export class OffsetOperand extends AstNode {
         return new OffsetOperand(AstNode.reconstruct(o.register), o.offset);
     }
 }
+*/
 
 export class PreindexedOperand extends AstNode {
-    constructor(register, offset) {
+    constructor(register, offset, writeback) {
         super('preindex');
         this.register = register;
         this.offset = offset;
+        this.writeback = writeback;
     }
 
     children() {
@@ -332,8 +360,8 @@ const exports = {
     'EquateDirective': EquateDirective,
     'FillDirective': FillDirective,
     'Register': Register,
+    'SignedRegister': SignedRegister,
     'FlexOperand': FlexOperand,
-    'OffsetOperand': OffsetOperand,
     'PreindexedOperand': PreindexedOperand,
     'PostindexedOperand': PostindexedOperand,
     'Immediate': Immediate,

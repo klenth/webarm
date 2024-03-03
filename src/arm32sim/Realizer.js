@@ -59,10 +59,14 @@ function realizeInstruction(i) {
         return handleBranchInstruction(i);
     else if (opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
         return handleLdrPseudoInstruction(i);
+    else if (['LDR', 'LDRB', 'STR', 'STRB'].indexOf(opcode) >= 0)
+        return handleSingleDataTransferInstruction(i);
     else if (opcode === 'STOP')
         return handleStopInstruction(i);
     else if (opcode === 'BREAK')
         return handleBreakInstruction(i);
+    else if (opcode === 'NOP')
+        return handleNopInstruction(i);
 
     throw new AssemblyError("Unhandled opcode: " + i.opcode, i);
 }
@@ -114,6 +118,7 @@ function packFlexOperand(flex) {
 
     let shiftBits;
     switch (flex.shift.toUpperCase()) {
+        case "ASL":
         case "LSL":
             shiftBits = 0b00;
             break;
@@ -356,6 +361,136 @@ function handleLdrPseudoInstruction(i) {
     return instrs;
 }
 
+function handleSingleDataTransferInstruction(i) {
+    const cond = parseCond(i.cond);
+    const spec = operandSpec(i.operands);
+    const OpCode = i.opcode.toUpperCase();
+    const B = (OpCode === 'LDRB' || OpCode === 'STRB') ? 0b1 : 0b0;
+    const L = (OpCode === 'LDR' || OpCode === 'LDRB') ? 0b1 : 0b0;
+
+    function getOffsetU(imm) {
+        const U = (imm < 0) ? 1 : 0;
+        const Offset = (Math.abs(imm) & 0xfff) >>> 0;
+        if (imm !== (U ? -Offset : Offset))
+            throw new AssemblyError(`Offset out of range for ${i.mnemonic()}: ${imm}`);
+        return {
+            U: U,
+            Offset: Offset,
+        };
+    }
+
+    if (spec === 'RI') {
+        const imm = i.operands[1].value;
+        const {U, Offset} = getOffsetU(imm);
+        return [() => new I.SingleDataTransferInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b01,
+            I: 0b0,     // I=0 means offset is immediate
+            P: 0b1,     // preindexed
+            U: U,
+            B: B,
+            W: 0b0,
+            L: L,
+            Rn: 15,     // immediate offset: PC-relative
+            Rd: i.operands[0].number(),
+            Offset: Offset,
+        })];
+    } else if (spec === 'RS') {
+        const P = spec.startsWith('RPre') ? 0b1 : 0b0;
+        const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        return [(mapper) => {
+            const diff = mapper(i.operands[1]) - mapper('.');
+            const {U, Offset} = getOffsetU(diff);
+            return new I.SingleDataTransferInstruction({
+                Cond: cond,
+                '[bits27-26]': 0b01,
+                I: 0b0,     // I=0 means offset is immediate
+                P: 0b1,     // preindexed
+                U: U,
+                B: B,
+                W: 0b0,
+                L: L,
+                Rn: 15,     // immediate offset: PC-relative
+                Rd: i.operands[0].number(),
+                Offset: Offset,
+            });
+        }];
+    } else if (spec === 'RPre[I]' || spec === 'RPre[Null]' || spec === 'RPost[I]') {
+        const imm = i.operands[1].offset?.value || 0;
+        const { U, Offset } = getOffsetU(imm);
+        const P = spec.startsWith('RPre') ? 0b1 : 0b0;
+        const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        return [() => new I.SingleDataTransferInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b01,
+            I: 0b0,     // I=0 means immediate offset
+            P: P,
+            U: U,
+            B: B,
+            W: W,
+            L: L,
+            Rn: i.operands[1].register.number(),
+            Rd: i.operands[0].number(),
+            Offset: Offset,
+        })];
+    } else if (spec === 'RPre[S]' || spec === 'RPost[S]') {
+        const P = spec.startsWith('RPre') ? 0b1 : 0b0;
+        const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        return [(mapper) => {
+            const diff = mapper(i.operands[1].offset) - mapper('.');
+            const {U, Offset} = getOffsetU(diff);
+            return new I.SingleDataTransferInstruction({
+                Cond: cond,
+                '[bits27-26]': 0b01,
+                I: 0b0,
+                P: P,
+                U: U,
+                B: B,
+                W: W,
+                L: L,
+                Rn: i.operands[1].register.number(),
+                Rd: i.operands[0].number(),
+                Offset: Offset,
+            });
+        }];
+    } else if (spec === 'RPre[Rs]' || spec === 'RPost[Rs]') {
+        const U = (i.operands[1].offset.sign === '-') ? 0b0 : 0b1;
+        const P = spec.startsWith('RPre') ? 0b1 : 0b0;
+        const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        return [() => new I.SingleDataTransferInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b01,
+            I: 0b1,     // not immediate
+            P: P,
+            U: U,
+            B: B,
+            W: W,
+            L: L,
+            Rn: i.operands[1].register.number(),
+            Rd: i.operands[0].number(),
+            Offset: i.operands[1].offset.number()
+        })];
+    } else if (spec === 'RPre[Rf]' || spec === 'RPost[Rf]') {
+        const U = (i.operands[1].offset.sign === '-') ? 0b0 : 0b1;
+        const P = spec.startsWith('RPre') ? 0b1 : 0b0;
+        const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        return [() => new I.SingleDataTransferInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b01,
+            I: 0b1,     // not immediate
+            P: P,
+            U: U,
+            B: B,
+            W: W,
+            L: L,
+            Rn: i.operands[1].register.number(),
+            Rd: i.operands[0].number(),
+            Offset: packFlexOperand(i.operands[1].offset)
+        })];
+    } else
+        throw new AssemblyError(`Invalid operands ${spec} for opcode ${OpCode}`, i);
+}
+
 function handleStopInstruction(i) {
     const cond = parseCond(i.cond);
     return [() => new I.StopInstruction({
@@ -378,22 +513,46 @@ function handleBreakInstruction(i) {
     })];
 }
 
+function handleNopInstruction(_) {
+    // Treat NOP as 'MOV R0, R0'
+    return [() => new I.DataProcessingInstruction({
+        Cond: 0b1110,
+        '[bits27-26]': 0b00,
+        I: 0b0,
+        OpCode: 0b1101,     // MOV
+        S: 0b0,
+        Rn: 0,
+        Rd: 0,
+        Operand2: 0
+    })];
+}
+
 function operandSpec(operands) {
-    let spec = "";
-    for (let op of operands) {
-        if (op instanceof AST.Register)
-            spec += "R";
+    function opSpec(op) {
+        if (op === null)
+            return "Null";
+        else if (op instanceof AST.Register)
+            return "R";
+        else if (op instanceof AST.SignedRegister)
+            return "Rs";
+        else if (op instanceof AST.PreindexedOperand)
+            return "Pre[" + opSpec(op.offset) + "]";
+        else if (op instanceof AST.PostindexedOperand)
+            return "Post[" + opSpec(op.offset) + "]";
         else if (op instanceof AST.Immediate)
-            spec += "I";
+            return "I";
         else if (op instanceof AST.FlexOperand)
-            spec += "Rf";
+            return "Rf";
         else if (op instanceof AST.PseudoImmediate)
-            spec += "Ip";
+            return "Ip";
         else if (typeof op === 'string')
-            spec += "S";
+            return "S";
         else
             console.assert(false, "Invalid operand type: " + op.prototype.constructor.name);
     }
+
+    let spec = "";
+    operands.forEach(op => spec += opSpec(op));
 
     return spec;
 }

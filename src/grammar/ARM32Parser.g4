@@ -45,12 +45,33 @@ opcode
 
 operand
 returns [AstNode op]
-    : r=register f=flexOperandSpec {
+    : LBRACK r=register RBRACK COMMA i=immediate {
+        $op = new AST.PostindexedOperand($r.reg, $i.value);;
+    }
+    | LBRACK r=register RBRACK COMMA s=symbol {
+        $op = new AST.PostindexedOperand($r.reg, $s.text);;
+    }
+    | LBRACK r=register RBRACK COMMA SIGN? roff=register {
+        $op = new AST.PostindexedOperand($r.reg, new AST.SignedRegister($SIGN.text, $roff.reg.name));;
+    }
+    | LBRACK r=register RBRACK COMMA SIGN? roff=register COMMA f=flexOperandSpec {
+        $op = new AST.PostindexedOperand(
+            $r.reg,
+            new AST.FlexOperand(
+                new AST.SignedRegister($SIGN.text, $roff.reg.name),
+                $f.ctx.op.text,
+                $f.ctx.amount !== null ? $f.ctx.amount.text : null,
+                $f.ctx.register() !== null ? $f.ctx.register().reg : null
+            )
+        );;
+    }
+    | r=register COMMA f=flexOperandSpec {
         $op = new AST.FlexOperand($r.reg, $f.ctx.op.text, $f.ctx.amount !== null ? $f.ctx.amount.text : null, $f.ctx.register() !== null ? $f.ctx.register().reg : null);;
     }
     | r=register {
         $op = $r.reg;;
     }
+    /*
     | LBRACK r=register COMMA o=offset? RBRACK BANG {
         $op = new AST.PreindexedOperand($r.reg, parseInt($o.off));;
     }
@@ -59,6 +80,30 @@ returns [AstNode op]
     }
     | LBRACK r=register (COMMA o=offset)? RBRACK {
         $op = new AST.OffsetOperand($r.reg, $o.off);;
+    }*/
+    | LBRACK r=register RBRACK {
+        $op = new AST.PreindexedOperand($r.reg, null, null);;
+    }
+    | LBRACK r=register COMMA i=immediate RBRACK BANG? {
+        $op = new AST.PreindexedOperand($r.reg, $i.value, !!$BANG.text);;
+    }
+    | LBRACK r=register COMMA s=symbol RBRACK BANG? {
+        $op = new AST.PreindexedOperand($r.reg, $s.text, !!$BANG.text);;
+    }
+    | LBRACK r=register COMMA SIGN? roff=register RBRACK BANG? {
+        $op = new AST.PreindexedOperand($r.reg, new AST.SignedRegister($SIGN.text, $roff.reg.name), !!$BANG.text);;
+    }
+    | LBRACK r=register COMMA SIGN? roff=register COMMA f=flexOperandSpec RBRACK BANG? {
+        $op = new AST.PreindexedOperand(
+            $r.reg,
+            new AST.FlexOperand(
+                new AST.SignedRegister($SIGN.text, $roff.reg.name),
+                $f.ctx.op.text,
+                $f.ctx.amount !== null ? $f.ctx.amount.text : null,
+                $f.ctx.register() !== null ? $f.ctx.register().reg : null
+            ),
+            !!$BANG.text
+        );;
     }
     | i=immediate {
         $op = $i.value;;
@@ -79,8 +124,8 @@ returns [Register reg]
     ;
 
 flexOperandSpec
-    : op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0}? POUND amount=INT
-    | op=OPCODE {['LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0}? register
+    : op=OPCODE {['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0}? POUND amount=INT
+    | op=OPCODE {['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0}? register
     ;
 
 offset

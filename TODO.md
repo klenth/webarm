@@ -4,7 +4,7 @@
   - Instruction opcodes
   - Register names (Rn but also LR etc.)
   - Hex/binary literals
-- Memory viewer
+- [DONE] Memory viewer
 - [DONE] Debugging
   - Step backward
 - Remaining instructions
@@ -27,4 +27,8 @@
   - generate random integer
 - Linter
 - Limited buffer of simulator states when debugging (not unlimited — 256?)
-- Step forward to go to next line *of code,* not next instruction
+- [SUBSTITUTE] Step forward to go to next line *of code,* not next instruction
+  - Instead, editor shows current line, even when it corresponds to multiple
+    instrs (relevant instruction is shown in memory view)
+- Validation of immediate values (e.g. rotation of immediate in data processing instructions)
+- Expressions for symbols

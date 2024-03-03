@@ -32,7 +32,7 @@ export default class SimulatorMemory {
         if (word === null)
             return 0;
         const byte = address & 0x3;
-        return (word >>> (byte << 3)) & 0xff;
+        return (word >>> ((3 - byte) << 3)) & 0xff;
     }
 
     writeWord(address, value) {
