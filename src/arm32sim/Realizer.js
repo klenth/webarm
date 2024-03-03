@@ -1,5 +1,6 @@
 import * as AST from '../grammar/arm32Ast';
 import * as I from './Instruction';
+import { rotateRight } from '../bits/arithmetic.js';
 
 export class AssemblyError extends Error {
     constructor(message, node) {
@@ -144,6 +145,25 @@ function packFlexOperand(flex) {
     return bits;
 }
 
+function packRotatedImmediateOperand(imm, immString) {
+    // ARM allows the immediate to be at most 8 bits, rotated an even number of bits (0..30) in the word
+    // There are doubtless more efficient ways to compute this, but for our purposes brute force is plenty: just take a
+    // mask of 8 bits and rotate it through all possible positions, stopping once we find one that hits all bits.
+    imm = imm >>> 0; // make sure imm is treated as unsigned
+    const mask = 0xff;
+    let rot;
+    for (rot = 0; rot <= 30; rot += 2) {
+        const rotated = rotateRight(mask, rot);
+        if ((imm & rotated) === imm) {
+            console.debug(`For immediate ${imm}, using rot = ${rot}, imm = ${rotateRight(imm, 32 - rot)}`)
+            return (rot << 7) | (rotateRight(imm, 32 - rot));
+        }
+
+    }
+
+    throw new AssemblyError(`Value ${immString} not in range: must be expressible as eight bits rotated within a 32-bit field`)
+}
+
 function handleIntegerDataProcessingInstruction(i) {
     const OpCode = i.opcode.toUpperCase();
     const S = i.s;
@@ -183,7 +203,7 @@ function handleIntegerDataProcessingInstruction(i) {
             S: Sbit,
             Rn: +i.operands[1].number(),
             Rd: +i.operands[0].number(),
-            Operand2: +i.operands[2].value & 0xff
+            Operand2: packRotatedImmediateOperand(i.operands[2].value, i.operands[2].text)
         })];
     } else if (spec === 'RRR') {
         return [() => new I.DataProcessingInstruction({
@@ -244,7 +264,7 @@ function handleIntegerDataProcessingInstruction(i) {
             S: Sbit,
             Rn: +i.operands[0].number(),
             Rd: 0,
-            Operand2: +i.operands[1].value & 0xff
+            Operand2: packRotatedImmediateOperand(i.operands[1].value, i.operands[1].text)
         })];
     } else if (spec === 'RI'
             && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
@@ -257,7 +277,7 @@ function handleIntegerDataProcessingInstruction(i) {
             S: Sbit,
             Rn: 0,
             Rd: +i.operands[0].number(),
-            Operand2: +i.operands[1].value & 0xff
+            Operand2: packRotatedImmediateOperand(i.operands[1].value, i.operands[1].text)
         })];
     } else if (spec === 'RRf'
             && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
@@ -301,7 +321,7 @@ function handleBranchInstruction(i) {
             Cond: cond,
             '[bits27-25]': 0b101,
             'L': (OpCode === 'BL') ? 0b1 : 0b0,
-            'offset': i.operands[0].value & 0xff_ffff,
+            'offset': (i.operands[0].value - 4) & 0xff_ffff,
         })];
     } else if (spec === 'S') {
         const symbol = i.operands[0];
@@ -309,7 +329,7 @@ function handleBranchInstruction(i) {
             Cond: cond,
             '[bits27-25]': 0b101,
             'L': (OpCode === 'BL') ? 0b1 : 0b0,
-            'offset': (mapper(symbol) - mapper('.')) & 0xff_ffff,
+            'offset': (mapper(symbol) - mapper('.') - 4) & 0xff_ffff,
         })];
     } else
         throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);

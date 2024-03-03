@@ -1,3 +1,5 @@
+import Bitfield from './Bitfield';
+
 function asSigned(n) {
     return n >> 0;
 }
@@ -33,4 +35,11 @@ export function testAdditionOverflow(arg1, arg2, c) {
 
 export function testSubtractionOverflow(arg1, arg2, c) {
     return testAdditionOverflow(arg1, -asSigned(arg2), c);
+}
+
+export function rotateRight(value, bits) {
+    const rightBits = new Bitfield(bits, 0).get(value);
+    value >>>= bits;
+    value |= (rightBits << (32 - bits));
+    return value;
 }

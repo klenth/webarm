@@ -8,9 +8,8 @@ import {
     StopInstruction,
     BreakInstruction
 } from './Instruction.js';
-import Bitfield from '../bits/Bitfield';
-import * as arithmetic from '../bits/arithmetic';
-import {testAdditionOverflow, testSubtractionOverflow} from '../bits/arithmetic';
+import Bitfield from '../bits/Bitfield.js';
+import { testAdditionOverflow, testSubtractionOverflow, rotateRight } from '../bits/arithmetic.js';
 
 class UnimplementedException {
     constructor(message) {
@@ -40,13 +39,6 @@ export function step(state) {
     const instr = state.memory.readWord(pc);
     execute(instr, newState);
     return newState;
-}
-
-function rotateRight(value, bits) {
-    const rightBits = new Bitfield(bits, 0).get(value);
-    value >>>= bits;
-    value |= (rightBits << (32 - bits));
-    return value;
 }
 
 function shift(value, bits, typeEncoded) {
@@ -208,6 +200,7 @@ function executeDataProcessingInstruction(state, instr) {
         const Rotate = new Bitfield(4, 8).get(Operand2);
         const Imm = new Bitfield(8, 0).get(Operand2);
         const rotatedOperand = rotateRight(Imm, 2 * Rotate);
+        console.debug(`Rotate = ${Rotate}, Imm = ${Imm} => rotatedOperand = ${rotatedOperand}`);
 
         result = evaluate(RnValue, rotatedOperand, state.C);
         if (S === 0b1)
@@ -319,8 +312,7 @@ function executeBranchInstruction(state, instr) {
     if (L)
         state.LR = pc;
 
-    const newPC = (pc - 4) + offset;
-    state.PC = newPC;
+    state.PC = pc + offset; // the assembler is supposed to take prefetch into account
 }
 
 function executeStopInstruction(state, instr) {

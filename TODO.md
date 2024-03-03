@@ -1,12 +1,8 @@
 # TODO
 
 - [DONE] Case insensitivity
-  - Instruction opcodes
-  - Register names (Rn but also LR etc.)
-  - Hex/binary literals
 - [DONE] Memory viewer
 - [DONE] Debugging
-  - Step backward
 - Remaining instructions
   - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
   - LDR, STR, etc.
