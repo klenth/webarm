@@ -95,10 +95,8 @@ function testCondition(cond, state) {
 
 function execute(instrCode, state) {
     const instr = decode(instrCode);
-    if (instr === null) {
-        console.error("Error decoding instruction: " + instrCode.toString(16));
-        return;
-    }
+    if (instr === null)
+        throw new SimulatorError(`Error decoding instruction 0x${instrCode.toString(16)}`)
     //console.log("Executing " + instr.mnemonic());
 
     if (instr instanceof DataProcessingInstruction)
@@ -112,7 +110,7 @@ function execute(instrCode, state) {
     else if (instr instanceof BreakInstruction)
         executeBreakInstruction(state, instr);
     else
-        console.error("Unimplemented instruction: " + instr.mnemonic());
+        throw new SimulatorError(`Unimplemented instruction ${instr.mnemonic()}`);
 }
 
 function executeDataProcessingInstruction(state, instr) {
@@ -182,7 +180,8 @@ function executeDataProcessingInstruction(state, instr) {
                 of = testSubtractionOverflow(arg1, arg2, cin);
                 return { 'C': of.unsigned, 'V': of.signed };
             default:
-                console.warn("Unimplemented C/V flags for opcode " + OpCode.toString(16));
+                //console.warn("Unimplemented C/V flags for opcode " + OpCode.toString(16));
+                // Note: C/V flags unimplemented for logical instructions (this is probably not an issue)
                 return { 'C': 0, 'V': 0 };
         }
     }
@@ -200,7 +199,6 @@ function executeDataProcessingInstruction(state, instr) {
         const Rotate = new Bitfield(4, 8).get(Operand2);
         const Imm = new Bitfield(8, 0).get(Operand2);
         const rotatedOperand = rotateRight(Imm, 2 * Rotate);
-        console.debug(`Rotate = ${Rotate}, Imm = ${Imm} => rotatedOperand = ${rotatedOperand}`);
 
         result = evaluate(RnValue, rotatedOperand, state.C);
         if (S === 0b1)
@@ -262,7 +260,6 @@ function executeSingleDataTransferInstruction(state, instr) {
     if (!I) {
         // immediate offset
         const off = (Offset << 20) >> 20;
-        console.debug(`off = ${off}`);
         adjustedAddress += U ? off : -off;
     } else {
         const shiftSrc = Offset & 0x10;
@@ -278,8 +275,6 @@ function executeSingleDataTransferInstruction(state, instr) {
     }
 
     const targetAddress = P ? adjustedAddress : baseAddress;
-
-    console.debug(`baseAddress = ${baseAddress}, adjustedAddress = ${adjustedAddress}, targetAddress = ${targetAddress}`);
 
     if (L && !B) {          // LDR (load word) - most common
         const alignedAddress = targetAddress & 0xffff_fffc;
@@ -305,7 +300,7 @@ function executeBranchInstruction(state, instr) {
         return;
 
     const L = instr.get('L');
-    const offset = (instr.get('offset') << 8) >> 8;
+    const offset = (instr.get('offset') << 8) >> 6;
 
     const pc = state.getPC();
 

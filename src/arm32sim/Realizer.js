@@ -113,8 +113,7 @@ function parseCond(cond) {
     }
 }
 
-function packFlexOperand(flex) {
-    let bits = 0;
+function packFlexOperand(flex, i) {
     const amountImm = flex.amountImmediate, amountReg = flex.amountRegister;
 
     let shiftBits;
@@ -136,10 +135,12 @@ function packFlexOperand(flex) {
             console.assert(false,  "Invalid shift: " + flex.shift);
     }
 
-    bits = flex.register.number() | (shiftBits << 5);
-    if (amountImm !== null)
+    let bits = flex.register.number() | (shiftBits << 5);
+    if (amountImm !== null) {
+        if ((amountImm & 0x1f) !== amountImm)
+            throw new AssemblyError(`Invalid shift amount ${flex.amountImmediate}: must be five bits or less`)
         bits |= ((amountImm & 0x1f) << 7);
-    else if (amountReg !== null)
+    } else if (amountReg !== null)
         bits |= 0b10000 | (amountReg.number() << 8);
 
     return bits;
@@ -314,6 +315,17 @@ function handleBranchInstruction(i) {
     if (!!i.S)
         throw new AssemblyError("Opcode " + i.opcode + " cannot take an S!");
 
+    function packOffset(off) {
+        if ((off & 0x3) !== 0)
+            throw new AssemblyError(`Unaligned branch offset: ${off}`)
+        const packed = ((off >> 2) - 1) & 0xff_ffff;
+        // test unpacking the offset to make sure it fits in the field
+        const unpacked = (packed << 8) >> 6;
+        if (unpacked + 4 !== off)
+            throw new AssemblyError(`Branch offset ${off} out of range (must be within 32 MiB)`)
+        return packed;
+    }
+
     const spec = operandSpec(i.operands);
     const cond = parseCond(i.cond);
     if (spec === 'I') {
@@ -321,7 +333,7 @@ function handleBranchInstruction(i) {
             Cond: cond,
             '[bits27-25]': 0b101,
             'L': (OpCode === 'BL') ? 0b1 : 0b0,
-            'offset': (i.operands[0].value - 4) & 0xff_ffff,
+            'offset': packOffset(i.operands[9].value),
         })];
     } else if (spec === 'S') {
         const symbol = i.operands[0];
@@ -329,7 +341,7 @@ function handleBranchInstruction(i) {
             Cond: cond,
             '[bits27-25]': 0b101,
             'L': (OpCode === 'BL') ? 0b1 : 0b0,
-            'offset': (mapper(symbol) - mapper('.') - 4) & 0xff_ffff,
+            'offset': packOffset(mapper(symbol) - mapper('.'))
         })];
     } else
         throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
@@ -344,7 +356,7 @@ function handleLdrPseudoInstruction(i) {
     const reg = i.operands[0].number();
 
     if (!!S)
-        throw new AssemblyError("LDRS should not be used with '=number'", i)
+        throw new AssemblyError(`${i.opcode} does not take S flag!`, i)
 
     let movByte = imm & 0xff;
     const instrs = [
@@ -387,6 +399,9 @@ function handleSingleDataTransferInstruction(i) {
     const OpCode = i.opcode.toUpperCase();
     const B = (OpCode === 'LDRB' || OpCode === 'STRB') ? 0b1 : 0b0;
     const L = (OpCode === 'LDR' || OpCode === 'LDRB') ? 0b1 : 0b0;
+
+    if (!!i.s)
+        throw new AssemblyError(`${i.opcode} does not take S flag!`, i)
 
     function getOffsetU(imm) {
         const U = (imm < 0) ? 0 : 1;
