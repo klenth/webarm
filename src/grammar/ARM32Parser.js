@@ -4,7 +4,7 @@ import antlr4 from 'antlr4';
 
 import * as AST from './arm32Ast';
 
-const serializedATN = [4,1,22,260,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
+const serializedATN = [4,1,23,260,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,
 1,0,5,0,28,8,0,10,0,12,0,31,9,0,1,0,5,0,34,8,0,10,0,12,0,37,9,0,1,0,1,0,
 1,0,1,1,3,1,43,8,1,1,1,4,1,46,8,1,11,1,12,1,47,1,1,1,1,3,1,52,8,1,1,1,1,
@@ -36,8 +36,8 @@ const serializedATN = [4,1,22,260,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 64,66,3,24,12,0,65,67,5,17,0,0,66,65,1,0,0,0,67,68,1,0,0,0,68,66,1,0,0,0,
 68,69,1,0,0,0,69,70,1,0,0,0,70,71,6,1,-1,0,71,73,1,0,0,0,72,42,1,0,0,0,72,
 51,1,0,0,0,72,62,1,0,0,0,73,3,1,0,0,0,74,75,5,16,0,0,75,5,1,0,0,0,76,78,
-3,8,4,0,77,79,5,20,0,0,78,77,1,0,0,0,78,79,1,0,0,0,79,81,1,0,0,0,80,82,5,
-21,0,0,81,80,1,0,0,0,81,82,1,0,0,0,82,91,1,0,0,0,83,88,3,10,5,0,84,85,5,
+3,8,4,0,77,79,5,21,0,0,78,77,1,0,0,0,78,79,1,0,0,0,79,81,1,0,0,0,80,82,5,
+22,0,0,81,80,1,0,0,0,81,82,1,0,0,0,82,91,1,0,0,0,83,88,3,10,5,0,84,85,5,
 2,0,0,85,87,3,10,5,0,86,84,1,0,0,0,87,90,1,0,0,0,88,86,1,0,0,0,88,89,1,0,
 0,0,89,92,1,0,0,0,90,88,1,0,0,0,91,83,1,0,0,0,91,92,1,0,0,0,92,93,1,0,0,
 0,93,94,6,3,-1,0,94,7,1,0,0,0,95,96,5,6,0,0,96,9,1,0,0,0,97,98,5,3,0,0,98,
@@ -98,13 +98,13 @@ export default class ARM32Parser extends antlr4.Parser {
     static grammarFileName = "ARM32Parser.g4";
     static literalNames = [ null, null, "','", "'['", "']'", "'!'", null, 
                             null, "'#'", "'='", null, null, "'DCD'", "'equ'", 
-                            "'FILL'", null, null, null, null, null, "'S'", 
-                            null, "' '" ];
+                            "'FILL'", null, null, null, null, null, null, 
+                            "'S'", null, "' '" ];
     static symbolicNames = [ null, "COMMENT", "COMMA", "LBRACK", "RBRACK", 
                              "BANG", "OPCODE", "REGISTER", "POUND", "EQUALS", 
                              "SIGN", "INT", "DCD", "EQU", "FILL", "SHIFT", 
-                             "ID", "NEWLINE", "WS", "COMMENT_TEXT", "S", 
-                             "COND", "MNEMONIC_WS" ];
+                             "ID", "NEWLINE", "WS", "INVALID", "COMMENT_TEXT", 
+                             "S", "COND", "MNEMONIC_WS" ];
     static ruleNames = [ "program", "line", "label", "instruction", "opcode", 
                          "operand", "register", "flexOperandSpec", "offset", 
                          "immediate", "pseudoImmediate", "symbol", "directive" ];
@@ -348,7 +348,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 78;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===20) {
+	        if(_la===21) {
 	            this.state = 77;
 	            localctx.s = this.match(ARM32Parser.S);
 	        }
@@ -356,7 +356,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 81;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===21) {
+	        if(_la===22) {
 	            this.state = 80;
 	            localctx.cond = this.match(ARM32Parser.COND);
 	        }
@@ -681,7 +681,6 @@ export default class ARM32Parser extends antlr4.Parser {
 	            }
 
 
-	                    console.debug('[parser] (localctx._SIGN == null ? null : localctx._SIGN.text) = ', (localctx._SIGN == null ? null : localctx._SIGN.text));
 	                    localctx.op =  new AST.PreindexedOperand(
 	                        localctx.r.reg,
 	                        new AST.FlexOperand(
@@ -1046,10 +1045,11 @@ ARM32Parser.SHIFT = 15;
 ARM32Parser.ID = 16;
 ARM32Parser.NEWLINE = 17;
 ARM32Parser.WS = 18;
-ARM32Parser.COMMENT_TEXT = 19;
-ARM32Parser.S = 20;
-ARM32Parser.COND = 21;
-ARM32Parser.MNEMONIC_WS = 22;
+ARM32Parser.INVALID = 19;
+ARM32Parser.COMMENT_TEXT = 20;
+ARM32Parser.S = 21;
+ARM32Parser.COND = 22;
+ARM32Parser.MNEMONIC_WS = 23;
 
 ARM32Parser.RULE_program = 0;
 ARM32Parser.RULE_line = 1;

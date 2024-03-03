@@ -5,6 +5,7 @@ import {
     DataProcessingInstruction,
     SingleDataTransferInstruction,
     BranchInstruction,
+    BranchAndExchangeInstruction,
     StopInstruction,
     BreakInstruction
 } from './Instruction.js';
@@ -105,6 +106,8 @@ function execute(instrCode, state) {
         executeSingleDataTransferInstruction(state, instr);
     else if (instr instanceof BranchInstruction)
         executeBranchInstruction(state, instr);
+    else if (instr instanceof BranchAndExchangeInstruction)
+        executeBranchAndExchangeInstruction(state, instr);
     else if (instr instanceof StopInstruction)
         executeStopInstruction(state, instr);
     else if (instr instanceof BreakInstruction)
@@ -308,6 +311,17 @@ function executeBranchInstruction(state, instr) {
         state.LR = pc;
 
     state.PC = pc + offset; // the assembler is supposed to take prefetch into account
+}
+
+function executeBranchAndExchangeInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (!testCondition(Cond, state))
+        return;
+
+    const Rn = instr.get('Rn');
+    // the documentation isn't specific as to what happens if the address is unaligned - I will just force it to be
+    // aligned by discarding the bottom two bits.
+    state.PC = state.registers[Rn] & 0xffff_fffc;
 }
 
 function executeStopInstruction(state, instr) {

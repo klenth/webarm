@@ -27,7 +27,7 @@ BANG
 OPCODE
     : ('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
             | 'ROR' | 'RRX' | 'ASL' | 'LSL' | 'ASR' | 'LSR'
-            | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'END'
+            | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'BX' | 'END'
             | ('LDR' | 'STR') 'B'?
             | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'DB')
             | 'STOP' | 'BREAK' | 'NOP')
@@ -92,6 +92,9 @@ WS
     : [ \t]+ -> skip
     ;
 
+INVALID
+    : .
+    ;
 
 mode M_COMMENT;
 
@@ -127,5 +130,5 @@ MNEMONIC_NEWLINE
     ;
 
 MNEMONIC_OTHER
-    : .     -> more, mode(DEFAULT_MODE)
+    : .     -> mode(DEFAULT_MODE), type(INVALID)
     ;

@@ -94,7 +94,6 @@ returns [AstNode op]
         $op = new AST.PreindexedOperand($r.reg, new AST.SignedRegister($SIGN.text, $roff.reg.name), !!$BANG.text);;
     }
     | LBRACK r=register COMMA SIGN? roff=register COMMA f=flexOperandSpec RBRACK BANG? {
-        console.debug('[parser] $SIGN.text = ', $SIGN.text);
         $op = new AST.PreindexedOperand(
             $r.reg,
             new AST.FlexOperand(

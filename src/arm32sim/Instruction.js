@@ -38,16 +38,10 @@ function decodeFieldValues(word, format) {
 export class Instruction {
     constructor(fieldValues) {
         this.fieldValues = { ...fieldValues };
-        this.validate();
     }
 
     format() {
         throw "format() not overridden";
-        return null;
-    }
-
-    validate() {
-        throw "validate() not overridden";
     }
 
     mnemonic() {
@@ -96,11 +90,6 @@ export class BranchInstruction extends Instruction {
         return BranchInstruction._format;
     }
 
-    validate() {
-        if (this.get('Cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111')
-    }
-
     mnemonic() {
         if (this.get('L'))
             return 'BL';
@@ -111,6 +100,27 @@ export class BranchInstruction extends Instruction {
     static fromCode(word) {
         const fieldValues = decodeFieldValues(word, BranchInstruction._format);
         return new BranchInstruction(fieldValues);
+    }
+}
+
+export class BranchAndExchangeInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        Cond: new Bitfield(4, 28),
+        '[bits27-4]': new Bitfield(24, 4).asConstant(0b0001_0010_1111_1111_1111_0001),
+        Rn: new Bitfield(4, 0)
+    });
+
+    format() {
+        return BranchAndExchangeInstruction._format;
+    }
+
+    mnemonic() {
+        return 'BX';
+    }
+
+    static fromCode(word) {
+        const fieldValues = decodeFieldValues(word, BranchAndExchangeInstruction._format);
+        return new BranchAndExchangeInstruction(fieldValues);
     }
 }
 
@@ -149,11 +159,6 @@ export class DataProcessingInstruction extends Instruction {
         return DataProcessingInstruction._format;
     }
 
-    validate() {
-        if (this.get('Cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111');
-    }
-
     mnemonic() {
         let m = DataProcessingInstruction._opcodes[this.get('OpCode')];
         if (this.get('S') && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(m) < 0)
@@ -187,11 +192,6 @@ export class SingleDataTransferInstruction extends Instruction {
         return SingleDataTransferInstruction._format;
     }
 
-    validate() {
-        if (this.get('Cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111');
-    }
-
     mnemonic() {
         const B = this.get('B'), L = this.get('L');
         const prefix = L ? 'LDR' : 'STR';
@@ -217,11 +217,6 @@ export class StopInstruction extends Instruction {
         return StopInstruction._format;
     }
 
-    validate() {
-        if (this.get('Cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111');
-    }
-
     mnemonic() {
         return 'STOP';
     }
@@ -245,11 +240,6 @@ export class BreakInstruction extends Instruction {
         return BreakInstruction._format;
     }
 
-    validate() {
-        if (this.get('Cond') === 0b1111)
-            throw new InstructionFormatError('cond=1111')
-    }
-
     mnemonic() {
         return 'BREAK';
     }
@@ -260,6 +250,7 @@ export class BreakInstruction extends Instruction {
     }
 }
 
+registerOpcodeDecoder(0x0fff_fff0, 0x012f_ff10, BranchAndExchangeInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0010, StopInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0011, BreakInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0400_0000, SingleDataTransferInstruction.fromCode);

@@ -58,6 +58,8 @@ function realizeInstruction(i) {
         return handleIntegerDataProcessingInstruction(i);
     else if (['B', 'BL'].indexOf(opcode) >= 0)
         return handleBranchInstruction(i);
+    else if (opcode === 'BX')
+        return handleBranchAndExchangeInstruction(i);
     else if (opcode === 'LDR' && operandSpec(i.operands) === 'RIp')
         return handleLdrPseudoInstruction(i);
     else if (['LDR', 'LDRB', 'STR', 'STRB'].indexOf(opcode) >= 0)
@@ -155,11 +157,8 @@ function packRotatedImmediateOperand(imm, immString) {
     let rot;
     for (rot = 0; rot <= 30; rot += 2) {
         const rotated = rotateRight(mask, rot);
-        if ((imm & rotated) === imm) {
-            console.debug(`For immediate ${imm}, using rot = ${rot}, imm = ${rotateRight(imm, 32 - rot)}`)
+        if ((imm & rotated) === imm)
             return (rot << 7) | (rotateRight(imm, 32 - rot));
-        }
-
     }
 
     throw new AssemblyError(`Value ${immString} not in range: must be expressible as eight bits rotated within a 32-bit field`)
@@ -303,7 +302,7 @@ function handleIntegerDataProcessingInstruction(i) {
             OpCode: opc,
             S: Sbit,
             Rn: 0,
-            Rd: +i.operands[0].number(),
+            Rd: i.operands[0].number(),
             Operand2: packFlexOperand(i.operands[1])
         })];
     } else
@@ -345,6 +344,22 @@ function handleBranchInstruction(i) {
         })];
     } else
         throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
+}
+
+function handleBranchAndExchangeInstruction(i) {
+    if (!!i.S)
+        throw new AssemblyError("Opcode " + i.opcode + " cannot take an S!");
+
+    const spec = operandSpec(i.operands),
+        cond = parseCond(i.cond);
+    if (spec === 'R')
+        return [() => new I.BranchAndExchangeInstruction({
+            Cond: cond,
+            '[bits27-4]': 0b0001_0010_1111_1111_1111_0001,
+            Rn: i.operands[0].number()
+        })];
+    else
+        throw new AssemblyError(`Invalid operands ${spec} for opcode ${i.opcode}`, i);
 }
 
 function handleLdrPseudoInstruction(i) {

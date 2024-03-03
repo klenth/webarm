@@ -26,6 +26,6 @@
 - [SUBSTITUTE] Step forward to go to next line *of code,* not next instruction
   - Instead, editor shows current line, even when it corresponds to multiple
     instrs (relevant instruction is shown in memory view)
-- Validation of immediate values (e.g. rotation of immediate in data processing instructions)
+- [DONE] Validation of immediate values (e.g. rotation of immediate in data processing instructions)
 - Expressions for symbols
 - Symbol/expression for operand 2 in data processing instructions
