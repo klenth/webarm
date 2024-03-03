@@ -113,7 +113,7 @@ class ParseError extends Error {
                 command: 'debug',
                 status: 'ready',
                 state: debugStateStack.peek(),
-                line: debugLineMap[0],
+                line: lineForAddress(0),
             });
         }
     }
@@ -131,7 +131,7 @@ class ParseError extends Error {
                     command: 'debug/step',
                     status: 'success',
                     state: newState,
-                    line: debugLineMap[newState.PC]
+                    line: lineForAddress(newState.PC)
                 });
             } else
                 sendToApp({
@@ -153,7 +153,7 @@ class ParseError extends Error {
                     command: 'debug/step',
                     status: 'success',
                     state: debugStateStack.peek(),
-                    line: debugLineMap[debugStateStack.peek().PC]
+                    line: lineForAddress(debugStateStack.peek().PC)
                 });
             }
         }
@@ -180,7 +180,7 @@ class ParseError extends Error {
             command: 'debug/continue',
             status: 'success',
             state: state,
-            ...(state.broken ? { line: debugLineMap[state.PC] } : {})
+            ...(state.broken ? { line: lineForAddress(state.PC) } : {})
         });
     }
 
@@ -263,6 +263,12 @@ class ParseError extends Error {
         }
 
         return state;
+    }
+
+    function lineForAddress(addr) {
+        while (addr > 0 && !(addr in debugLineMap))
+            --addr;
+        return debugLineMap[addr];
     }
 
 //}

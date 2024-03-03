@@ -12,6 +12,10 @@ import 'ace-builds/src-noconflict/mode-text';
 const Controls = styled.div`
   text-align: right;
   padding: 8px;
+  
+  & > * {
+    margin: 2px 8px;
+  }
 `;
 
 const Center = styled.div`
