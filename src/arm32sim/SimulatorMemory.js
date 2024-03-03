@@ -29,7 +29,6 @@ export default class SimulatorMemory {
 
     readByte(address) {
         const word = this.overrides[address >> 2] || null;
-        console.debug(`readByte(${address}): word = ${word}`)
         if (word === null)
             return 0;
         const byte = address & 0x3;

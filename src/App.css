@@ -1,5 +1,13 @@
 .App {
   height: 100vh;
+  --color-night: #211551;
+  --color-copper: #9D581F;
+  --color-snow: white;
+  --color-flint: #101820;
+  --color-birch: #F1F1DE;
+  --color-thistle: #8252C7;
+  --color-sky: #00B5E2;
+  --color-for-current-highlight: rgba(142, 102, 199, 0.4);
 }
 
 .App-logo {

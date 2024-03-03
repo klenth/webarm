@@ -27,7 +27,7 @@ const Editor = styled(AceEditor)`
   height: 100%;
   
   .debug-current-line {
-    background-color: rgba(142, 102, 199, 0.4);
+    background-color: var(--color-for-current-highlight);
     position: absolute;
   }
 `;
@@ -154,11 +154,6 @@ class App extends React.Component {
                             highlightGutterLine: !readOnly,
                         }}
                     />
-                    {(this.state.showingMemory) ? (
-                        <RamDisplay
-                            memory={this.state.simulatorState.memory}
-                        />
-                    ) : null}
                     <Registers>
                         {registers}
                         <NzcvDisplay
@@ -168,6 +163,12 @@ class App extends React.Component {
                             V={this.state.simulatorState.V}
                         />
                     </Registers>
+                    {(this.state.showingMemory) ? (
+                        <RamDisplay
+                            memory={this.state.simulatorState.memory}
+                            highlightWord={this.state.state === 'debugging/paused' ? this.state.simulatorState.PC : null}
+                        />
+                    ) : null}
                 </Center>
                 <MessageDisplay>{this.state.message}</MessageDisplay>
             </div>
@@ -305,6 +306,7 @@ class App extends React.Component {
             this.updateState({
                 simulatorState: SimulatorState.reconstruct(data.finalState),
                 state: '',
+                message: `Program ended after ${data.finalState.numSteps} instructions.`
             });
         } else if (data.status === 'error') {
             if (data.params.error_context === 'assembly')
@@ -356,7 +358,8 @@ class App extends React.Component {
             this.updateState({
                 simulatorState: newSimulatorState,
                 debugCurrentLine: newSimulatorState.broken ? data.line : null,
-                state: newSimulatorState.broken ? 'debugging/paused' : ''
+                state: newSimulatorState.broken ? 'debugging/paused' : '',
+                ...(newSimulatorState.stopped ? { message: `Program ended after ${newSimulatorState.numSteps} instructions.` } : {})
             });
         }
     }
