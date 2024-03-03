@@ -369,10 +369,10 @@ function handleSingleDataTransferInstruction(i) {
     const L = (OpCode === 'LDR' || OpCode === 'LDRB') ? 0b1 : 0b0;
 
     function getOffsetU(imm) {
-        const U = (imm < 0) ? 1 : 0;
+        const U = (imm < 0) ? 0 : 1;
         const Offset = (Math.abs(imm) & 0xfff) >>> 0;
-        if (imm !== (U ? -Offset : Offset))
-            throw new AssemblyError(`Offset out of range for ${i.mnemonic()}: ${imm}`);
+        if (imm !== (U ? Offset : -Offset))
+            throw new AssemblyError(`Offset out of range for ${i.opcode}: ${imm}`);
         return {
             U: U,
             Offset: Offset,
@@ -380,7 +380,7 @@ function handleSingleDataTransferInstruction(i) {
     }
 
     if (spec === 'RI') {
-        const imm = i.operands[1].value;
+        const imm = i.operands[1].value - 4;
         const {U, Offset} = getOffsetU(imm);
         return [() => new I.SingleDataTransferInstruction({
             Cond: cond,
@@ -396,10 +396,8 @@ function handleSingleDataTransferInstruction(i) {
             Offset: Offset,
         })];
     } else if (spec === 'RS') {
-        const P = spec.startsWith('RPre') ? 0b1 : 0b0;
-        const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
         return [(mapper) => {
-            const diff = mapper(i.operands[1]) - mapper('.');
+            const diff = mapper(i.operands[1]) - mapper('.') - 4;
             const {U, Offset} = getOffsetU(diff);
             return new I.SingleDataTransferInstruction({
                 Cond: cond,
@@ -455,6 +453,7 @@ function handleSingleDataTransferInstruction(i) {
         }];
     } else if (spec === 'RPre[Rs]' || spec === 'RPost[Rs]') {
         const U = (i.operands[1].offset.sign === '-') ? 0b0 : 0b1;
+        console.debug(`U = ${U}`);
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
         return [() => new I.SingleDataTransferInstruction({
@@ -471,7 +470,11 @@ function handleSingleDataTransferInstruction(i) {
             Offset: i.operands[1].offset.number()
         })];
     } else if (spec === 'RPre[Rf]' || spec === 'RPost[Rf]') {
-        const U = (i.operands[1].offset.sign === '-') ? 0b0 : 0b1;
+        if (i.operands[1].offset.amountRegister !== null)
+            throw new AssemblyError(`LDR/STR does not allow shifting by register`, i);
+        console.log(i.operands[1].offset.register.sign);
+        const U = (i.operands[1].offset.register.sign === '-') ? 0b0 : 0b1;
+        console.debug(`U = ${U}`);
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
         return [() => new I.SingleDataTransferInstruction({

@@ -3,6 +3,7 @@ import SimulatorState from './SimulatorState';
 import {
     decode,
     DataProcessingInstruction,
+    SingleDataTransferInstruction,
     BranchInstruction,
     StopInstruction,
     BreakInstruction
@@ -18,6 +19,13 @@ class UnimplementedException {
 
     toString() {
         return this.message;
+    }
+}
+
+class SimulatorError extends Error {
+    constructor(message, state) {
+        super(message);
+        this.state = state;
     }
 }
 
@@ -103,6 +111,8 @@ function execute(instrCode, state) {
 
     if (instr instanceof DataProcessingInstruction)
         executeDataProcessingInstruction(state, instr);
+    else if (instr instanceof SingleDataTransferInstruction)
+        executeSingleDataTransferInstruction(state, instr);
     else if (instr instanceof BranchInstruction)
         executeBranchInstruction(state, instr);
     else if (instr instanceof StopInstruction)
@@ -244,6 +254,55 @@ function executeDataProcessingInstruction(state, instr) {
             state.C = resultCV.C;
             state.V = resultCV.V;
         }
+    }
+}
+
+function executeSingleDataTransferInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (!testCondition(Cond, state))
+        return;
+
+    const {I, P, U, B, W, L, Rn, Rd, Offset} = instr.fieldValues;
+    const baseAddress = state.registers[Rn];
+    let adjustedAddress = baseAddress;
+
+    if (!I) {
+        // immediate offset
+        const off = (Offset << 20) >> 20;
+        console.debug(`off = ${off}`);
+        adjustedAddress += U ? off : -off;
+    } else {
+        const shiftSrc = Offset & 0x10;
+        if (shiftSrc !== 0)
+            throw new SimulatorError(`LDR/STR asked to shift by register amount`, state);
+        const offRegister = new Bitfield(4, 0).get(Offset);
+        // shift(value, bits, typeEncoded)
+        const shiftBits = new Bitfield(5, 7).get(Offset);
+        const shiftType = new Bitfield(2, 5).get(Offset);
+
+        const offAmount = shift(state.registers[offRegister], shiftBits, shiftType);
+        adjustedAddress += U ? offAmount : -offAmount;
+    }
+
+    const targetAddress = P ? adjustedAddress : baseAddress;
+
+    console.debug(`baseAddress = ${baseAddress}, adjustedAddress = ${adjustedAddress}, targetAddress = ${targetAddress}`);
+
+    if (L && !B) {          // LDR (load word) - most common
+        const alignedAddress = targetAddress & 0xffff_fffc;
+        const wordOffset = targetAddress & 0x0000_0003;
+        state.registers[Rd] = rotateRight(state.memory.readWord(alignedAddress), 8 * wordOffset);
+    } else if (!L && !B) {  // STR (store word)
+        const alignedAddress = targetAddress & 0xffff_fffc;
+        state.memory.writeWord(alignedAddress, state.registers[Rd]);
+    } else if (L && B)      // LDRB (load byte)
+        state.registers[Rd] = state.memory.readByte(targetAddress);
+    else //(!L && B)        // STRB (store byte)
+        state.memory.writeByte(targetAddress, state.registers[Rd] & 0xff);
+
+    if (!P || W) {
+        // writeback into base register
+        state.registers[Rn] = adjustedAddress;
     }
 }
 

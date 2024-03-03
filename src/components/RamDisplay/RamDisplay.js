@@ -37,7 +37,9 @@ const Field = styled.div`
 `;
 
 const LineDisplay = styled.div`
-
+    &:hover {
+      background-color: var(--color-for-current-highlight);
+    }
 `;
 
 const AddressDisplay = styled.span`
@@ -52,7 +54,7 @@ const WordDisplay = styled.span`
     }
   
   &:hover {
-    outline: 2px solid var(--color-for-current-highlight);
+    outline: 3px solid var(--color-for-current-highlight);
   }
 `;
 

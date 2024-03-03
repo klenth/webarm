@@ -681,6 +681,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            }
 
 
+	                    console.debug('[parser] (localctx._SIGN == null ? null : localctx._SIGN.text) = ', (localctx._SIGN == null ? null : localctx._SIGN.text));
 	                    localctx.op =  new AST.PreindexedOperand(
 	                        localctx.r.reg,
 	                        new AST.FlexOperand(

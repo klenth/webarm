@@ -32,3 +32,4 @@
     instrs (relevant instruction is shown in memory view)
 - Validation of immediate values (e.g. rotation of immediate in data processing instructions)
 - Expressions for symbols
+- Symbol/expression for operand 2 in data processing instructions
