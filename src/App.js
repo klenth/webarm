@@ -6,6 +6,7 @@ import * as AST from './grammar/arm32Ast';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import './App.css';
 import NzcvDisplay from './components/NzcvDisplay';
+import RamDisplay from './components/RamDisplay';
 import 'ace-builds/src-noconflict/mode-text';
 
 const Controls = styled.div`
@@ -48,6 +49,7 @@ class App extends React.Component {
             message: '',
             state: '',
             debugCurrentLine: null,
+            showingMemory: false,
         };
     }
 
@@ -61,6 +63,15 @@ class App extends React.Component {
             />
         ));
 
+        const memoryCheckbox = (
+            <label>
+                <input
+                    type={'checkbox'}
+                    onChange={e => this.updateState({ showingMemory: e.target.checked })}
+                />
+                Show memory
+            </label>
+        )
         const parseButton = (
             <button
                 onClick={() => this.handleParse()}
@@ -125,6 +136,7 @@ class App extends React.Component {
         return (
             <div className="App">
                 <Controls>
+                    {memoryCheckbox}
                     {buttons}
                 </Controls>
                 <Center>
@@ -142,6 +154,11 @@ class App extends React.Component {
                             highlightGutterLine: !readOnly,
                         }}
                     />
+                    {(this.state.showingMemory) ? (
+                        <RamDisplay
+                            memory={this.state.simulatorState.memory}
+                        />
+                    ) : null}
                     <Registers>
                         {registers}
                         <NzcvDisplay

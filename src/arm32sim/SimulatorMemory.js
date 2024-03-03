@@ -27,6 +27,15 @@ export default class SimulatorMemory {
         return this.overrides[address >> 2] || 0;
     }
 
+    readByte(address) {
+        const word = this.overrides[address >> 2] || null;
+        console.debug(`readByte(${address}): word = ${word}`)
+        if (word === null)
+            return 0;
+        const byte = address & 0x3;
+        return (word >>> (byte << 3)) & 0xff;
+    }
+
     writeWord(address, value) {
         this.checkWordAlignment(address);
         this.overrides[address >> 2] = (value & 0xffff_ffff);

@@ -26,3 +26,5 @@
   - input integer (same types)
   - generate random integer
 - Linter
+- Limited buffer of simulator states when debugging (not unlimited — 256?)
+- Step forward to go to next line *of code,* not next instruction
