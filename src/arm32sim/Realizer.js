@@ -201,19 +201,30 @@ function handleIntegerDataProcessingInstruction(i) {
             I: 0b1,
             OpCode: opc,
             S: Sbit,
-            Rn: +i.operands[1].number(),
-            Rd: +i.operands[0].number(),
+            Rn: i.operands[1].number(),
+            Rd: i.operands[0].number(),
             Operand2: packRotatedImmediateOperand(i.operands[2].value, i.operands[2].text)
         })];
-    } else if (spec === 'RRR') {
+    } else if (spec === 'RRS') {
+        return [mapper => new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b1,
+            OpCode: opc,
+            S: Sbit,
+            Rn: i.operands[1].number(),
+            Rd: i.operands[0].number(),
+            Operand2: packRotatedImmediateOperand(mapper(i.operands[2]), i.operands[2])
+        })];
+    } if (spec === 'RRR') {
         return [() => new I.DataProcessingInstruction({
             Cond: cond,
             '[bits27-26]': 0b00,
             I: 0b0,
             OpCode: opc,
             S: Sbit,
-            Rn: +i.operands[1].number(),
-            Rd: +i.operands[0].number(),
+            Rn: i.operands[1].number(),
+            Rd: i.operands[0].number(),
             Operand2: +i.operands[2].number()
         })];
     } else if (spec === 'RRRf') {
@@ -223,8 +234,8 @@ function handleIntegerDataProcessingInstruction(i) {
             I: 0b0,
             OpCode: opc,
             S: Sbit,
-            Rn: +i.operands[1].number(),
-            Rd: +i.operands[0].number(),
+            Rn: i.operands[1].number(),
+            Rd: i.operands[0].number(),
             Operand2: packFlexOperand(i.operands[2])
         })];
     } else if (spec === 'RR'
@@ -236,9 +247,9 @@ function handleIntegerDataProcessingInstruction(i) {
             I: 0b0,
             OpCode: opc,
             S: Sbit,
-            Rn: +i.operands[0].number(),
+            Rn: i.operands[0].number(),
             Rd: 0,
-            Operand2: +i.operands[1].number()
+            Operand2: i.operands[1].number()
         })];
     } else if (spec === 'RR'
             && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
@@ -250,8 +261,8 @@ function handleIntegerDataProcessingInstruction(i) {
             OpCode: opc,
             S: Sbit,
             Rn: 0,
-            Rd: +i.operands[0].number(),
-            Operand2: +i.operands[1].number()
+            Rd: i.operands[0].number(),
+            Operand2: i.operands[1].number()
         })];
     } else if (spec === 'RI'
             && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
@@ -266,6 +277,19 @@ function handleIntegerDataProcessingInstruction(i) {
             Rd: 0,
             Operand2: packRotatedImmediateOperand(i.operands[1].value, i.operands[1].text)
         })];
+    } else if (spec === 'RS'
+        && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
+        // No destination register
+        return [mapper => new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b1,
+            OpCode: opc,
+            S: Sbit,
+            Rn: +i.operands[0].number(),
+            Rd: 0,
+            Operand2: packRotatedImmediateOperand(mapper(i.operands[1]), i.operands[1])
+        })];
     } else if (spec === 'RI'
             && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
         // No Rn
@@ -278,6 +302,19 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: 0,
             Rd: +i.operands[0].number(),
             Operand2: packRotatedImmediateOperand(i.operands[1].value, i.operands[1].text)
+        })];
+    } else if (spec === 'RS'
+        && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
+        // No Rn
+        return [mapper => new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b1,
+            OpCode: opc,
+            S: Sbit,
+            Rn: 0,
+            Rd: +i.operands[0].number(),
+            Operand2: packRotatedImmediateOperand(mapper(i.operands[1]), i.operands[1])
         })];
     } else if (spec === 'RRf'
             && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
