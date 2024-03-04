@@ -7,7 +7,8 @@ import { SimulatorState } from './arm32sim/SimulatorState.js';
 import './App.css';
 import NzcvDisplay from './components/NzcvDisplay';
 import RamDisplay from './components/RamDisplay';
-import 'ace-builds/src-noconflict/mode-text';
+//import 'ace-builds/src-noconflict/mode-text';
+import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 
 const Controls = styled.div`
   text-align: right;
@@ -55,6 +56,7 @@ class App extends React.Component {
             debugCurrentLine: null,
             showingMemory: false,
         };
+        this.editorRef = null;
     }
 
     render() {
@@ -145,6 +147,7 @@ class App extends React.Component {
                 </Controls>
                 <Center>
                     <Editor
+                        ref={ref => this.setEditorRef(ref)}
                         value={this.state.code}
                         fontSize={24}
                         onChange={(s) => this.handleCodeChange(s)}
@@ -177,6 +180,15 @@ class App extends React.Component {
                 <MessageDisplay>{this.state.message}</MessageDisplay>
             </div>
         );
+    }
+
+    setEditorRef(ref) {
+        this.editorRef = ref;
+    }
+
+    componentDidMount() {
+        const customMode = new AssemblyARM32Mode();
+        this.editorRef.editor.getSession().setMode(customMode);
     }
 
     updateState(changedProperties) {
