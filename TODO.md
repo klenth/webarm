@@ -6,13 +6,13 @@
 - Remaining instructions
   - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
   - LDR, STR, etc.
-  - BX/BLX
+  - [DONE] BX/BLX
 - Directives
-- Load/save
+- [DONE] Load/save
 - NZVC for all relevant instructions
 - Assembler module
 - Error messages on parse/assembly error
-- Syntax highlighting (Ace mode)
+- [DONE] Syntax highlighting (Ace mode)
 - Instruction reference
 - Keyboard shortcuts (at least for run/debug)
 - Syscalls:
@@ -21,6 +21,10 @@
   - input line
   - input integer (same types)
   - generate random integer
+  - Implementation: SWI instruction (actual SWI takes an argument but it is ignored, so maybe just don't use it)
+    - R7: syscall function number
+    - R0-R6: syscall arguments
+    - Result returned in R0
 - Linter
 - Limited buffer of simulator states when debugging (not unlimited — 256?)
 - [SUBSTITUTE] Step forward to go to next line *of code,* not next instruction

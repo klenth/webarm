@@ -7,6 +7,7 @@ import { SimulatorState } from './arm32sim/SimulatorState.js';
 import './App.css';
 import NzcvDisplay from './components/NzcvDisplay';
 import RamDisplay from './components/RamDisplay';
+import OpenFileDialog from './components/OpenFileDialog';
 //import 'ace-builds/src-noconflict/mode-text';
 import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 
@@ -57,6 +58,7 @@ class App extends React.Component {
             showingMemory: false,
         };
         this.editorRef = null;
+        this.openFileDialogRef = null;
     }
 
     render() {
@@ -68,6 +70,20 @@ class App extends React.Component {
                 value={stateRegisters[i]}
             />
         ));
+
+        const openFileButton = (
+            <button
+                onClick={() => this.handleOpenFileButtonClicked()}
+                key={'openFileButton'}
+            >Open file...</button>
+        );
+
+        const saveFileButton = (
+            <button
+                onClick={() => this.handleSaveFileButtonClicked()}
+                key={'saveFileButton'}
+            >Save file...</button>
+        );
 
         const memoryCheckbox = (
             <label>
@@ -121,7 +137,7 @@ class App extends React.Component {
             >Stop</button>
         );
 
-        const buttons = (this.state.state === '') ? [ parseButton, runButton, debugButton ]
+        const buttons = (this.state.state === '') ? [ openFileButton, saveFileButton, parseButton, runButton, debugButton ]
             : (this.state.state === 'running') ? [ stopButton ]
             : (this.state.state === 'debugging/paused') ? [ stepBackButton, stepForwardButton, continueButton, stopButton ]
             : (this.state.state === 'debugging/running') ? [ stopButton ]
@@ -141,6 +157,10 @@ class App extends React.Component {
 
         return (
             <div className="App">
+                <OpenFileDialog
+                    ref={ref => this.openFileDialogRef = ref}
+                    onOpen={code => this.handleOpenFile(code)}
+                />
                 <Controls>
                     {memoryCheckbox}
                     {buttons}
@@ -219,6 +239,32 @@ class App extends React.Component {
             clearTimeout(workerTimeout);
 
         simWorker = null;
+    }
+
+    handleOpenFileButtonClicked() {
+        if (this.openFileDialogRef)
+            this.openFileDialogRef.dialogRef.showModal();
+    }
+
+    handleOpenFile(code) {
+        this.updateState({
+            code: code,
+            simulatorState: new SimulatorState()
+        });
+    }
+
+    handleSaveFileButtonClicked() {
+        const data = new Blob([this.state.code + '\n'], { type: 'text/plain' });
+        const a = document.createElement('a');
+        const url = URL.createObjectURL(data);
+        a.href = url;
+        a.download = 'code.webs';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => {
+            document.body.removeChild(a);
+            window.URL.revokeObjectURL(url);
+        }, 0);
     }
 
     handleCodeChange(s) {
