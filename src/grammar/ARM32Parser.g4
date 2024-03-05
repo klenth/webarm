@@ -164,13 +164,33 @@ returns [String text]
 
 directive
 returns [Directive d]
-    : DCD (values+=INT (COMMA values+=INT)*) {
-        $d = new AST.DCD($values.map(s => parseInt(s.text)));;
+    : DCD (dcd_values+=dcd_value (COMMA dcd_values+=dcd_value)*) {
+        $d = new AST.DCD($dcd_values.map(node => node.n));;
+    }
+    | DCB (dcb_values+=dcb_value (COMMA dcb_values+=dcb_value)*) {
+        $d = new AST.DCB($dcb_values.map(node => node.n));;
     }
     | EQU value=INT {
-        $d = new AST.EquateDirective(parseInt($value.text));;
+        $d = new AST.EquateDirective($value.text);;
     }
     | FILL value=INT {
-        $d = new AST.FillDirective(parseInt($value.text));;
+        $d = new AST.FillDirective($value.text);;
+    }
+    ;
+
+dcd_value
+returns [AstNode n]
+    : INT {
+        $n = $INT.text;;
+    }
+    ;
+
+dcb_value
+returns [AstNode n]
+    : INT {
+        $n = $INT.text;;
+    }
+    | STRING {
+        $n = $STRING.text;;
     }
     ;

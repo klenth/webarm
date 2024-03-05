@@ -102,12 +102,7 @@ class ParseError extends Error {
             debugStateStack.peek = function() {
                 return this[this.length - 1];
             };
-
-            let instrAddr = 0;
-            for (const instr of debugCode) {
-                debugStateStack.peek().memory.writeWord(instrAddr, instr.encode());
-                instrAddr += 4;
-            }
+            debugStateStack.peek().memory = debugCode;
 
             sendToApp({
                 command: 'debug',
@@ -251,12 +246,7 @@ class ParseError extends Error {
 
     function runProgram(code) {
         let state = new SimulatorState();
-
-        let instrAddr = 0;
-        for (const instr of code) {
-            state.memory.writeWord(instrAddr, instr.encode());
-            instrAddr += 4;
-        }
+        state.memory = code;
 
         while (state.running) {
             state = step(state);

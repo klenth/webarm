@@ -24,6 +24,14 @@ BANG
     : '!'
     ;
 
+DOUBLE_QUOTE
+    : '"' -> more, mode(M_DOUBLE_STRING)
+    ;
+
+SINGLE_QUOTE
+    : ['] -> more, mode(M_SINGLE_STRING)
+    ;
+
 OPCODE
     : ('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
             | 'ROR' | 'RRX' | 'ASL' | 'LSL' | 'ASR' | 'LSR'
@@ -68,8 +76,12 @@ DCD
     : 'DCD'
     ;
 
+DCB
+    : 'DCB'
+    ;
+
 EQU
-    : 'equ'
+    : 'EQU'
     ;
 
 FILL
@@ -131,4 +143,32 @@ MNEMONIC_NEWLINE
 
 MNEMONIC_OTHER
     : .     -> mode(DEFAULT_MODE), type(INVALID)
+    ;
+
+mode M_DOUBLE_STRING;
+
+STRING
+    : '"'   -> mode(DEFAULT_MODE)
+    ;
+
+DOUBLE_STRING_NEWLINE
+    : [\r\n]    -> type(INVALID), mode(DEFAULT_MODE)
+    ;
+
+DOUBLE_STRING_TEXT
+    : (. | '\\"')    -> more
+    ;
+
+mode M_SINGLE_STRING;
+
+SINGLE_STRING
+    : [']   -> type(STRING), mode(DEFAULT_MODE)
+    ;
+
+SINGLE_STRING_NEWLINE
+    : [\r\n]    -> type(INVALID), mode(DEFAULT_MODE)
+    ;
+
+SINGLE_STRING_TEXT
+    : (. | '\\\'')     -> more
     ;

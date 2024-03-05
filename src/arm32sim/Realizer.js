@@ -1,6 +1,7 @@
 import * as AST from '../grammar/arm32Ast';
 import * as I from './Instruction';
 import { rotateRight } from '../bits/arithmetic.js';
+import SimulatorMemory from './SimulatorMemory';
 
 export class AssemblyError extends Error {
     constructor(message, node) {
@@ -12,43 +13,113 @@ export class AssemblyError extends Error {
 export function realize(ast) {
     const symbols = {};
     let addressLineMap = {};
-    let instructionMaps = [];
+    let dataMaps = [];
+    let address = 0;
+
+    function registerSymbol(symbol) {
+        if (symbol in symbols)
+            throw new AssemblyError(`Duplicate symbol: ${symbol}`)
+        symbols[symbol] = address;
+    }
+
+    function addPadding(bytes) {
+        const data = {
+            data: (_, mem, addr) => {},
+            size: bytes
+        };
+        dataMaps.push(data);
+    }
+
     ast.lines.forEach(line => {
-        if (line.item === null && line.label)
-            symbols[line.label] = instructionMaps.length;
-        else if (line.item instanceof AST.Directive)
-            return;
-        else if (line.item instanceof AST.Instruction) {
-            if (line.label) {
-                if (line.label in symbols)
-                    throw new AssemblyError('Duplicate symbol: ' + line.label);
-                symbols[line.label] = instructionMaps.length;
-            }
-            addressLineMap[4 * instructionMaps.length] = line.lineNumber;
-            instructionMaps = [...instructionMaps, ...realizeInstruction(line.item)];
-        } else {
-            console.error("Line that is neither a directive nor an instruction in AST: " + line);;
-        }
+        if (line.label)
+            registerSymbol(line.label);
+
+        if (line.item instanceof AST.Directive) {
+            const data = realizeDirective(line.item);
+            address += data.size;
+            addressLineMap[address] = line.lineNumber;
+            dataMaps = [...dataMaps, data];
+        } else if (line.item instanceof AST.Instruction) {
+            if (address % 4 !== 0)
+                addPadding(4 - address % 4);
+
+            addressLineMap[address] = line.lineNumber;
+            const realizers = realizeInstruction(line.item);
+            const data = {
+                data: (mapper, mem, addr) => {
+                    realizers.forEach((realizer, i) => mem.writeWord(addr + 4 * i, realizer(mapper).encode()));
+                },
+                size: 4 * realizers.length // instructions are always 4 bytes
+            };
+            dataMaps = [...dataMaps, data];
+            address += data.size;
+        } else if (line.item !== null)
+            console.error("Line that is neither a directive nor an instruction in AST: " + line);
     });
 
-    let i;
+    address = 0;
     const symbolAddressMapper = symbol => {
         if (symbol === '.')
-            return 4 * i;
+            return address;
         else if (symbol in symbols)
-            return 4 * symbols[symbol];
+            return symbols[symbol];
         else
             throw new AssemblyError("Unknown symbol: " + symbol);
     };
 
-    const realizedInstructions = [];
-    for (i = 0; i < instructionMaps.length; ++i) {
-        realizedInstructions.push(instructionMaps[i](symbolAddressMapper));
-    }
+    const mem = new SimulatorMemory();
+    dataMaps.forEach(dataMap => {
+        dataMap.data(symbolAddressMapper, mem, address);
+        address += dataMap.size;
+    });
 
     return {
-        code: realizedInstructions,
+        code: mem,
         addressLineMap: addressLineMap,
+    };
+}
+
+function realizeDirective(d) {
+    if (d instanceof AST.DCD)
+        return handleDCD(d);
+    else if (d instanceof AST.DCB)
+        return handleDCB(d);
+    else if (d instanceof AST.EquateDirective)
+        return handleEquate(d);
+    else if (d instanceof AST.FillDirective)
+        return handleFill(d);
+    else
+        console.assert(false, 'Unhandled directive: ' + d);
+}
+
+function handleDCD(d) {
+    const words = d.words;
+    return {
+        data: (mapper, mem, addr) =>
+            words.forEach((word, index) => mem.writeWord(addr + 4 * index, word)),
+        size: 4 * words.length
+    };
+}
+
+function handleDCB(d) {
+    const bytes = d.bytes;
+    return {
+        data: (mapper, mem, addr) =>
+            bytes.forEach((byte, index) => mem.writeByte(addr + index, byte)),
+        size: bytes.length
+    };
+}
+
+function handleEquate(d) {
+    throw new AssemblyError('EQU not yet implemented');
+}
+
+function handleFill(d) {
+    const bytes = d.bytes;
+    console.debug(`bytes = ${bytes}`);
+    return {
+        data: () => {},
+        size: bytes,
     };
 }
 

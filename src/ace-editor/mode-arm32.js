@@ -45,7 +45,8 @@ export class AssemblyARM32HighlightRules extends window.ace.acequire('ace/mode/t
                 },
                 {
                     token: 'support.function.directive.assembly',
-                    regex: '(?:\\.section|\\.global|\\.text|\\.asciz|\\.asciiz|\\.ascii|\\.align|\\.byte|\\.end|\\.data|\\.equ|\\.extern|\\.include)'
+                    //regex: '(?:\\.section|\\.global|\\.text|\\.asciz|\\.asciiz|\\.ascii|\\.align|\\.byte|\\.end|\\.data|\\.equ|\\.extern|\\.include)'
+                    regex: '(?:dcd|dcb|equ|fill)'
                 },
                 {
                     token: 'entity.name.function.assembly',

@@ -1,3 +1,5 @@
+import { AssemblyError } from '../arm32sim/Realizer.js';
+
 function parseImmediate(text) {
     text = text.replaceAll("_", "").toLowerCase();
     if (text.startsWith("0x"))
@@ -110,14 +112,60 @@ export class DCD extends Directive {
         return 'DCD ' + this.values;
     }
 
+    get words() {
+        const words = [];
+        for (let value of this.values) {
+            const word = parseImmediate(value);
+            if ((word & 0xffff_ffff) >>> 0 !== word) {
+                console.debug(`word & 0xffff_ffff = ${word & 0xffff_ffff}, word = ${word}`);
+                throw new AssemblyError(`Numeric value ${value} out of range for a word`);
+            }
+            words.push(word);
+        }
+
+        return words;
+    }
+
     static reconstruct(o) {
         return new DCD(o.values);
     }
 }
 
+export class DCB extends Directive {
+    constructor(values) {
+        super('DCB');
+        this.values = values;
+    }
+
+    toString() {
+        return 'DCB ' + this.values;
+    }
+
+    get bytes() {
+        const bytes = [];
+        for (const value of this.values) {
+            if (value[0] === '"' || value[0] === "'") {
+                for (let i = 1; i + 1 < value.length; ++i)
+                    bytes.push(value.charCodeAt(i));
+            } else {
+                const byte = parseImmediate(value) >>> 0;
+                if (byte < -128 || byte > 255)
+                    throw new AssemblyError(`Numeric value ${value} out of range for a byte`);
+                bytes.push((byte >>> 0) & 0xff);
+            }
+        }
+
+        return bytes;
+    }
+
+    static reconstruct(o) {
+        return new DCB(o.values);
+    }
+}
+
 export class EquateDirective extends Directive {
     constructor(value) {
-        super('equ');
+        super('EQU');
         this.value = value;
     }
 
@@ -138,6 +186,10 @@ export class FillDirective extends Directive {
 
     toString() {
         return 'FILL ' + this.value;
+    }
+
+    get bytes() {
+        return parseImmediate(this.value);
     }
 
     static reconstruct(o) {
@@ -357,6 +409,7 @@ const exports = {
     'Instruction': Instruction,
     'Directive': Directive,
     'DCD': DCD,
+    'DCB': DCB,
     'EquateDirective': EquateDirective,
     'FillDirective': FillDirective,
     'Register': Register,

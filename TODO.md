@@ -5,7 +5,10 @@
 - [DONE] Debugging
 - Remaining instructions
   - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
-  - LDR, STR, etc.
+  - [DONE] LDR, STR
+  - LDM, STM
+  - SWI
+  - MUL/MLA?
   - [DONE] BX/BLX
 - Directives
 - [DONE] Load/save
