@@ -176,6 +176,7 @@ class App extends React.Component {
                         markers={markers}
                         readOnly={readOnly}
                         className={readOnly ? 'read-only' : ''}
+                        tabSize={8}
                         setOptions={{
                             highlightActiveLine: !readOnly,
                             highlightGutterLine: !readOnly,

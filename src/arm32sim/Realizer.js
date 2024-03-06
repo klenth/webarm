@@ -33,6 +33,8 @@ export function realize(ast) {
     ast.lines.forEach(line => {
         if (line.label)
             registerSymbol(line.label);
+        if (!(address in addressLineMap))
+            addressLineMap[address] = line.lineNumber;
 
         if (line.item instanceof AST.Directive) {
             const data = realizeDirective(line.item);

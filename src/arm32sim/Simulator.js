@@ -38,7 +38,10 @@ export function step(state) {
     const pc = newState.PC;
     newState.advancePC();
     const instr = state.memory.readWord(pc);
-    execute(instr, newState);
+    if (instr === 0)
+        newState.stop();   // auto-halt on zero
+    else
+        execute(instr, newState);
     return newState;
 }
 
