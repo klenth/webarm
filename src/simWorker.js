@@ -23,7 +23,6 @@ class ParseError extends Error {
 
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
-        // console.debug('Worker message received; e.data = ', e.data);
         if (e.data.command === 'parse')
             handleParseMessage(e.data.seq, e.data.params);
         else if (e.data.command === 'run')
@@ -44,13 +43,14 @@ class ParseError extends Error {
         const r = doParseAndRealize(params.code);
         sendToApp(seq, {
             result: r.result,
-            ...(r.error ? r.error : {}),
+            ...(r.error ? { error: r.error } : {}),
         });
     }
 
     function doParseAndRealize(code) {
         try {
             const ast = parse(code);
+            console.debug(`ast =`, ast);
             if (ast !== null)
                 return doRealize(ast);
         } catch (ex) {
@@ -76,7 +76,6 @@ class ParseError extends Error {
     }
 
     function handleRunMessage(seq, params) {
-        // console.debug('handleRunMessage params:', params);
         let runResult;
         if (params.options.resume)
             runResult = runProgram(null, params.options);
@@ -103,11 +102,10 @@ class ParseError extends Error {
         const lexer = new ARM32Lexer(chars);
         const tokens = new antlr4.CommonTokenStream(lexer);
         const parser = new ARM32Parser(tokens);
-        let error = null;
 
         const errorListener = {
             syntaxError: (recognizer, token, line, column, message, error) => {
-                error = new ParseError(message, line, column);
+                throw new ParseError(message, line, column);
             },
             reportAttemptingFullContext: () => {},
             reportAmbiguity: () => {},
@@ -119,9 +117,6 @@ class ParseError extends Error {
         parser.addErrorListener(errorListener);
 
         ast = parser.program().p;
-
-        if (error)
-            throw error;
 
         return ast;
     }
@@ -146,7 +141,6 @@ class ParseError extends Error {
     }
 
     function runProgram(realized, options) {
-        console.log('runProgram: options =', options);
         let state;
         if (options.resume) {
             state = debugStateStack.peek();

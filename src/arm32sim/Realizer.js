@@ -10,6 +10,12 @@ export class AssemblyError extends Error {
     }
 }
 
+export class InvalidOperandsError extends AssemblyError {
+    constructor(opcode, operandsSpec, node) {
+        super(`Invalid operands [${operandSpecToString(operandsSpec)}] for opcode ${opcode}`, node);
+    }
+}
+
 export function realize(ast) {
     const symbols = {};
     let addressLineMap = {};
@@ -31,32 +37,39 @@ export function realize(ast) {
     }
 
     ast.lines.forEach(line => {
-        if (line.label)
-            registerSymbol(line.label);
-        if (!(address in addressLineMap))
-            addressLineMap[address] = line.lineNumber;
+        try {
+            if (line.label)
+                registerSymbol(line.label);
+            if (!(address in addressLineMap))
+                addressLineMap[address] = line.lineNumber;
 
-        if (line.item instanceof AST.Directive) {
-            const data = realizeDirective(line.item);
-            address += data.size;
-            addressLineMap[address] = line.lineNumber;
-            dataMaps = [...dataMaps, data];
-        } else if (line.item instanceof AST.Instruction) {
-            if (address % 4 !== 0)
-                addPadding(4 - address % 4);
+            if (line.item instanceof AST.Directive) {
+                const data = realizeDirective(line.item);
+                address += data.size;
+                addressLineMap[address] = line.lineNumber;
+                dataMaps = [...dataMaps, data];
+            } else if (line.item instanceof AST.Instruction) {
+                if (address % 4 !== 0)
+                    addPadding(4 - address % 4);
 
-            addressLineMap[address] = line.lineNumber;
-            const realizers = realizeInstruction(line.item);
-            const data = {
-                data: (mapper, mem, addr) => {
-                    realizers.forEach((realizer, i) => mem.writeWord(addr + 4 * i, realizer(mapper).encode()));
-                },
-                size: 4 * realizers.length // instructions are always 4 bytes
-            };
-            dataMaps = [...dataMaps, data];
-            address += data.size;
-        } else if (line.item !== null)
-            console.error("Line that is neither a directive nor an instruction in AST: " + line);
+                addressLineMap[address] = line.lineNumber;
+                const realizers = realizeInstruction(line.item);
+                const data = {
+                    data: (mapper, mem, addr) => {
+                        realizers.forEach((realizer, i) => mem.writeWord(addr + 4 * i, realizer(mapper).encode()));
+                    },
+                    size: 4 * realizers.length // instructions are always 4 bytes
+                };
+                dataMaps = [...dataMaps, data];
+                address += data.size;
+            } else if (line.item !== null)
+                console.error("Line that is neither a directive nor an instruction in AST: " + line);
+        } catch (ex) {
+            if (ex instanceof AssemblyError) {
+                ex.node = line;
+                throw ex;
+            }
+        }
     });
 
     address = 0;
@@ -418,7 +431,7 @@ function handleIntegerDataProcessingInstruction(i) {
             Operand2: packFlexOperand(i.operands[1])
         })];
     } else
-        throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
+        throw new InvalidOperandsError(OpCode, spec, i);
 }
 
 function handleBranchInstruction(i) {
@@ -455,7 +468,7 @@ function handleBranchInstruction(i) {
             'offset': packOffset(mapper(symbol) - mapper('.'))
         })];
     } else
-        throw new AssemblyError("Invalid operands " + spec + " for opcode " + OpCode, i);
+        throw new InvalidOperandsError(OpCode, spec, i);
 }
 
 function handleBranchAndExchangeInstruction(i) {
@@ -471,7 +484,7 @@ function handleBranchAndExchangeInstruction(i) {
             Rn: i.operands[0].number()
         })];
     else
-        throw new AssemblyError(`Invalid operands ${spec} for opcode ${i.opcode}`, i);
+        throw new InvalidOperandsError(i.opcode, spec, i);
 }
 
 function handleLdrPseudoInstruction(i) {
@@ -653,7 +666,7 @@ function handleSingleDataTransferInstruction(i) {
             Offset: packFlexOperand(i.operands[1].offset)
         })];
     } else
-        throw new AssemblyError(`Invalid operands ${spec} for opcode ${OpCode}`, i);
+        throw new InvalidOperandsError(OpCode, spec, i);
 }
 
 function handleStopInstruction(i) {
@@ -729,4 +742,33 @@ function operandSpec(operands) {
     operands.forEach(op => spec += opSpec(op));
 
     return spec;
+}
+
+function operandSpecToString(spec) {
+    function specStringify(sp) {
+        if (sp === '')
+            return [];
+        else if (sp.startsWith('Null'))
+            return ['(empty)', ...(specStringify(sp.slice(4)))];
+        else if (sp.startsWith('Rs'))
+            return ['signed register', ...(specStringify(sp.slice(2)))];
+        else if (sp.startsWith('Rf'))
+            return ['shifted register', ...(specStringify(sp.slice(2)))];
+        else if (sp.startsWith('R'))
+            return ['register', ...(specStringify(sp.slice(1)))];
+        else if (sp.startsWith('Pre['))
+            return ['preindex', ...specStringify(sp.slice(sp.indexOf(']') + 1))];
+        else if (sp.startsWith('Post['))
+            return ['postindex', ...specStringify(sp.slice(sp.indexOf(']') + 1))];
+        else if (sp.startsWith('Ip'))
+            return ['=immediate', ...specStringify(sp.slice(2))];
+        else if (sp.startsWith('I'))
+            return ['immediate', specStringify(sp.slice(1))];
+        else if (sp.startsWith('S'))
+            return ['symbolic', specStringify(sp.slice(1))];
+        else
+            return [];
+    }
+
+    return specStringify(spec).join(', ');
 }

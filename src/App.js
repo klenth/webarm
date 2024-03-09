@@ -273,9 +273,11 @@ class App extends React.Component {
     }
 
     handleParse() {
+        this.clearMessages();
         ++this.seq;
 
         this.messageHandler = msg => {
+            console.debug('handleParse() message handler: msg =', msg);
              if (msg.result === 'success')
                  this.printMessage('Looks good!');
              else
@@ -478,6 +480,12 @@ class App extends React.Component {
                     message: `Invalid software interrupt code: ${functionCode.toString(16)}`
                 });
         }
+    }
+
+    clearMessages() {
+        this.updateState({
+            message: ''
+        });
     }
 
     printMessage(text) {
