@@ -4,6 +4,7 @@ import {
     decode,
     DataProcessingInstruction,
     SingleDataTransferInstruction,
+    BlockDataTransferInstruction,
     BranchInstruction,
     BranchAndExchangeInstruction,
     StopInstruction,
@@ -107,6 +108,8 @@ function execute(instrCode, state) {
         executeDataProcessingInstruction(state, instr);
     else if (instr instanceof SingleDataTransferInstruction)
         executeSingleDataTransferInstruction(state, instr);
+    else if (instr instanceof BlockDataTransferInstruction)
+        executeBlockDataTransferInstruction(state, instr);
     else if (instr instanceof BranchInstruction)
         executeBranchInstruction(state, instr);
     else if (instr instanceof BranchAndExchangeInstruction)
@@ -300,6 +303,40 @@ function executeSingleDataTransferInstruction(state, instr) {
         // writeback into base register
         state.registers[Rn] = adjustedAddress;
     }
+}
+
+function executeBlockDataTransferInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (!testCondition(Cond, state))
+        return;
+
+    const { P, U, W, L, Rn, RegisterList } = instr.fieldValues;
+    // P=1: pre (final value of Rn is last addr written)
+    // P=0: post (final value of Rn is past last addr written)
+    // U=1: up (increase addr from base)
+    // U=0: down (decrease addr from base)
+    // W: writeback
+    // L=1: load (L=0: store)
+
+    let address = (state.registers[Rn] >>> 2) << 2; // align the address
+    const delta = U ? 4 : -4;
+    for (let reg = 0; reg < 16; ++reg) {
+        if ((RegisterList & (1 << reg)) !== 0) {
+            if (P)
+                address += delta;
+
+            if (L)
+                state.registers[reg] = state.memory.readWord(address);
+            else
+                state.memory.writeWord(address, state.registers[reg]);
+
+            if (!P)
+                address += delta;
+        }
+    }
+
+    if (W)
+        state.registers[Rn] = address;
 }
 
 function executeBranchInstruction(state, instr) {

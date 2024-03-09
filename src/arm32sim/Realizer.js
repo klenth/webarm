@@ -152,6 +152,8 @@ function realizeInstruction(i) {
         return handleLdrPseudoInstruction(i);
     else if (['LDR', 'LDRB', 'STR', 'STRB'].indexOf(opcode) >= 0)
         return handleSingleDataTransferInstruction(i);
+    else if (opcode.startsWith('LDM') || opcode.startsWith('STM'))
+        return handleBlockDataTransferInstruction(i);
     else if (opcode === 'STOP')
         return handleStopInstruction(i);
     else if (opcode === 'BREAK')
@@ -733,6 +735,69 @@ function handleSingleDataTransferInstruction(i) {
         throw new InvalidOperandsError(OpCode, spec, i);
 }
 
+function handleBlockDataTransferInstruction(i) {
+    const cond = parseCond(i.cond);
+    const spec = operandSpec(i.operands);
+    const OpCode = i.opcode.toUpperCase();
+    const L = OpCode.startsWith('LDM') ? 0b1 : 0b0;
+    let P, U;
+
+    switch (OpCode) {
+        case 'LDMED':
+        case 'LDMIB':
+        case 'STMFA':
+        case 'STMIB':
+            P = U = 0b1;
+            break;
+        case 'LDMFD':
+        case 'LDMIA':
+        case 'STMEA':
+        case 'STMIA':
+            P = 0b0;
+            U = 0b1;
+            break;
+        case 'LDMEA':
+        case 'LDMDB':
+        case 'STMFD':
+        case 'STMDB':
+            P = 0b1;
+            U = 0b0;
+            break;
+        case 'LDMFA':
+        case 'LDMDA':
+        case 'STMED':
+        case 'STMDA':
+            P = U = 0b0;
+            break;
+
+        default:
+            throw new AssemblyError(`Unknown opcode ${i.opcode}`, i);
+    }
+
+    if (!!i.s)
+        throw new AssemblyError(`${i.opcode} does not take S flag!`, i);
+
+    const S = 0b0;  // don't support this
+    const W = i.operands[0] instanceof AST.WritebackRegister ? 0b1 : 0b0;
+
+    if (spec === 'R{R}' || spec === 'Rw{R}') {
+        if (i.operands[0].number() === 15)
+            throw new AssemblyError(`R15 (PC) cannot be the base register for opcode ${OpCode}`);
+        return [() => new I.BlockDataTransferInstruction({
+            Cond: cond,
+            '[bits27-25]': 0b100,
+            P: P,
+            U: U,
+            S: S,
+            W: W,
+            L: L,
+            Rn: i.operands[0].number(),
+            RegisterList: i.operands[1].bits
+        })];
+    } else
+        throw new InvalidOperandsError(OpCode, spec, i);
+}
+
 function handleStopInstruction(i) {
     const cond = parseCond(i.cond);
     return [() => new I.StopInstruction({
@@ -784,8 +849,12 @@ function operandSpec(operands) {
             return "Null";
         else if (op instanceof AST.Register)
             return "R";
+        else if (op instanceof AST.WritebackRegister)
+            return "Rw";
         else if (op instanceof AST.SignedRegister)
             return "Rs";
+        else if (op instanceof AST.RegisterSet)
+            return "{R}";
         else if (op instanceof AST.PreindexedOperand)
             return "Pre[" + opSpec(op.offset) + "]";
         else if (op instanceof AST.PostindexedOperand)
@@ -816,10 +885,14 @@ function operandSpecToString(spec) {
             return ['(empty)', ...(specStringify(sp.slice(4)))];
         else if (sp.startsWith('Rs'))
             return ['signed register', ...(specStringify(sp.slice(2)))];
+        else if (sp.startsWith('Rw'))
+            return ['writeback register', ...specStringify(sp.slice(2))];
         else if (sp.startsWith('Rf'))
             return ['shifted register', ...(specStringify(sp.slice(2)))];
         else if (sp.startsWith('R'))
             return ['register', ...(specStringify(sp.slice(1)))];
+        else if (sp.startsWith('{R}'))
+            return ['register set', ...specStringify(sp.slice(3))];
         else if (sp.startsWith('Pre['))
             return ['preindex', ...specStringify(sp.slice(sp.indexOf(']') + 1))];
         else if (sp.startsWith('Post['))

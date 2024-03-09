@@ -1052,7 +1052,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            }
 
 
-	                    localctx.registers =  new AST.RegisterSet(localctx.r1.reg, localctx.r2.reg, localctx.child.registers);
+	                    localctx.registers =  new AST.RegisterSet(localctx.r1.reg, localctx.r2.reg, localctx.child ? localctx.child.registers : null);
 	                
 	            break;
 
@@ -1071,7 +1071,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            }
 
 
-	                    localctx.registers =  new AST.RegisterSet(localctx.r1.reg, localctx.r1.reg, localctx.child.registers);
+	                    localctx.registers =  new AST.RegisterSet(localctx.r1.reg, localctx.r1.reg, localctx.child ? localctx.child.registers : null);
 	                
 	            break;
 

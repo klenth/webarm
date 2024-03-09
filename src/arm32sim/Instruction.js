@@ -204,6 +204,33 @@ export class SingleDataTransferInstruction extends Instruction {
     }
 }
 
+export class BlockDataTransferInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        Cond: new Bitfield(4, 28),
+        '[bits27-25]': new Bitfield(3, 25).asConstant(0b100),
+        P: new Bitfield(1, 24),
+        U: new Bitfield(1, 23),
+        S: new Bitfield(1, 22),
+        W: new Bitfield(1, 21),
+        L: new Bitfield(1, 20),
+        Rn: new Bitfield(4, 16),
+        RegisterList: new Bitfield(16, 0)
+    });
+
+    format() {
+        return BlockDataTransferInstruction._format;
+    }
+
+    mnemonic() {
+        return this.get('L') ? 'LDM' : 'STM';
+    }
+
+    static fromCode(word) {
+        const fieldValues = decodeFieldValues(word, BlockDataTransferInstruction._format);
+        return new BlockDataTransferInstruction(fieldValues);
+    }
+}
+
 export class StopInstruction extends Instruction {
     static _format = new InstructionFormat({
         Cond: new Bitfield(4, 28),
@@ -275,6 +302,7 @@ registerOpcodeDecoder(0x0fff_fff0, 0x012f_ff10, BranchAndExchangeInstruction.fro
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0010, StopInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0011, BreakInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0400_0000, SingleDataTransferInstruction.fromCode);
+registerOpcodeDecoder(0x0e00_0000, 0x0800_0000, BlockDataTransferInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_0000, 0x0a00_0000, BranchInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
 registerOpcodeDecoder(0x0f00_0000, 0x0f00_0000, SoftwareInterruptInstruction.fromCode);

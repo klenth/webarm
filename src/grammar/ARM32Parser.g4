@@ -178,10 +178,10 @@ returns [String text]
 registerSet
 returns [RegisterSet registers]
     : r1=register HYPHEN r2=register (COMMA child=registerSet)? {
-        $registers = new AST.RegisterSet($r1.reg, $r2.reg, $child.registers);;
+        $registers = new AST.RegisterSet($r1.reg, $r2.reg, $child.ctx ? $child.registers : null);;
     }
     | r1=register (COMMA child=registerSet)? {
-        $registers = new AST.RegisterSet($r1.reg, $r1.reg, $child.registers);;
+        $registers = new AST.RegisterSet($r1.reg, $r1.reg, $child.ctx ? $child.registers : null);;
     }
     ;
 
