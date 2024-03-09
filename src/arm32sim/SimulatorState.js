@@ -9,6 +9,7 @@ const Nbf = new Bitfield(1, 3),
 export class SimulatorState {
     constructor(registers, memory, nzcv, numSteps, state) {
         this.registers = Array(16).fill(0);
+        this.registers[13] = 0xFF000000;
         for (let i = 0; registers && i < this.registers.length; ++i)
             this.registers[i] = registers[i] & 0xffff_ffff;
         this.memory = memory ? memory.clone() : new SimulatorMemory();
@@ -97,12 +98,20 @@ export class SimulatorState {
         return this.state === 'stopped';
     }
 
+    get interrupted() {
+        return this.state === 'interrupted';
+    }
+
     stop() {
         this.state = 'stopped';
     }
 
     break() {
         this.state = 'broken';
+    }
+
+    interrupt() {
+        this.state = 'interrupted';
     }
 
     static reconstruct(o) {

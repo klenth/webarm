@@ -42,7 +42,7 @@ const Registers = styled.div`
   flex-grow: 0;
 `;
 
-const MessageDisplay = styled.div`
+const MessageDisplay = styled.pre`
 `;
 
 class App extends React.Component {
@@ -59,6 +59,8 @@ class App extends React.Component {
         };
         this.editorRef = null;
         this.openFileDialogRef = null;
+        this.seq = 0;
+        this.messageHandler = null;
     }
 
     render() {
@@ -108,25 +110,25 @@ class App extends React.Component {
         );
         const debugButton = (
             <button
-                onClick={() => this.handleDebug()}
+                onClick={() => this.handleDebug(true)}
                 key={'debugButton'}
             >Debug</button>
         );
         const stepBackButton = (
             <button
-                onClick={() => this.handleStepBack()}
+                onClick={() => this.handleStep('backward')}
                 key={'stepBackButton'}
             >Step back</button>
         );
         const stepForwardButton = (
             <button
-                onClick={() => this.handleStepForward()}
+                onClick={() => this.handleStep('forward')}
                 key={'stepForwardButton'}
             >Step forward</button>
         );
         const continueButton = (
             <button
-                onClick={() => this.handleContinue()}
+                onClick={() => this.handleDebug(false)}
                 key={'continueButton'}
             >Continue</button>
         );
@@ -221,12 +223,10 @@ class App extends React.Component {
         if (!simWorker) {
             simWorker = new Worker(new URL('./simWorker.js', import.meta.url));
             simWorker.addEventListener('message', e => {
-                if (e.data.command === 'parse')
-                    this.handleParseComplete(e.data);
-                else if (e.data.command === 'run')
-                    this.handleRunComplete(e.data);
-                else if (e.data.command.startsWith('debug'))
-                    this.handleDebugReturn(e.data);
+                if (e.data.seq === this.seq && this.messageHandler)
+                    this.messageHandler(e.data.message);
+                else
+                    console.info(`Received stale message from worker:`, e.data.message);
             });
         }
 
@@ -239,7 +239,7 @@ class App extends React.Component {
         if (workerTimeout)
             clearTimeout(workerTimeout);
 
-        simWorker = null;
+        this.seq = this.messageHandler = simWorker = null;
     }
 
     handleOpenFileButtonClicked() {
@@ -273,7 +273,17 @@ class App extends React.Component {
     }
 
     handleParse() {
+        ++this.seq;
+
+        this.messageHandler = msg => {
+             if (msg.result === 'success')
+                 this.printMessage('Looks good!');
+             else
+                 this.printMessage(`Line ${msg.error.line}: ${msg.error.text}`);
+        };
+
         this.getWorker().postMessage({
+            seq: this.seq,
             command: 'parse',
             params: {
                 code: this.state.code,
@@ -282,7 +292,14 @@ class App extends React.Component {
     }
 
     handleRun() {
-        this.updateState({ state: 'running', message: '', simulatorState: new SimulatorState() });
+        this.updateState({
+            state: 'running',
+            message: '',
+            simulatorState: new SimulatorState(),
+            debugCurrentLine: null,
+        });
+        ++this.seq;
+
         workerTimeout = window.setTimeout(() => {
             this.stopWorker();
             this.updateState({
@@ -291,47 +308,139 @@ class App extends React.Component {
             });
         }, 5000);
 
+        this.messageHandler = msg => {
+            window.clearTimeout(workerTimeout);
+
+            const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
+            if (msg.result === 'error') {
+                this.updateState({
+                    simulatorState: state,
+                    state: '',
+                });
+                this.printErrorMessage(msg.error.line, msg.error.text);
+            } else if (state.broken) {
+                this.updateState({
+                    simulatorState: state,
+                    state: 'debugging/paused',
+                });
+            } else if (state.interrupted)
+                this.handleSoftwareInterrupt(msg.state);
+            else if (state.stopped) {
+                this.updateState({
+                    simulatorState: state,
+                    state: '',
+                });
+                this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+            } else
+                console.error(`Unexpected simulator state after run: ${state.state}`);
+        };
+
         this.getWorker().postMessage({
+            seq: this.seq,
             command: 'run',
             params: {
                 code: this.state.code,
+                options: {
+                    stopAfterEveryInstruction: false,
+                    stopOnBreak: false,
+                    stopOnInterrupt: true,
+                },
             },
         });
-
     }
 
-    handleDebug() {
-        this.updateState({ message: '', simulatorState: new SimulatorState() });
+    handleDebug(breakEveryInstruction) {
+        this.updateState({
+            state: 'debugging/running',
+            message: '',
+            simulatorState: new SimulatorState(),
+            debugCurrentLine: null,
+        });
+
+        ++this.seq;
+
+        this.messageHandler = msg => {
+            console.debug('Debug message handler: msg =', msg);
+            const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
+            if (msg.result === 'error') {
+                this.updateState({
+                    simulatorState: state,
+                    state: '',
+                    debugCurrentLine: msg.line,
+                });
+                this.printErrorMessage(msg.error.line, msg.error.text);
+            } else if (state.interrupted)
+                this.handleSoftwareInterrupt(msg.state);
+            else if (state.stopped) {
+                this.updateState({
+                    simulatorState: state,
+                    state: '',
+                    debugCurrentLine: msg.line,
+                });
+                this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+            } else
+                this.updateState({
+                    simulatorState: state,
+                    state: 'debugging/paused',
+                    debugCurrentLine: msg.line,
+                });
+        };
+
         this.getWorker().postMessage({
-            command: 'debug',
+            seq: this.seq,
+            command: 'run',
             params: {
                 code: this.state.code,
-            }
+                options: {
+                    stopImmediately: breakEveryInstruction,
+                    stopAfterEveryInstruction: breakEveryInstruction,
+                    stopOnBreak: true,
+                    stopOnInterrupt: true,
+                },
+            },
         });
     }
 
-    handleStepBack() {
+    handleStep(direction) {
+        ++this.seq;
+        this.messageHandler = msg => {
+            const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
+            if (msg.result === 'error') {
+                this.updateState({
+                    simulatorState: state,
+                    state: '',
+                    debugCurrentLine: msg.line,
+                });
+                this.printErrorMessage(msg.error.line, msg.error.text);
+            } else if (state.interrupted)
+                this.handleSoftwareInterrupt(msg.state);
+            else if (state.stopped) {
+                this.updateState({
+                    simulatorState: state,
+                    state: '',
+                });
+                this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+            } else
+                this.updateState({
+                    simulatorState: state,
+                    state: 'debugging/paused',
+                    debugCurrentLine: msg.line,
+                });
+        };
+
         this.getWorker().postMessage({
-            command: 'debug/step',
+            seq: this.seq,
+            command: 'run',
             params: {
-                direction: 'backward',
-            }
-        });
-    }
-
-    handleStepForward() {
-        this.getWorker().postMessage({
-            command: 'debug/step',
-            params: {
-                direction: 'forward',
-            }
-        });
-    }
-
-    handleContinue() {
-        this.getWorker().postMessage({
-            command: 'debug/continue',
-            params: {}
+                code: null,
+                options: {
+                    resume: true,
+                    stopAfterEveryInstruction: true,
+                    stopOnBreak: true,
+                    stopOnInterrupt: true,
+                    direction: direction,
+                },
+            },
         });
     }
 
@@ -344,87 +453,44 @@ class App extends React.Component {
         });
     }
 
-    handleParseComplete(data) {
-        if (data.status === 'complete') {
-            this.updateState({
-                message: 'Parse complete - looks good!'
-            });
-        } else if (data.status === 'error') {
-            if (data.params.error_context === 'assembly')
+    handleSoftwareInterrupt(simulatorState) {
+        console.warn('handleSoftwareInterrupt() needs to be redone!');
+        const functionCode = simulatorState.registers[7];
+        const returnMessage = {
+            command: this.state.state === 'running' ? 'run/continue'
+                : this.state.state === 'debugging/paused' ? 'debug/step'
+                : this.state.state === 'debugging/running' ? 'debug/continue'
+                : '???',
+            params: {
+                state: simulatorState
+            },
+        };
+        console.debug(`Return message command: ${returnMessage.command}`);
+        switch (functionCode >>> 0) {
+            case 0x8000_0010: // putchar
+                const char = String.fromCharCode(simulatorState.registers[0] & 0xff);
+                this.printMessage(char);
+                simulatorState.registers[0] = (simulatorState.registers[0] & 0xffffff00) | 1;
+                this.getWorker().postMessage(returnMessage);
+                break;
+            default:
                 this.updateState({
-                    message: 'Line ' + (data.params.lineNumber || '?') + ': ' + data.params.message
-                });
-            else if (data.params.error_context === 'parse')
-                this.updateState({
-                    message: 'Line ' + (data.params.line || '?') + ': ' + data.params.message
-                });
-        }
-    }
-
-    handleRunComplete(data) {
-        if (workerTimeout)
-            clearTimeout(workerTimeout);
-
-        if (data.status === 'complete') {
-            this.updateState({
-                simulatorState: SimulatorState.reconstruct(data.finalState),
-                state: '',
-                message: `Program ended after ${data.finalState.numSteps} instructions.`
-            });
-        } else if (data.status === 'error') {
-            if (data.params.error_context === 'assembly')
-                this.updateState({
-                    message: 'Line ' + (data.params.lineNumber || '?') + ': ' + data.params.message,
-                    state: ''
-                });
-            else if (data.params.error_context === 'parse')
-                this.updateState({
-                    message: 'Line ' + (data.params.line || '?') + ': ' + data.params.message,
-                    state: ''
-                });
-            else
-                this.updateState({
-                    message: 'Unspecified error while running code',
-                    state: ''
+                    message: `Invalid software interrupt code: ${functionCode.toString(16)}`
                 });
         }
     }
 
-    handleDebugReturn(data) {
-        if (data.command === 'debug') {
-            if (data.status === 'ready')
-                this.updateState({
-                    state: 'debugging/paused',
-                    simulatorState: SimulatorState.reconstruct(data.state),
-                    debugCurrentLine: data.line,
-                });
-            else if (data.status === 'error')
-                this.updateState({
-                    state: '',
-                    message: data.message,
-                });
-        } else if (data.command === 'debug/step') {
-            const newSimulatorState = SimulatorState.reconstruct(data.state);
-            if (data.status === 'error')
-                this.updateState({
-                    message: data.message,
-                });
-            else {
-                this.updateState({
-                    simulatorState: newSimulatorState,
-                    debugCurrentLine: newSimulatorState.running ? data.line : null,
-                    ...(!newSimulatorState.running ? {state: ''} : {})
-                });
-            }
-        } else if (data.command === 'debug/continue') {
-            const newSimulatorState = SimulatorState.reconstruct(data.state);
-            this.updateState({
-                simulatorState: newSimulatorState,
-                debugCurrentLine: newSimulatorState.broken ? data.line : null,
-                state: newSimulatorState.broken ? 'debugging/paused' : '',
-                ...(newSimulatorState.stopped ? { message: `Program ended after ${newSimulatorState.numSteps} instructions.` } : {})
-            });
-        }
+    printMessage(text) {
+        this.updateState({
+            message: this.state.message + text
+        });
+    }
+
+    printErrorMessage(line, text) {
+        if (line)
+            this.printMessage(`Line ${line}: ${text}`);
+        else
+            this.printMessage(text);
     }
 }
 

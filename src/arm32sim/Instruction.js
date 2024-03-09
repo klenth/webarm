@@ -250,16 +250,31 @@ export class BreakInstruction extends Instruction {
     }
 }
 
+export class SoftwareInterruptInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        Cond: new Bitfield(4, 28),
+        '[bits27-24]': new Bitfield(4, 24).asConstant(0b1111),
+        '[bits23-0]': new Bitfield(24, 0),
+    });
+
+    format() {
+        return SoftwareInterruptInstruction._format;
+    }
+
+    mnemonic() {
+        return 'SWI';
+    }
+
+    static fromCode(word) {
+        const fieldValues = decodeFieldValues(word, SoftwareInterruptInstruction._format);
+        return new SoftwareInterruptInstruction(fieldValues);
+    }
+}
+
 registerOpcodeDecoder(0x0fff_fff0, 0x012f_ff10, BranchAndExchangeInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0010, StopInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0011, BreakInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0400_0000, SingleDataTransferInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_0000, 0x0a00_0000, BranchInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
-
-/*
-Object.keys(DataProcessingInstruction._opcodes).forEach(opcode => {
-        registerOpcodeDecoder(new Bitfield(4, 21), +opcode, DataProcessingInstruction.fromCode);
-    }
-);
- */
+registerOpcodeDecoder(0x0f00_0000, 0x0f00_0000, SoftwareInterruptInstruction.fromCode);

@@ -7,7 +7,7 @@ import {
     BranchInstruction,
     BranchAndExchangeInstruction,
     StopInstruction,
-    BreakInstruction
+    BreakInstruction, SoftwareInterruptInstruction
 } from './Instruction.js';
 import Bitfield from '../bits/Bitfield.js';
 import { testAdditionOverflow, testSubtractionOverflow, rotateRight } from '../bits/arithmetic.js';
@@ -115,6 +115,8 @@ function execute(instrCode, state) {
         executeStopInstruction(state, instr);
     else if (instr instanceof BreakInstruction)
         executeBreakInstruction(state, instr);
+    else if (instr instanceof SoftwareInterruptInstruction)
+        executeSoftwareInterruptInstruction(state, instr);
     else
         throw new SimulatorError(`Unimplemented instruction ${instr.mnemonic()}`);
 }
@@ -337,4 +339,10 @@ function executeBreakInstruction(state, instr) {
     const Cond = instr.get('Cond');
     if (testCondition(Cond, state))
         state.break();
+}
+
+function executeSoftwareInterruptInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (testCondition(Cond, state))
+        state.interrupt();
 }

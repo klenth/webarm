@@ -21,185 +21,84 @@ class ParseError extends Error {
 (function() {
     let debugCode = null, debugStateStack = null, debugLineMap = null;
 
-    function sendToApp(message) {
-        // eslint-disable-next-line no-restricted-globals
-        self.postMessage(message);
-    }
-
-    function doParse(params, command) {
-        try {
-            const ast = parse(params.code);
-            if (ast !== null) {
-                return realize(ast);
-            }
-        } catch (ex) {
-            if (ex instanceof ParseError) {
-                sendToApp({
-                    command: command,
-                    status: 'error',
-                    params: {
-                        error_context: 'parse',
-                        message: ex.message,
-                        line: ex.line,
-                        column: ex.column
-                    }
-                });
-                return null;
-            } else if (ex instanceof AssemblyError) {
-                sendToApp({
-                    command: command,
-                    status: 'error',
-                    params: {
-                        error_context: 'assembly',
-                        message: ex.message,
-                        ...(ex.node ? { 'line': ex.node.lineNumber } : {})
-                    }
-                });
-                return null;
-            } else
-                console.error(ex);
-        }
-
-        sendToApp({
-            command: command,
-            status: 'error',
-            params: {
-                error_context: 'parse',
-                message: 'Unable to parse assembly code',
-            }
-        });
-        return null;
-    }
-
-    function handleParseMessage(params) {
-        if (doParse(params, 'parse'))
-            sendToApp({
-                command: 'parse',
-                status: 'complete',
-                params: {}
-            });
-    }
-
-    function handleRunMessage(params) {
-        const parsed = doParse(params, 'run');
-        if (parsed) {
-            const finalState = runProgram(parsed.code, parsed.addressLineMap);
-            sendToApp({
-                command: 'run',
-                status: 'complete',
-                finalState: finalState,
-            });
-        }
-    }
-
-    function handleDebugMessage(params) {
-        const parsed = doParse(params, 'debug');
-        if (parsed) {
-            debugCode = parsed.code;
-            debugLineMap = parsed.addressLineMap;
-            debugStateStack = [];
-            debugStateStack.push(new SimulatorState());
-            debugStateStack.peek = function() {
-                return this[this.length - 1];
-            };
-            debugStateStack.peek().memory = debugCode;
-
-            sendToApp({
-                command: 'debug',
-                status: 'ready',
-                state: debugStateStack.peek(),
-                line: lineForAddress(0),
-            });
-        }
-    }
-
-    function handleStepMessage(params) {
-        if (!params.direction || params.direction !== 'backward') {
-            // Step forward
-            const initState = debugStateStack.peek() || new SimulatorState();
-            if (debugStateStack.length === 0)
-                debugStateStack.push(initState);
-            if (initState.running) {
-                const newState = step(initState);
-                debugStateStack.push(newState);
-                sendToApp({
-                    command: 'debug/step',
-                    status: 'success',
-                    state: newState,
-                    line: lineForAddress(newState.PC)
-                });
-            } else
-                sendToApp({
-                    command: 'debug/step',
-                    status: 'error',
-                    message: 'Program has ended.',
-                });
-        } else {
-            // Step back
-            if (debugStateStack.length === 1)
-                sendToApp({
-                    command: 'debug/step',
-                    status: 'error',
-                    message: 'No further history is available.'
-                });
-            else {
-                const lastState = debugStateStack.pop();
-                sendToApp({
-                    command: 'debug/step',
-                    status: 'success',
-                    state: debugStateStack.peek(),
-                    line: lineForAddress(debugStateStack.peek().PC)
-                });
-            }
-        }
-    }
-
-    function handleContinueMessage(params) {
-        let state = debugStateStack.peek();
-
-        if (!state.running) {
-            sendToApp({
-                command: 'debug/continue',
-                status: 'error',
-                message: 'Program has ended.'
-            });
-            return;
-        }
-
-        do {
-            state = step(state);
-            debugStateStack.push(state);
-        } while (state.running && !state.broken);
-
-        sendToApp({
-            command: 'debug/continue',
-            status: 'success',
-            state: state,
-            ...(state.broken ? { line: lineForAddress(state.PC) } : {})
-        });
-    }
-
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
+        // console.debug('Worker message received; e.data = ', e.data);
         if (e.data.command === 'parse')
-            handleParseMessage(e.data.params);
+            handleParseMessage(e.data.seq, e.data.params);
         else if (e.data.command === 'run')
-            handleRunMessage(e.data.params);
-        else if (e.data.command === 'debug')
-            handleDebugMessage(e.data.params);
-        else if (e.data.command === 'debug/step')
-            handleStepMessage(e.data.params);
-        else if (e.data.command === 'debug/continue')
-            handleContinueMessage(e.data.params);
+            handleRunMessage(e.data.seq, e.data.params);
         else
             console.error('Unknown message received by worker: ', e.data);
     });
 
+    function sendToApp(seq, message) {
+        // eslint-disable-next-line no-restricted-globals
+        self.postMessage({
+            seq: seq,
+            message: message,
+        });
+    }
+
+    function handleParseMessage(seq, params) {
+        const r = doParseAndRealize(params.code);
+        sendToApp(seq, {
+            result: r.result,
+            ...(r.error ? r.error : {}),
+        });
+    }
+
+    function doParseAndRealize(code) {
+        try {
+            const ast = parse(code);
+            if (ast !== null)
+                return doRealize(ast);
+        } catch (ex) {
+            if (ex instanceof ParseError) {
+                return {
+                    result: 'error',
+                    error: {
+                        line: ex.line,
+                        text: ex.message,
+                    },
+                };
+            } else if (ex instanceof AssemblyError) {
+                return {
+                    result: 'error',
+                    error: {
+                        line: ex.node ? ex.node.lineNumber : null,
+                        text: ex.message,
+                    }
+                };
+            } else
+                console.error(`Unhandled error on parse or assembly: ${ex}`);
+        }
+    }
+
+    function handleRunMessage(seq, params) {
+        // console.debug('handleRunMessage params:', params);
+        let runResult;
+        if (params.options.resume)
+            runResult = runProgram(null, params.options);
+        else {
+            const r = doParseAndRealize(params.code);
+            if (r.error) {
+                sendToApp(seq, {
+                    result: r.result,
+                    error: r.error,
+                });
+                return;
+            }
+
+            runResult = runProgram(r, params.options);
+        }
+
+        sendToApp(seq, runResult);
+    }
+
     function parse(code) {
         code += '\n'; // Make sure it ends in a newline
-        let valid = true;
-        let ast = null;
-        //try {
+        let ast;
         const chars = new antlr4.InputStream(code);
         const lexer = new ARM32Lexer(chars);
         const tokens = new antlr4.CommonTokenStream(lexer);
@@ -208,23 +107,10 @@ class ParseError extends Error {
 
         const errorListener = {
             syntaxError: (recognizer, token, line, column, message, error) => {
-                console.debug('syntaxError');
                 error = new ParseError(message, line, column);
-                valid = false;
-                throw error;
             },
-            reportAmbiguity: (recognizer, dfa, startIndex, stopIndex, exact, ambigAlts, configs) => {
-                //console.assert(false, 'Ambiguity');
-                //valid = false;
-            },
-            reportAttemptingFullContext: (recognizer, dfa, startIndex, stopIndex, conflictingAlts, configs) => {
-                //console.assert(false, 'Attempting full context');
-                //valid = false;
-            },
-            reportContextSensitivity: (recognizer, dfa, startIndex, stopIndex, prediction, configs) => {
-                console.assert(false, 'Context sensitivity');
-                valid = false;
-            },
+            reportAttemptingFullContext: () => {},
+            reportAmbiguity: () => {},
         };
 
         lexer.removeErrorListeners();
@@ -233,32 +119,100 @@ class ParseError extends Error {
         parser.addErrorListener(errorListener);
 
         ast = parser.program().p;
-        /*} catch (e) {
-            console.log('Exception thrown: ' + e);
-            valid = false;
-        }*/
 
         if (error)
             throw error;
 
-        return valid ? ast : error;
+        return ast;
     }
 
-    function runProgram(code) {
-        let state = new SimulatorState();
-        state.memory = code;
+    function doRealize(ast) {
+        try {
+            const { code, addressLineMap } = realize(ast);
+            return {
+                result: 'success',
+                code: code,
+                addressLineMap: addressLineMap,
+            };
+        } catch (ex) {
+            return {
+                result: 'error',
+                error: {
+                    line: ex.node?.lineNumber,
+                    text: ex.message,
+                }
+            }
+        }
+    }
 
-        while (state.running) {
-            state = step(state);
+    function runProgram(realized, options) {
+        console.log('runProgram: options =', options);
+        let state;
+        if (options.resume) {
+            state = debugStateStack.peek();
+            if (!state) {
+                return {
+                    result: 'error',
+                    error: {
+                        text: 'Continue requested when there was no existing state!'
+                    }
+                };
+            }
+        } else {
+            debugStateStack = newStateStack();
+            debugLineMap = realized.addressLineMap;
+            state = new SimulatorState();
+            state.memory = realized.code;
+            debugStateStack.push(state);
         }
 
-        return state;
+        try {
+            while (state.running && !options.stopImmediately) {
+                if (options.direction === 'backward') {
+                    if (debugStateStack.length === 1)
+                        break;
+                    debugStateStack.pop();
+                    state = debugStateStack.peek();
+                } else {
+                    state = step(state);
+                    debugStateStack.push(state);
+                }
+
+                if (state.interrupted && options.stopOnInterrupt
+                        || state.broken && options.stopOnBreak
+                        || options.stopAfterEveryInstruction)
+                    break;
+            }
+        } catch (ex) {
+            return {
+                result: 'error',
+                state: state,
+                line: lineForAddress(state.PC),
+                error: {
+                    text: ex.message,
+                }
+            };
+        }
+
+        return {
+            result: 'success',
+            state: state,
+            line: lineForAddress(state.PC),
+        }
     }
 
     function lineForAddress(addr) {
         while (addr > 0 && !(addr in debugLineMap))
             --addr;
         return debugLineMap[addr];
+    }
+
+    function newStateStack() {
+        const stack = [];
+        stack.peek = function() {
+            return stack[stack.length - 1];
+        };
+        return stack;
     }
 
 //}

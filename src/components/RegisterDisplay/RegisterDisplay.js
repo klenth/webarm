@@ -95,12 +95,13 @@ function valueText(value, mode) {
         }
 
         return '0b' + s;
-    } else if (mode === DisplayMode.DecimalSigned)
+    } else if (mode === DisplayMode.DecimalSigned) {
+        value >>= 0;
         if (value > 0)
-            return insertCommas('+' + value);
+            return insertCommas('+' + (value >> 0));
         else
             return insertCommas('' + value);
-    else if (mode === DisplayMode.DecimalUnsigned) {
+    } else if (mode === DisplayMode.DecimalUnsigned) {
         let lower = (value & 0x7fffffff) + 0.0;
         if ((value >>> 31) !== 0)
             lower += 2147483648.0;

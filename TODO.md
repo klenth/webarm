@@ -7,18 +7,20 @@
   - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
   - [DONE] LDR, STR
   - LDM, STM
-  - SWI
+  - [DONE] SWI
   - MUL/MLA?
   - [DONE] BX/BLX
-- Directives
+- [DONE] Directives
 - [DONE] Load/save
-- NZVC for all relevant instructions
+- NZCV for all relevant instructions
 - Assembler module
 - Error messages on parse/assembly error
 - [DONE] Syntax highlighting (Ace mode)
 - Instruction reference
 - Keyboard shortcuts (at least for run/debug)
 - Syscalls:
+  - putchar
+  - getchar
   - print string
   - print integer (unsigned decimal, signed decimal, hex)
   - input line
@@ -36,3 +38,5 @@
 - [DONE] Validation of immediate values (e.g. rotation of immediate in data processing instructions)
 - Expressions for symbols
 - Symbol/expression for operand 2 in data processing instructions
+- Correct handling of R15 (cannot participate in some instructions)
+- 

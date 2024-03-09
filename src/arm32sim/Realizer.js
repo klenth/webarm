@@ -143,6 +143,8 @@ function realizeInstruction(i) {
         return handleBreakInstruction(i);
     else if (opcode === 'NOP')
         return handleNopInstruction(i);
+    else if (opcode === 'SWI')
+        return handleSoftwareInterruptInstruction(i);
 
     throw new AssemblyError("Unhandled opcode: " + i.opcode, i);
 }
@@ -687,6 +689,15 @@ function handleNopInstruction(_) {
         Rn: 0,
         Rd: 0,
         Operand2: 0
+    })];
+}
+
+function handleSoftwareInterruptInstruction(i) {
+    const cond = parseCond(i.cond);
+    return [() => new I.SoftwareInterruptInstruction({
+        Cond: cond,
+        '[bits27-24]': 0b1111,
+        '[bits23-0]': 0,    // comment field (ignore)
     })];
 }
 
