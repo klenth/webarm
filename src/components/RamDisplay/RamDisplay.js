@@ -145,7 +145,7 @@ export default class RamDisplay extends React.Component {
             if (!isNaN(newAddr))
                 this.setState({
                     ...this.state,
-                    offset: (newAddr >>> 4) << 4
+                    offset: (newAddr & 0xffff_fff0) >>> 0,
                 });
         }
     }
@@ -158,7 +158,7 @@ export default class RamDisplay extends React.Component {
     }
 
     handleScrollDown() {
-        const newOffset = ((Math.min(this.state.offset + 0x100, 0xffff_feff) & 0xffff_ffff) >>> 4) << 4;
+        const newOffset = (Math.min(this.state.offset + 0x100, 0xffff_feff) & 0xffff_fff0) >>> 0;
         this.setState({
             ...this.state,
             offset: newOffset,
@@ -167,7 +167,7 @@ export default class RamDisplay extends React.Component {
     }
 
     handleScrollUp() {
-        const newOffset = ((Math.max(this.state.offset - 0x100, 0) & 0xffff_ffff) >>> 4) << 4;
+        const newOffset = (Math.max(this.state.offset - 0x100, 0) & 0xffff_ffff0) >>> 0;
         this.setState({
             ...this.state,
             offset: newOffset,

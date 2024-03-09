@@ -178,6 +178,7 @@ class ParseError extends Error {
                     break;
             }
         } catch (ex) {
+            console.debug('Catching simulator exception');
             return {
                 result: 'error',
                 state: state,

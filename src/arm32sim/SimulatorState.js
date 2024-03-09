@@ -1,4 +1,5 @@
-import SimulatorMemory from './SimulatorMemory';
+import SimulatorMemory from './SimulatorMemory.js';
+import { RegisterBank } from './RegisterBank.js';
 import Bitfield from '../bits/Bitfield.js';
 
 const Nbf = new Bitfield(1, 3),
@@ -8,10 +9,9 @@ const Nbf = new Bitfield(1, 3),
 
 export class SimulatorState {
     constructor(registers, memory, nzcv, numSteps, state) {
-        this.registers = Array(16).fill(0);
-        this.registers[13] = 0xFF000000;
-        for (let i = 0; registers && i < this.registers.length; ++i)
-            this.registers[i] = registers[i] & 0xffff_ffff;
+        this.registers = new RegisterBank(registers);
+        if (!registers)
+            this.registers.set(13, 0xFF00_0000);
         this.memory = memory ? memory.clone() : new SimulatorMemory();
         this.nzcv = nzcv || 0b0000;
         this.numSteps = numSteps || 0;
@@ -19,11 +19,11 @@ export class SimulatorState {
     }
 
     getPC() {
-        return this.registers[15];
+        return this.registers.get(15);
     }
 
     advancePC() {
-        this.registers[15] += 4;
+        this.registers.set(15, this.registers.get(15) + 4);
     }
 
     clone() {
@@ -31,27 +31,27 @@ export class SimulatorState {
     }
 
     get SP() {
-        return this.registers[13];
+        return this.registers.get(13);
     }
 
     set SP(sp) {
-        this.registers[13] = sp & 0xffff_ffff;
+        this.registers.set(13, sp);
     }
 
     get LR() {
-        return this.registers[14];
+        return this.registers.get(14);
     }
 
     set LR(lr) {
-        this.registers[14] = lr & 0xffff_ffff;
+        this.registers.set(14, lr);
     }
 
     get PC() {
-        return this.registers[15];
+        return this.registers.get(15);
     }
 
     set PC(pc) {
-        this.registers[15] = pc & 0xffff_ffff;
+        this.registers.set(15, pc);
     }
 
     get N() {
@@ -118,7 +118,7 @@ export class SimulatorState {
         if (!o)
             return new SimulatorState();
         return new SimulatorState(
-            o.registers,
+            RegisterBank.reconstruct(o.registers),
             o.memory ? SimulatorMemory.reconstruct(o.memory) : o.memory,
             o.nzcv,
             o.numSteps,

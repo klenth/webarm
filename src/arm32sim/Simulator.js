@@ -41,8 +41,13 @@ export function step(state) {
     const instr = state.memory.readWord(pc);
     if (instr === 0)
         newState.stop();   // auto-halt on zero
-    else
-        execute(instr, newState);
+    else {
+        try {
+            execute(instr, newState);
+        } catch (ex) {
+            throw new SimulatorError(ex.message, state);
+        }
+    }
     return newState;
 }
 
@@ -202,7 +207,7 @@ function executeDataProcessingInstruction(state, instr) {
     const Rd = instr.get('Rd'); // destination register
     const Rn = instr.get('Rn'); // operand 1
     const Operand2 = instr.get('Operand2');
-    const RnValue = state.registers[Rn];
+    const RnValue = state.registers.get(Rn);
 
     let result;
     let resultCV;
@@ -218,7 +223,7 @@ function executeDataProcessingInstruction(state, instr) {
         const Shift = new Bitfield(8, 4).get(Operand2);
         const Rm = new Bitfield(4, 0).get(Operand2);
         const ShiftType = new Bitfield(2, 5).get(Operand2);
-        const RmValue = state.registers[Rm];
+        const RmValue = state.registers.get(Rm);
         let operand;
         if ((Shift & 1) === 0b0) {
             // Amount to shift is encoded in top 5 bits of Shift
@@ -227,7 +232,7 @@ function executeDataProcessingInstruction(state, instr) {
         } else {
             // Amount to shift is the bottom bit of a register specified in top 4 bits
             const Rs = new Bitfield(4, 8).get(Operand2);
-            const RsValue = state.registers[Rs];
+            const RsValue = state.registers.get(Rs);
             operand = shift(RmValue, RsValue & 0xff, ShiftType);
         }
 
@@ -242,7 +247,7 @@ function executeDataProcessingInstruction(state, instr) {
     if ((OpCode & 0b1100) !== 0b1000) {
         //console.debug('    saving in R' + Rd);
         // The instruction is not TST, TEQ, CMP, or CMN - the value goes into Rd
-        state.registers[Rd] = result;
+        state.registers.set(Rd, result);
     }
 
     //console.debug('S = ', S);
@@ -265,7 +270,7 @@ function executeSingleDataTransferInstruction(state, instr) {
         return;
 
     const {I, P, U, B, W, L, Rn, Rd, Offset} = instr.fieldValues;
-    const baseAddress = state.registers[Rn];
+    const baseAddress = state.registers.get(Rn);
     let adjustedAddress = baseAddress;
 
     if (!I) {
@@ -281,7 +286,7 @@ function executeSingleDataTransferInstruction(state, instr) {
         const shiftBits = new Bitfield(5, 7).get(Offset);
         const shiftType = new Bitfield(2, 5).get(Offset);
 
-        const offAmount = shift(state.registers[offRegister], shiftBits, shiftType);
+        const offAmount = shift(state.registers.get(offRegister), shiftBits, shiftType);
         adjustedAddress += U ? offAmount : -offAmount;
     }
 
@@ -290,18 +295,18 @@ function executeSingleDataTransferInstruction(state, instr) {
     if (L && !B) {          // LDR (load word) - most common
         const alignedAddress = targetAddress & 0xffff_fffc;
         const wordOffset = targetAddress & 0x0000_0003;
-        state.registers[Rd] = rotateRight(state.memory.readWord(alignedAddress), 8 * wordOffset);
+        state.registers.set(Rd, rotateRight(state.memory.readWord(alignedAddress), 8 * wordOffset));
     } else if (!L && !B) {  // STR (store word)
         const alignedAddress = targetAddress & 0xffff_fffc;
-        state.memory.writeWord(alignedAddress, state.registers[Rd]);
+        state.memory.writeWord(alignedAddress, state.registers.get(Rd));
     } else if (L && B)      // LDRB (load byte)
-        state.registers[Rd] = state.memory.readByte(targetAddress);
+        state.registers.set(Rd, state.memory.readByte(targetAddress));
     else //(!L && B)        // STRB (store byte)
-        state.memory.writeByte(targetAddress, state.registers[Rd] & 0xff);
+        state.memory.writeByte(targetAddress, state.registers.get(Rd) & 0xff);
 
     if (!P || W) {
         // writeback into base register
-        state.registers[Rn] = adjustedAddress;
+        state.registers.set(Rn, adjustedAddress);
     }
 }
 
@@ -318,25 +323,45 @@ function executeBlockDataTransferInstruction(state, instr) {
     // W: writeback
     // L=1: load (L=0: store)
 
-    let address = (state.registers[Rn] >>> 2) << 2; // align the address
-    const delta = U ? 4 : -4;
-    for (let reg = 0; reg < 16; ++reg) {
-        if ((RegisterList & (1 << reg)) !== 0) {
-            if (P)
-                address += delta;
+    let address = state.registers.get(Rn) & 0xffff_fffc; // align the address
 
-            if (L)
-                state.registers[reg] = state.memory.readWord(address);
-            else
-                state.memory.writeWord(address, state.registers[reg]);
+    // The spec is that the lowest-numbered register is always loaded from / stored to the numerically lowest address —
+    // *not* the address nearest the base. There's probably a more efficient way to handle this, but this has the virtue
+    // of simplicity.
+    if (U) {
+        for (let reg = 0; reg < 16; ++reg) {
+            if ((RegisterList & (1 << reg)) !== 0) {
+                if (P)
+                    address += 4;
 
-            if (!P)
-                address += delta;
+                if (L)
+                    state.registers.set(reg, state.memory.readWord(address));
+                else
+                    state.memory.writeWord(address, state.registers.get(reg));
+
+                if (!P)
+                    address += 4;
+            }
+        }
+    } else {
+        for (let reg = 15; reg >= 0; --reg) {
+            if ((RegisterList & (1 << reg)) !== 0) {
+                if (P)
+                    address -=4;
+
+                if (L)
+                    state.registers.set(reg, state.memory.readWord(address));
+                else
+                    state.memory.writeWord(address, state.registers.get(reg));
+
+                if (!P)
+                    address -= 4;
+            }
         }
     }
 
     if (W)
-        state.registers[Rn] = address;
+        state.registers.set(Rn, address);
 }
 
 function executeBranchInstruction(state, instr) {
@@ -363,7 +388,7 @@ function executeBranchAndExchangeInstruction(state, instr) {
     const Rn = instr.get('Rn');
     // the documentation isn't specific as to what happens if the address is unaligned - I will just force it to be
     // aligned by discarding the bottom two bits.
-    state.PC = state.registers[Rn] & 0xffff_fffc;
+    state.PC = state.registers.get(Rn) & 0xffff_fffc;
 }
 
 function executeStopInstruction(state, instr) {

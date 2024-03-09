@@ -1,9 +1,6 @@
 import Bitfield from '../bits/Bitfield.js';
 
 class UnalignedAccess extends Error {
-    constructor(message) {
-        super(message);
-    }
 }
 
 export default class SimulatorMemory {
@@ -21,16 +18,16 @@ export default class SimulatorMemory {
 
     checkWordAlignment(address) {
         if ((address & 0x3) !== 0)
-            throw new UnalignedAccess('Unaligned word read to address ' + address);
+            throw new UnalignedAccess('Unaligned word access to address ' + address);
     }
 
     readWord(address) {
         this.checkWordAlignment(address);
-        return this.overrides[address >> 2] || 0;
+        return this.overrides[address >>> 2] || 0;
     }
 
     readByte(address) {
-        const word = this.overrides[address >> 2] || null;
+        const word = this.overrides[address >>> 2] || null;
         if (word === null)
             return 0;
         const byte = address & 0x3;
@@ -39,13 +36,13 @@ export default class SimulatorMemory {
 
     writeWord(address, value) {
         this.checkWordAlignment(address);
-        this.overrides[address >> 2] = (value & 0xffff_ffff);
+        this.overrides[address >>> 2] = (value & 0xffff_ffff);
     }
 
     writeByte(address, value) {
-        const word = this.overrides[address >> 2] || 0;
+        const word = this.overrides[address >>> 2] || 0;
         const byte = address & 0x3;
-        this.overrides[address >> 2] = new Bitfield(8, (3 - byte) << 3).set(word, value);
+        this.overrides[address >>> 2] = new Bitfield(8, (3 - byte) << 3).set(word, value);
     }
 
     static reconstruct(o) {

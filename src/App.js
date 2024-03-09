@@ -4,6 +4,7 @@ import AceEditor from 'react-ace';
 import RegisterDisplay from './components/RegisterDisplay';
 import * as AST from './grammar/arm32Ast';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
+import { RegisterBank } from './arm32sim/RegisterBank.js';
 import './App.css';
 import NzcvDisplay from './components/NzcvDisplay';
 import RamDisplay from './components/RamDisplay';
@@ -64,12 +65,12 @@ class App extends React.Component {
     }
 
     render() {
-        const stateRegisters = this.state.simulatorState.registers || [];
+        const stateRegisters = this.state.simulatorState.registers || new RegisterBank();
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
                 label={(i === 13) ? 'SP' : (i === 14) ? 'LR' : (i === 15) ? 'PC' : 'R' + i}
-                value={stateRegisters[i]}
+                value={stateRegisters.get(i)}
             />
         ));
 
@@ -116,19 +117,19 @@ class App extends React.Component {
         );
         const stepBackButton = (
             <button
-                onClick={() => this.handleStep('backward')}
+                onClick={() => this.handleContinue('backward', true)}
                 key={'stepBackButton'}
             >Step back</button>
         );
         const stepForwardButton = (
             <button
-                onClick={() => this.handleStep('forward')}
+                onClick={() => this.handleContinue('forward', true)}
                 key={'stepForwardButton'}
             >Step forward</button>
         );
         const continueButton = (
             <button
-                onClick={() => this.handleDebug(false)}
+                onClick={() => this.handleContinue('forward', false)}
                 key={'continueButton'}
             >Continue</button>
         );
@@ -318,6 +319,7 @@ class App extends React.Component {
                 this.updateState({
                     simulatorState: state,
                     state: '',
+                    debugCurrentLine: msg.line,
                 });
                 this.printErrorMessage(msg.error.line, msg.error.text);
             } else if (state.broken) {
@@ -331,6 +333,7 @@ class App extends React.Component {
                 this.updateState({
                     simulatorState: state,
                     state: '',
+                    debugCurrentLine: null,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else
@@ -377,7 +380,7 @@ class App extends React.Component {
                 this.updateState({
                     simulatorState: state,
                     state: '',
-                    debugCurrentLine: msg.line,
+                    debugCurrentLine: null,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else
@@ -403,7 +406,7 @@ class App extends React.Component {
         });
     }
 
-    handleStep(direction) {
+    handleContinue(direction, stopEveryInstruction) {
         ++this.seq;
         this.messageHandler = msg => {
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
@@ -420,6 +423,7 @@ class App extends React.Component {
                 this.updateState({
                     simulatorState: state,
                     state: '',
+                    debugCurrentLine: null,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else
@@ -437,7 +441,7 @@ class App extends React.Component {
                 code: null,
                 options: {
                     resume: true,
-                    stopAfterEveryInstruction: true,
+                    stopAfterEveryInstruction: stopEveryInstruction,
                     stopOnBreak: true,
                     stopOnInterrupt: true,
                     direction: direction,
@@ -457,7 +461,7 @@ class App extends React.Component {
 
     handleSoftwareInterrupt(simulatorState) {
         console.warn('handleSoftwareInterrupt() needs to be redone!');
-        const functionCode = simulatorState.registers[7];
+        const functionCode = simulatorState.registers.get(7);
         const returnMessage = {
             command: this.state.state === 'running' ? 'run/continue'
                 : this.state.state === 'debugging/paused' ? 'debug/step'
@@ -470,9 +474,9 @@ class App extends React.Component {
         console.debug(`Return message command: ${returnMessage.command}`);
         switch (functionCode >>> 0) {
             case 0x8000_0010: // putchar
-                const char = String.fromCharCode(simulatorState.registers[0] & 0xff);
+                const char = String.fromCharCode(simulatorState.registers.get(0) & 0xff);
                 this.printMessage(char);
-                simulatorState.registers[0] = (simulatorState.registers[0] & 0xffffff00) | 1;
+                simulatorState.registers.set(0, (simulatorState.registers.get(0) & 0xffffff00) | 1);
                 this.getWorker().postMessage(returnMessage);
                 break;
             default:
