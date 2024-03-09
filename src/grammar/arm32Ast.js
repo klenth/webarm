@@ -10,6 +10,20 @@ export function parseImmediate(text) {
         return parseInt(text, 10);
 }
 
+function registerNumber(registerText) {
+    registerText = registerText.toUpperCase();
+    switch (registerText) {
+        case 'SP':
+            return 13;
+        case 'LR':
+            return 14;
+        case 'PC':
+            return 15;
+        default:
+            return parseInt(registerText.slice(1));
+    }
+}
+
 export class AstNode {
     constructor(name) {
         this.name = name;
@@ -207,16 +221,13 @@ export class Register extends AstNode {
     }
 
     number() {
-        switch (this.name.toUpperCase()) {
-            case 'SP':
-                return 13;
-            case 'LR':
-                return 14;
-            case 'PC':
-                return 15;
-            default:
-                return parseInt(this.name.slice(1));
-        }
+        return registerNumber(this.name);
+    }
+}
+
+export class WritebackRegister extends Register {
+    static reconstruct(o) {
+        return new WritebackRegister(o.name);
     }
 }
 
@@ -232,16 +243,27 @@ export class SignedRegister extends AstNode {
     }
 
     number() {
-        switch (this.name.toUpperCase()) {
-            case 'SP':
-                return 13;
-            case 'LR':
-                return 14;
-            case 'PC':
-                return 15;
-            default:
-                return parseInt(this.name.slice(1));
-        }
+        return registerNumber(this.name);
+    }
+}
+
+export class RegisterSet extends AstNode {
+    constructor(startRegister, endRegister, childRegisterSet) {
+        super('{}');
+        this.startRegister = startRegister;
+        this.endRegister = endRegister;
+        this.childRegisterSet = childRegisterSet;
+    }
+
+    static reconstruct(o) {
+        return new RegisterSet(o.startRegister, o.endRegister, o.childRegisterSet);
+    }
+
+    get bits() {
+        let bits = this.childRegisterSet?.bits || 0;
+        for (let i = this.startRegister.number(); i <= this.endRegister.number(); ++i)
+            bits |= (1 << i);
+        return bits;
     }
 }
 
@@ -413,7 +435,9 @@ const exports = {
     'EquateDirective': EquateDirective,
     'FillDirective': FillDirective,
     'Register': Register,
+    'WritebackRegister': WritebackRegister,
     'SignedRegister': SignedRegister,
+    'RegisterSet': RegisterSet,
     'FlexOperand': FlexOperand,
     'PreindexedOperand': PreindexedOperand,
     'PostindexedOperand': PostindexedOperand,

@@ -51,14 +51,14 @@ returns [AstNode op]
     | LBRACK r=register RBRACK COMMA s=symbol {
         $op = new AST.PostindexedOperand($r.reg, $s.text);;
     }
-    | LBRACK r=register RBRACK COMMA SIGN? roff=register {
-        $op = new AST.PostindexedOperand($r.reg, new AST.SignedRegister($SIGN.text, $roff.reg.name));;
+    | LBRACK r=register RBRACK COMMA HYPHEN? roff=register {
+        $op = new AST.PostindexedOperand($r.reg, new AST.SignedRegister($HYPHEN.text, $roff.reg.name));;
     }
-    | LBRACK r=register RBRACK COMMA SIGN? roff=register COMMA f=flexOperandSpec {
+    | LBRACK r=register RBRACK COMMA HYPHEN? roff=register COMMA f=flexOperandSpec {
         $op = new AST.PostindexedOperand(
             $r.reg,
             new AST.FlexOperand(
-                new AST.SignedRegister($SIGN.text, $roff.reg.name),
+                new AST.SignedRegister($HYPHEN.text, $roff.reg.name),
                 $f.ctx.op.text,
                 $f.ctx.amount !== null ? $f.ctx.amount.text : null,
                 $f.ctx.register() !== null ? $f.ctx.register().reg : null
@@ -67,6 +67,9 @@ returns [AstNode op]
     }
     | r=register COMMA f=flexOperandSpec {
         $op = new AST.FlexOperand($r.reg, $f.ctx.op.text, $f.ctx.amount !== null ? $f.ctx.amount.text : null, $f.ctx.register() !== null ? $f.ctx.register().reg : null);;
+    }
+    | wr=writebackRegister {
+        $op = $wr.reg;;
     }
     | r=register {
         $op = $r.reg;;
@@ -90,14 +93,14 @@ returns [AstNode op]
     | LBRACK r=register COMMA s=symbol RBRACK BANG? {
         $op = new AST.PreindexedOperand($r.reg, $s.text, !!$BANG.text);;
     }
-    | LBRACK r=register COMMA SIGN? roff=register RBRACK BANG? {
-        $op = new AST.PreindexedOperand($r.reg, new AST.SignedRegister($SIGN.text, $roff.reg.name), !!$BANG.text);;
+    | LBRACK r=register COMMA HYPHEN? roff=register RBRACK BANG? {
+        $op = new AST.PreindexedOperand($r.reg, new AST.SignedRegister($HYPHEN.text, $roff.reg.name), !!$BANG.text);;
     }
-    | LBRACK r=register COMMA SIGN? roff=register COMMA f=flexOperandSpec RBRACK BANG? {
+    | LBRACK r=register COMMA HYPHEN? roff=register COMMA f=flexOperandSpec RBRACK BANG? {
         $op = new AST.PreindexedOperand(
             $r.reg,
             new AST.FlexOperand(
-                new AST.SignedRegister($SIGN.text, $roff.reg.name),
+                new AST.SignedRegister($HYPHEN.text, $roff.reg.name),
                 $f.ctx.op.text,
                 $f.ctx.amount !== null ? $f.ctx.amount.text : null,
                 $f.ctx.register() !== null ? $f.ctx.register().reg : null
@@ -114,12 +117,22 @@ returns [AstNode op]
     | s=symbol {
         $op = $s.text;;
     }
+    | LBRACE rs=registerSet RBRACE {
+        $op = $rs.registers;;
+    }
     ;
 
 register
 returns [Register reg]
     : r=REGISTER {
         $reg = new AST.Register($r.text);;
+    }
+    ;
+
+writebackRegister
+returns [WritebackRegister reg]
+    : r=REGISTER BANG {
+        $reg = new AST.WritebackRegister($r.text);;
     }
     ;
 
@@ -159,6 +172,16 @@ symbol
 returns [String text]
     : t=ID {
         $text = $t.text;;
+    }
+    ;
+
+registerSet
+returns [RegisterSet registers]
+    : r1=register HYPHEN r2=register (COMMA child=registerSet)? {
+        $registers = new AST.RegisterSet($r1.reg, $r2.reg, $child.registers);;
+    }
+    | r1=register (COMMA child=registerSet)? {
+        $registers = new AST.RegisterSet($r1.reg, $r1.reg, $child.registers);;
     }
     ;
 

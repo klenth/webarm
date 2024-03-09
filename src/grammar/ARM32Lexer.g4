@@ -20,8 +20,20 @@ RBRACK
     : ']'
     ;
 
+LBRACE
+    : '{'
+    ;
+
+RBRACE
+    : '}'
+    ;
+
 BANG
     : '!'
+    ;
+
+HYPHEN
+    : '-'
     ;
 
 DOUBLE_QUOTE
@@ -37,7 +49,7 @@ OPCODE
             | 'ROR' | 'RRX' | 'ASL' | 'LSL' | 'ASR' | 'LSR'
             | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'BX' | 'END'
             | ('LDR' | 'STR') 'B'?
-            | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'DB')
+            | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'IB' | 'DA' | 'DB')
             | 'STOP' | 'BREAK' | 'NOP' | 'SWI')
         -> mode(M_MNEMONIC)
     ;
@@ -56,10 +68,6 @@ POUND
 
 EQUALS
     : '='
-    ;
-
-SIGN
-    : [-+]
     ;
 
 fragment INT_STEM
