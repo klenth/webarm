@@ -593,6 +593,8 @@ function handleSingleDataTransferInstruction(i) {
         const { U, Offset } = getOffsetU(imm);
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        if ((!P || W) && i.operands[1].register.number() === 15)
+            throw new AssemblyError(`Writeback not allowed when base register is R15 (PC)`, i);
         return [() => new I.SingleDataTransferInstruction({
             Cond: cond,
             '[bits27-26]': 0b01,
@@ -612,6 +614,8 @@ function handleSingleDataTransferInstruction(i) {
         return [(mapper) => {
             const diff = mapper(i.operands[1].offset) - mapper('.');
             const {U, Offset} = getOffsetU(diff);
+            if ((!P || W) && i.operands[1].register.number() === 15)
+                throw new AssemblyError(`Writeback not allowed when base register is R15 (PC)`, i);
             return new I.SingleDataTransferInstruction({
                 Cond: cond,
                 '[bits27-26]': 0b01,
@@ -631,6 +635,10 @@ function handleSingleDataTransferInstruction(i) {
         console.debug(`U = ${U}`);
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        if ((!P || W) && i.operands[1].register.number() === 15)
+            throw new AssemblyError(`Writeback not allowed when destination register is R15 (PC)`, i);
+        if (i.operands[1].offset.number() === 15)
+            throw new AssemblyError(`R15 (PC) not allowed as offset for opcode ${OpCode}`);
         return [() => new I.SingleDataTransferInstruction({
             Cond: cond,
             '[bits27-26]': 0b01,
@@ -652,6 +660,10 @@ function handleSingleDataTransferInstruction(i) {
         console.debug(`U = ${U}`);
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
+        if ((!P || W) && i.operands[1].register.number() === 15)
+            throw new AssemblyError(`Writeback not allowed when base register is R15 (PC)`, i);
+        if (i.operands[1].offset.register.number() === 15)
+            throw new AssemblyError(`R15 (PC) not allowed as offset for opcode ${OpCode}`);
         return [() => new I.SingleDataTransferInstruction({
             Cond: cond,
             '[bits27-26]': 0b01,
