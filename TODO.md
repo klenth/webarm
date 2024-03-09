@@ -4,7 +4,7 @@
 - [DONE] Memory viewer
 - [DONE] Debugging
 - Remaining instructions
-  - LSL/LSR/ASR/ROR "instructions" (actually MOVs)
+  - [DONE]LSL/LSR/ASR/ROR "instructions" (actually MOVs)
   - [DONE] LDR, STR
   - LDM, STM
   - [DONE] SWI
@@ -12,9 +12,9 @@
   - [DONE] BX/BLX
 - [DONE] Directives
 - [DONE] Load/save
-- NZCV for all relevant instructions
+- [DONE (enough, at least)] NZCV for all relevant instructions
 - Assembler module
-- Error messages on parse/assembly error
+- [DONE] Error messages on parse/assembly error
 - [DONE] Syntax highlighting (Ace mode)
 - Instruction reference
 - Keyboard shortcuts (at least for run/debug)
@@ -38,5 +38,5 @@
 - [DONE] Validation of immediate values (e.g. rotation of immediate in data processing instructions)
 - Expressions for symbols
 - Symbol/expression for operand 2 in data processing instructions
-- Correct handling of R15 (cannot participate in some instructions)
-- 
+- [DONE] Correct handling of R15 (cannot participate in some instructions)
+- Support RRX?

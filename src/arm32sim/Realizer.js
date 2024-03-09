@@ -142,6 +142,8 @@ function realizeInstruction(i) {
     const opcode = i.opcode.toUpperCase();
     if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
         return handleIntegerDataProcessingInstruction(i);
+    else if (['LSL', 'ASL', 'LSR', 'ASR', 'ROR'].indexOf(opcode) >= 0)
+        return handleShiftPseudoInstruction(i);
     else if (['B', 'BL'].indexOf(opcode) >= 0)
         return handleBranchInstruction(i);
     else if (opcode === 'BX')
@@ -203,7 +205,7 @@ function parseCond(cond) {
     }
 }
 
-function packFlexOperand(flex, i) {
+function packFlexOperand(flex) {
     const amountImm = flex.amountImmediate, amountReg = flex.amountRegister;
 
     let shiftBits;
@@ -431,6 +433,56 @@ function handleIntegerDataProcessingInstruction(i) {
             Operand2: packFlexOperand(i.operands[1])
         })];
     } else
+        throw new InvalidOperandsError(OpCode, spec, i);
+}
+
+function handleShiftPseudoInstruction(i) {
+    // These instructions are syntactic sugar for MOVs with shifts, e.g.
+    // ASL  R1, R2, R3
+    // is actually
+    // MOV  R1, R2 ASL R3
+    const OpCode = i.opcode.toUpperCase();
+    const S = i.s;
+    const Cond = i.cond;
+
+    const spec = operandSpec(i.operands);
+
+    const cond = parseCond(Cond);
+
+    if (spec === 'RRR')
+        return [() => new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: 0b1101, // MOV
+            S: S ? 0b1 : 0b0,
+            Rn: 0,
+            Rd: i.operands[0].number(),
+            Operand2: packFlexOperand({
+                shift: OpCode,
+                register: i.operands[1],
+                amountImmediate: null,
+                amountRegister: i.operands[2]
+            })
+        })];
+    else if (spec === 'RRI')
+        // ASL  R1, R2, #4 ->   MOV R1, R2 ASL #4
+        return [() => new I.DataProcessingInstruction({
+            Cond: cond,
+            '[bits27-26]': 0b00,
+            I: 0b0,
+            OpCode: 0b1101, // MOV
+            S: S? 0b1 : 0b0,
+            Rn: 0,
+            Rd: i.operands[0].number(),
+            Operand2: packFlexOperand({
+                shift: OpCode,
+                register: i.operands[1],
+                amountImmediate: i.operands[2].value,
+                amountRegister: null
+            })
+        })];
+    else
         throw new InvalidOperandsError(OpCode, spec, i);
 }
 
