@@ -48,6 +48,7 @@ OPCODE
     : ('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
             | 'ROR' | 'RRX' | 'ASL' | 'LSL' | 'ASR' | 'LSR'
             | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'BX'
+            | 'MUL' | 'MLA'
             | ('LDR' | 'STR') 'B'?
             | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'IB' | 'DA' | 'DB')
             | 'STOP' | 'BREAK' | 'NOP' | 'SWI')

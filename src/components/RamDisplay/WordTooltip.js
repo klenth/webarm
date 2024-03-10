@@ -1,0 +1,63 @@
+import styled from 'styled-components';
+import React from 'react';
+import * as format from '../../format.js';
+
+const Tooltip = styled.div`
+    position: absolute;
+    left: ${props => `${props.x}px`};
+    top: ${props => `${props.y}px}`};
+    display: ${props => props.visible ? 'grid' : 'none'};
+    background: #ffffffe0;
+    padding: 8px;
+    border: 2px solid var(--color-night);
+    border-radius: 4px;
+`;
+
+const Title = styled.div`
+    grid-column: 1 / span 2;
+`;
+
+const Label = styled.div`
+    grid-column: 1;
+    justify-self: end;
+`;
+
+const Value = styled.div`
+    grid-column: 2;
+    justify-self: center;
+`;
+
+export class WordTooltip extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {};
+    }
+
+    render() {
+        const addr = this.props.address || 0;
+        const word = this.props.word || 0;
+        const addrString = `0x${format.hexWord(addr)}`;
+        const wordString = `0x${format.hexWord(word)}`;
+        const x = this.props.x || 0, y = this.props.y || 0;
+        const visible = this.props.visible || false;
+        return (
+            <Tooltip
+                    x={x}
+                    y={y}
+                    visible={visible}
+            >
+                <Title>Address {addrString}</Title>
+
+                <Label>Hex:</Label>
+                <Value>{format.hexWord(word)}</Value>
+
+                <Label>Dec:</Label>
+                <Value>{format.decimalWordSigned(word)}</Value>
+
+                <Label>UDec:</Label>
+                <Value>{format.decimalWordUnsigned(word)}</Value>
+            </Tooltip>
+        );
+    }
+}

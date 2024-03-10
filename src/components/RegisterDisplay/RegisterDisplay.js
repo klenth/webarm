@@ -1,5 +1,6 @@
 import styled from 'styled-components';
 import React from 'react';
+import * as format from '../../format.js';
 import './style.css';
 
 const DisplayMode = {
@@ -96,18 +97,21 @@ function valueText(value, mode) {
 
         return '0b' + s;
     } else if (mode === DisplayMode.DecimalSigned) {
-        value >>= 0;
+        /*value >>= 0;
         if (value > 0)
             return insertCommas('+' + (value >> 0));
         else
-            return insertCommas('' + value);
+            return insertCommas('' + value);*/
+        return format.decimalWordSigned(value);
     } else if (mode === DisplayMode.DecimalUnsigned) {
-        let lower = (value & 0x7fffffff) + 0.0;
+        return format.decimalWordUnsigned(value);
+        /*let lower = (value & 0x7fffffff) + 0.0;
         if ((value >>> 31) !== 0)
             lower += 2147483648.0;
-        return insertCommas('' + lower);
+        return insertCommas('' + lower);*/
     } else if (mode === DisplayMode.Hexadecimal) {
-        let s = '';
+        return format.hexWordBytes(value);
+        /*let s = '';
         for (let i = 0; i < 8; ++i) {
             let nybble = value & 0xf;
             if (nybble < 10)
@@ -121,7 +125,7 @@ function valueText(value, mode) {
             value >>>= 4;
         }
 
-        return s;
+        return s;*/
     } else
         return null;
 }

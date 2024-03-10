@@ -173,6 +173,34 @@ export class DataProcessingInstruction extends Instruction {
     }
 }
 
+export class MultiplyInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        Cond: new Bitfield(4, 28),
+        '[bits27-22]': new Bitfield(6, 22),
+        A: new Bitfield(1, 21),
+        S: new Bitfield(1, 20),
+        Rd: new Bitfield(4, 16),
+        Rn: new Bitfield(4, 12),
+        Rs: new Bitfield(4, 8),
+        '[bits7-4]': new Bitfield(4, 4).asConstant(0b1001),
+        Rm: new Bitfield(4, 0)
+    });
+
+    format() {
+        return MultiplyInstruction._format;
+    }
+
+    mnemonic() {
+        const A = this.get('A');
+        return A ? 'MLA' : 'MUL';
+    }
+
+    static fromCode(word) {
+        const fieldValues = decodeFieldValues(word, MultiplyInstruction._format);
+        return new MultiplyInstruction(fieldValues);
+    }
+}
+
 export class SingleDataTransferInstruction extends Instruction {
     static _format = new InstructionFormat({
         Cond: new Bitfield(4, 28),
@@ -305,4 +333,5 @@ registerOpcodeDecoder(0x0c00_0000, 0x0400_0000, SingleDataTransferInstruction.fr
 registerOpcodeDecoder(0x0e00_0000, 0x0800_0000, BlockDataTransferInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_0000, 0x0a00_0000, BranchInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
+registerOpcodeDecoder(0x0f80_00f0, 0x0000_0090, MultiplyInstruction.fromCode);
 registerOpcodeDecoder(0x0f00_0000, 0x0f00_0000, SoftwareInterruptInstruction.fromCode);

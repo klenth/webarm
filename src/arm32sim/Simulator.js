@@ -3,6 +3,7 @@ import SimulatorState from './SimulatorState';
 import {
     decode,
     DataProcessingInstruction,
+    MultiplyInstruction,
     SingleDataTransferInstruction,
     BlockDataTransferInstruction,
     BranchInstruction,
@@ -111,6 +112,8 @@ function execute(instrCode, state) {
 
     if (instr instanceof DataProcessingInstruction)
         executeDataProcessingInstruction(state, instr);
+    else if (instr instanceof MultiplyInstruction)
+        executeMultiplyInstruction(state, instr);
     else if (instr instanceof SingleDataTransferInstruction)
         executeSingleDataTransferInstruction(state, instr);
     else if (instr instanceof BlockDataTransferInstruction)
@@ -261,6 +264,23 @@ function executeDataProcessingInstruction(state, instr) {
             state.C = resultCV.C;
             state.V = resultCV.V;
         }
+    }
+}
+
+function executeMultiplyInstruction(state, instr) {
+    const Cond = instr.get('Cond');
+    if (!testCondition(Cond, state))
+        return;
+
+    const { A, S, Rd, Rn, Rs, Rm } = instr.fieldValues;
+
+    const product = (state.registers.get(Rm) * state.registers.get(Rs)) & 0xffff_ffff;
+    const result = (A ? product + state.registers.get(Rn) : product) & 0xffff_ffff;
+
+    state.registers.set(Rd, result);
+    if (S) {
+        state.Z = (result === 0);
+        state.N = (result & 0x8000_0000) !== 0;
     }
 }
 

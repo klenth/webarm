@@ -142,6 +142,8 @@ function realizeInstruction(i) {
     const opcode = i.opcode.toUpperCase();
     if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
         return handleIntegerDataProcessingInstruction(i);
+    else if (opcode === 'MUL' || opcode === 'MLA')
+        return handleMultiplyInstruction(i);
     else if (['LSL', 'ASL', 'LSR', 'ASR', 'ROR'].indexOf(opcode) >= 0)
         return handleShiftPseudoInstruction(i);
     else if (['B', 'BL'].indexOf(opcode) >= 0)
@@ -433,6 +435,45 @@ function handleIntegerDataProcessingInstruction(i) {
             Rn: 0,
             Rd: i.operands[0].number(),
             Operand2: packFlexOperand(i.operands[1])
+        })];
+    } else
+        throw new InvalidOperandsError(OpCode, spec, i);
+}
+
+function handleMultiplyInstruction(i) {
+    const OpCode = i.opcode.toUpperCase();
+    const S = i.s;
+    const Cond = i.cond;
+
+    const spec = operandSpec(i.operands);
+
+    const cond = parseCond(Cond);
+    const Sbit = S ? 0b1 : 0b0;
+
+    if (OpCode === 'MUL' && spec === 'RRR'
+        || OpCode === 'MLA' && spec === 'RRRR') {
+        // MUL Rd, Rm, Rs
+        const A = (OpCode === 'MLA');
+        const Rd = i.operands[0].number(),
+            Rm = i.operands[1].number(),
+            Rs = i.operands[2].number(),
+            Rn = (spec === 'RRRR') ? i.operands[3].number() : 0b0000;
+
+        if (Rd === Rm)
+            throw new AssemblyError(`Destination register must not be the same as the first operand in ${OpCode}`);
+        else if (Rd === 15 || Rm === 15 || Rs === 15 || Rn === 15)
+            throw new AssemblyError(`R15 (PC) cannot be used as destination or operand in ${OpCode}`);
+
+        return [() => new I.MultiplyInstruction({
+            Cond: cond,
+            '[bits27-22]': 0b00_0000,
+            A: A,
+            S: Sbit,
+            Rd: Rd,
+            Rn: Rn,
+            Rs: Rs,
+            '[bits7-4]': 0b1001,
+            Rm: Rm
         })];
     } else
         throw new InvalidOperandsError(OpCode, spec, i);

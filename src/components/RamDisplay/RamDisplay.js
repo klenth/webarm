@@ -1,6 +1,7 @@
 import styled from 'styled-components';
 import React from 'react';
 import SimulatorMemory from '../../arm32sim/SimulatorMemory';
+import { WordTooltip } from './WordTooltip.js';
 
 const Pane = styled.div`
     margin: 4px;
@@ -34,6 +35,7 @@ const Field = styled.div`
     padding: 4px;
     font-family: monospace;
     cursor: default;
+    position: relative;
 `;
 
 const LineDisplay = styled.div`
@@ -60,6 +62,7 @@ const WordDisplay = styled.span`
 
 const ByteDisplay = styled.span`
     margin: 0 0.5ex;
+    pointer-events: none;
 `;
 
 function formatByte(value) {
@@ -90,6 +93,8 @@ export default class RamDisplay extends React.Component {
         this.state = {
             offset: 0,
             offsetText: '0',
+            hoverAddress: null,
+            hoverPoint: {}
         };
     }
 
@@ -106,6 +111,8 @@ export default class RamDisplay extends React.Component {
                 offset={offset + wordsPerLine * 4 * i}
                 key={`line_${i}`}
                 highlightWord={this.props.highlightWord}
+                handleWordPointerEnter={(address, x, y) => this.handleWordPointerEnter(address, x, y)}
+                handleWordPointerExit={address => this.handleWordPointerExit(address)}
             />
         ));
 
@@ -134,6 +141,13 @@ export default class RamDisplay extends React.Component {
                 </Controls>
                 <Field>
                     {lines}
+                    <WordTooltip
+                        x={this.state.hoverPoint.x || 0}
+                        y={this.state.hoverPoint.y || 0}
+                        visible={this.state.hoverAddress !== null}
+                        address={this.state.hoverAddress}
+                        word={this.state.hoverAddress !== null ? mem.readWord(this.state.hoverAddress) : 0}
+                    />
                 </Field>
             </Pane>
         );
@@ -174,6 +188,28 @@ export default class RamDisplay extends React.Component {
             offsetText: newOffset.toString(16).toUpperCase()
         });
     }
+
+    handleWordPointerEnter(address, x, y) {
+        console.debug(`x = ${x}, y = ${y}`);
+        this.updateState({
+            hoverAddress: parseInt(address),
+            hoverPoint: { x: x, y: y }
+        });
+    }
+
+    handleWordPointerExit(address) {
+        if (this.state.hoverAddress === address)
+            this.updateState({
+                hoverAddress: null
+            });
+    }
+
+    updateState(stateUpdates) {
+        this.setState({
+            ...this.state,
+            ...stateUpdates
+        });
+    }
 }
 
 class Line extends React.Component {
@@ -196,7 +232,15 @@ class Line extends React.Component {
             <WordDisplay
                 key={`line_${lineNumber}_word_${i}`}
                 className={(this.props.highlightWord === offset + 4 * i) ? 'highlighted' : ''}
-                title={formatWordTitle(offset + 4 * i, mem.readWord(offset + 4 * i))}
+                //title={formatWordTitle(offset + 4 * i, mem.readWord(offset + 4 * i))}
+                data-address={offset + 4 * i}
+                onPointerEnter={e => {
+                    let x = e.target.offsetLeft, y = e.target.offsetTop;
+                    x -= (i / (numWords - 1)) * e.target.offsetWidth;
+                    y += 3 * e.target.offsetHeight;
+                    this.props.handleWordPointerEnter(offset + 4 * i, x, y);
+                }}
+                onPointerLeave={e => this.props.handleWordPointerExit(offset + 4 * i)}
             >{[...Array(4).fill(0)].map((_, b) => (
                 <ByteDisplay
                     key={`line_${lineNumber}_word_${i}_${b}`}
