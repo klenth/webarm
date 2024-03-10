@@ -6,7 +6,7 @@
 - Remaining instructions
   - [DONE]LSL/LSR/ASR/ROR "instructions" (actually MOVs)
   - [DONE] LDR, STR
-  - LDM, STM
+  - [DONE] LDM, STM
   - [DONE] SWI
   - MUL/MLA?
   - [DONE] BX/BLX
@@ -40,3 +40,6 @@
 - Symbol/expression for operand 2 in data processing instructions
 - [DONE] Correct handling of R15 (cannot participate in some instructions)
 - Support RRX?
+  - Seems like a lot of effort for something that will likely never be used.
+- Quick way to jump to register location in memory (or just SP, LR, PC?)
+  - Symbols too
