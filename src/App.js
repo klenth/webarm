@@ -47,6 +47,21 @@ const MessageDisplay = styled.div`
 `;
 
 const SimulatorOutput = styled.pre`
+    border: 2px solid var(--color-thistle);
+    position: relative;
+    min-height: 8em;
+    padding-top: 2rem;
+  
+    &:before {
+        content: "Simulator output";
+        position: absolute;
+        left: 0;
+        top: 0;
+        background-color: var(--color-thistle);
+        color: white;
+        padding: 4px;
+        border-radius: 0 0 4px 4px;
+    }
 `;
 
 const Nonprintable = styled.span`
@@ -209,7 +224,7 @@ class App extends React.Component {
                         />
                     ) : null}
                 </Center>
-                <MessageDisplay>{this.state.message}</MessageDisplay>
+                <MessageDisplay>{this.state.message || ' '}</MessageDisplay>
                 <SimulatorOutput>{simulatorOutputText}</SimulatorOutput>
             </div>
         );

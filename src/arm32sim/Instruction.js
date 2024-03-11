@@ -80,7 +80,6 @@ export class InstructionFormat {
             bits = field.setOnes(bits);
         }
 
-        console.debug(`bits = ${bits}`);
         if ((bits ^ 0xffff_ffff) !== 0)
             throw new InstructionFormatError('Instruction format does not cover all 32 bits!');
     }

@@ -50,7 +50,6 @@ class ParseError extends Error {
     function doParseAndRealize(code) {
         try {
             const ast = parse(code);
-            console.debug(`ast =`, ast);
             if (ast !== null)
                 return doRealize(ast);
         } catch (ex) {
@@ -179,7 +178,6 @@ class ParseError extends Error {
                     break;
             }
         } catch (ex) {
-            console.debug('Catching simulator exception');
             return {
                 result: 'error',
                 state: state,

@@ -136,7 +136,6 @@ function handleEquate(d) {
 
 function handleFill(d) {
     const bytes = d.bytes;
-    console.debug(`bytes = ${bytes}`);
     return {
         data: () => {},
         size: bytes,
@@ -252,28 +251,14 @@ function packRotatedImmediateOperand(imm, immString) {
     // There are doubtless more efficient ways to compute this, but for our purposes brute force is plenty: just take a
     // mask of 8 bits and rotate it through all possible positions, stopping once we find one that hits all bits.
     imm = imm >> 0; // make sure imm is treated as signed
-
-    /*if (imm >= 0) {
-        const mask = 0xff;
-        let rot;
-        for (rot = 0; rot <= 30; rot += 2) {
-            const rotated = rotateRight(mask, rot);
-            if ((imm & rotated) === imm) {
-                console.debug(`For ${imm}, using rot=${rot}, immediate ${rotateRight(imm, 32 - rot) & 0xff}`);
-                return (rot << 7) | (rotateRight(imm, 32 - rot) & 0xff);
-            }
+    const mask = 0xff;
+    for (let rot = 0; rot <= 30; rot += 2) {
+        // const rotated = rotateRight(mask, rot);
+        const immRotated = rotateRight(imm, 32 - rot) & 0xff;
+        if (rotateRight((immRotated << 24) >> 24, rot) === imm) {
+            return (rot << 7) | (rotateRight(imm, 32 - rot) & 0xff);
         }
-    } else {*/
-        const mask = 0xff;
-        for (let rot = 0; rot <= 30; rot += 2) {
-            // const rotated = rotateRight(mask, rot);
-            const immRotated = rotateRight(imm, 32 - rot) & 0xff;
-            if (rotateRight((immRotated << 24) >> 24, rot) === imm) {
-                console.debug(`For ${imm}, using rot=${rot}, immediate ${rotateRight(imm, 32 - rot) & 0xff}`);
-                return (rot << 7) | (rotateRight(imm, 32 - rot) & 0xff);
-            }
-        }
-    //}
+    }
 
     throw new AssemblyError(`Value ${immString} not in range: must be expressible as eight bits rotated within a 32-bit field`)
 }
@@ -633,13 +618,9 @@ function handleLdrPseudoInstruction(i) {
             L: 0b0,
             offset: 1   // branch one word past PC (just past the value to be LDRed
         }),
-        (mapper) => {
-            if (typeof(value) === 'string')
-                console.debug(`mapper('${value}') = ${mapper(value)}`);
-            return new I.DummyInstruction({
+        (mapper) => new I.DummyInstruction({
                 bits: (typeof(value) === 'string') ? mapper(value) : value
-            });
-        }
+        })
     ];
 }
 
@@ -742,7 +723,6 @@ function handleSingleDataTransferInstruction(i) {
         }];
     } else if (spec === 'RPre[Rs]' || spec === 'RPost[Rs]') {
         const U = (i.operands[1].offset.sign === '-') ? 0b0 : 0b1;
-        console.debug(`U = ${U}`);
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
         if ((!P || W) && i.operands[1].register.number() === 15)
@@ -765,9 +745,7 @@ function handleSingleDataTransferInstruction(i) {
     } else if (spec === 'RPre[Rf]' || spec === 'RPost[Rf]') {
         if (i.operands[1].offset.amountRegister !== null)
             throw new AssemblyError(`LDR/STR does not allow shifting by register`, i);
-        console.log(i.operands[1].offset.register.sign);
         const U = (i.operands[1].offset.register.sign === '-') ? 0b0 : 0b1;
-        console.debug(`U = ${U}`);
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
         if ((!P || W) && i.operands[1].register.number() === 15)
