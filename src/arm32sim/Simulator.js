@@ -216,7 +216,7 @@ function executeDataProcessingInstruction(state, instr) {
     let resultCV;
     if (I) {
         const Rotate = new Bitfield(4, 8).get(Operand2);
-        const Imm = new Bitfield(8, 0).get(Operand2);
+        const Imm = (new Bitfield(8, 0).get(Operand2) << 24) >> 24;
         const rotatedOperand = rotateRight(Imm, 2 * Rotate);
 
         result = evaluate(RnValue, rotatedOperand, state.C);
@@ -295,7 +295,7 @@ function executeSingleDataTransferInstruction(state, instr) {
 
     if (!I) {
         // immediate offset
-        const off = (Offset << 20) >> 20;
+        const off = Offset;
         adjustedAddress += U ? off : -off;
     } else {
         const shiftSrc = Offset & 0x10;
@@ -311,6 +311,7 @@ function executeSingleDataTransferInstruction(state, instr) {
     }
 
     const targetAddress = P ? adjustedAddress : baseAddress;
+    console.debug(`baseAddress = ${baseAddress}, targetAddress = ${targetAddress}`);
 
     if (L && !B) {          // LDR (load word) - most common
         const alignedAddress = targetAddress & 0xffff_fffc;

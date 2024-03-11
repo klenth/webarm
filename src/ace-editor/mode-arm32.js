@@ -12,7 +12,7 @@ export class AssemblyARM32HighlightRules extends window.ace.acequire('ace/mode/t
                 {
                     token: 'keyword.control.assembly',
                     // should cover every instruction listed in https://pages.cs.wisc.edu/~markhill/restricted/arm_isa_quick_reference.pdf
-                    regex: '\\b(?:nop|(?:add|adc|sub|sbc|rsb|rsc|mvn|and|eor|orr|bic|asl|lsl|asr|lsr|ror|mul|mla)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?s?|(tst|teq|cmp|cmn|b|bl|bx|stop|break|mov|swi)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|ldrb?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?b?|str(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?b?|(?:ldm|stm)(?:ia|ib|da|db|fd|ed|fa|ea)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?)\\b',
+                    regex: '\\b(?:nop|(?:add|adc|sub|sbc|rsb|rsc|mvn|and|eor|orr|bic|asl|lsl|asr|lsr|ror|mul|mla)s?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|(tst|teq|cmp|cmn|b|bl|bx|stop|break|mov|swi)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|ldrb?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?b?|str(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?b?|(?:ldm|stm)(?:ia|ib|da|db|fd|ed|fa|ea)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?)\\b',
                     caseInsensitive: true
                 },
                 {
@@ -23,17 +23,17 @@ export class AssemblyARM32HighlightRules extends window.ace.acequire('ace/mode/t
                 },
                 {
                     token: 'constant.character.hexadecimal.assembly',
-                    regex: '#0x[A-F0-9_]+',
+                    regex: '#-?0x[A-F0-9_]+',
                     caseInsensitive: true
                 },
                 {
                     token: 'constant.character.binary.assembly',
-                    regex: '#0b[01_]+',
+                    regex: '#-?0b[01_]+',
                     caseInsensitive: true
                 },
                 {
                     token: 'constant.character.decimal.assembly',
-                    regex: '#[0-9_]+'
+                    regex: '#-?[0-9_]+'
                 },
                 {
                     token: 'string.assembly',

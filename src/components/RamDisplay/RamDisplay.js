@@ -190,7 +190,6 @@ export default class RamDisplay extends React.Component {
     }
 
     handleWordPointerEnter(address, x, y) {
-        console.debug(`x = ${x}, y = ${y}`);
         this.updateState({
             hoverAddress: parseInt(address),
             hoverPoint: { x: x, y: y }

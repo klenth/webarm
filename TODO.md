@@ -43,3 +43,4 @@
   - Seems like a lot of effort for something that will likely never be used.
 - Quick way to jump to register location in memory (or just SP, LR, PC?)
   - Symbols too
+- Ability to copy view shown by RamDisplay

@@ -141,7 +141,7 @@ function handleFill(d) {
 function realizeInstruction(i) {
     const opcode = i.opcode.toUpperCase();
     if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
-        return handleIntegerDataProcessingInstruction(i);
+        return handleDataProcessingInstruction(i);
     else if (opcode === 'MUL' || opcode === 'MLA')
         return handleMultiplyInstruction(i);
     else if (['LSL', 'ASL', 'LSR', 'ASR', 'ROR'].indexOf(opcode) >= 0)
@@ -246,19 +246,34 @@ function packRotatedImmediateOperand(imm, immString) {
     // ARM allows the immediate to be at most 8 bits, rotated an even number of bits (0..30) in the word
     // There are doubtless more efficient ways to compute this, but for our purposes brute force is plenty: just take a
     // mask of 8 bits and rotate it through all possible positions, stopping once we find one that hits all bits.
-    imm = imm >>> 0; // make sure imm is treated as unsigned
-    const mask = 0xff;
-    let rot;
-    for (rot = 0; rot <= 30; rot += 2) {
-        const rotated = rotateRight(mask, rot);
-        if ((imm & rotated) === imm)
-            return (rot << 7) | (rotateRight(imm, 32 - rot));
-    }
+    imm = imm >> 0; // make sure imm is treated as signed
+
+    /*if (imm >= 0) {
+        const mask = 0xff;
+        let rot;
+        for (rot = 0; rot <= 30; rot += 2) {
+            const rotated = rotateRight(mask, rot);
+            if ((imm & rotated) === imm) {
+                console.debug(`For ${imm}, using rot=${rot}, immediate ${rotateRight(imm, 32 - rot) & 0xff}`);
+                return (rot << 7) | (rotateRight(imm, 32 - rot) & 0xff);
+            }
+        }
+    } else {*/
+        const mask = 0xff;
+        for (let rot = 0; rot <= 30; rot += 2) {
+            // const rotated = rotateRight(mask, rot);
+            const immRotated = rotateRight(imm, 32 - rot) & 0xff;
+            if (rotateRight((immRotated << 24) >> 24, rot) === imm) {
+                console.debug(`For ${imm}, using rot=${rot}, immediate ${rotateRight(imm, 32 - rot) & 0xff}`);
+                return (rot << 7) | (rotateRight(imm, 32 - rot) & 0xff);
+            }
+        }
+    //}
 
     throw new AssemblyError(`Value ${immString} not in range: must be expressible as eight bits rotated within a 32-bit field`)
 }
 
-function handleIntegerDataProcessingInstruction(i) {
+function handleDataProcessingInstruction(i) {
     const OpCode = i.opcode.toUpperCase();
     const S = i.s;
     const Cond = i.cond;
@@ -552,7 +567,7 @@ function handleBranchInstruction(i) {
             Cond: cond,
             '[bits27-25]': 0b101,
             'L': (OpCode === 'BL') ? 0b1 : 0b0,
-            'offset': packOffset(i.operands[9].value),
+            'offset': packOffset(i.operands[0].value),
         })];
     } else if (spec === 'S') {
         const symbol = i.operands[0];
@@ -593,39 +608,30 @@ function handleLdrPseudoInstruction(i) {
     if (!!S)
         throw new AssemblyError(`${i.opcode} does not take S flag!`, i)
 
-    let movByte = imm & 0xff;
-    const instrs = [
-        () => new I.DataProcessingInstruction({
+    return [
+        () => new I.SingleDataTransferInstruction({
             Cond: cond,
-            '[bits27-26]': 0b00,
-            I: 0b1,
-            OpCode: 0b1101, // MOV
-            S: 0b0,
-            Rn: 0,
-            Rd: reg,
-            Operand2: movByte
+            '[bits27-26]': 0b01,
+            I: 0b0,     // offset is immediate (field is backwards from what you'd expect!)
+            P: 0b1,     // preindex (so it doesn't writeback)
+            U: 0b1,     // add offset to base
+            B: 0b0,     // read a word, not a byte
+            W: 0b0,     // don't writeback
+            L: 0b1,     // load
+            Rn: 15,     // use PC as base register
+            Rd: reg,    // destination register
+            Offset: 4   // read one word after PC (since PC has already moved to next instruction, this skips over B)
+        }),
+        () => new I.BranchInstruction({
+            Cond: 0b1110,   // always
+            '[bits27-25]': 0b101,
+            L: 0b0,
+            offset: 1   // branch one word past PC (just past the value to be LDRed
+        }),
+        () => new I.DummyInstruction({
+            bits: imm
         })
     ];
-
-    let rot = 12;
-    for (imm >>>= 8; imm !== 0; imm >>>= 8, rot -= 4) {
-        const bottomByte = imm & 0xff;
-        if (bottomByte) {
-            const operand2 = (rot << 8) | bottomByte;
-            instrs.push(() => new I.DataProcessingInstruction({
-                Cond: cond,
-                '[bits27-26]': 0b00,
-                I: 0b1,
-                OpCode: 0b1100, // ORR
-                S: 0b0,
-                Rn: reg,
-                Rd: reg,
-                Operand2: operand2
-            }));
-        }
-    }
-
-    return instrs;
 }
 
 function handleSingleDataTransferInstruction(i) {

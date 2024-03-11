@@ -1,6 +1,8 @@
 import { AssemblyError } from '../arm32sim/Realizer.js';
 
 export function parseImmediate(text) {
+    if (text.startsWith("-"))
+        return -parseImmediate(text.slice(1));
     text = text.replaceAll("_", "").toLowerCase();
     if (text.startsWith("0x"))
         return parseInt(text.slice(2), 16);

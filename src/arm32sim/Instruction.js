@@ -1,6 +1,9 @@
 import SimulatorState from './SimulatorState';
 import SimulatorMemory from './SimulatorMemory';
 import Bitfield from '../bits/Bitfield';
+import * as format from '../format.js';
+import * as bits from '../bits/arithmetic.js';
+import In from 'antlr4';
 
 export class InstructionFormatError extends Error {}
 
@@ -59,6 +62,10 @@ export class Instruction {
             word = fields[name].checkAndSet(word, this.get(name));
         return word;
     }
+
+    toString() {
+        return this.mnemonic();
+    }
 }
 
 export class InstructionFormat {
@@ -73,6 +80,7 @@ export class InstructionFormat {
             bits = field.setOnes(bits);
         }
 
+        console.debug(`bits = ${bits}`);
         if ((bits ^ 0xffff_ffff) !== 0)
             throw new InstructionFormatError('Instruction format does not cover all 32 bits!');
     }
@@ -97,6 +105,14 @@ export class BranchInstruction extends Instruction {
             return 'B';
     }
 
+    toString() {
+        let { Cond, L, offset } = this.fieldValues;
+        offset = ((offset << 8) >> 6) + 4;
+        const addr = (offset >= 0) ? `#0x${format.hex(offset)}`
+            : `#-0x${format.hex(-offset)}`;
+        return `B${L ? 'L' : ''}${condToString(Cond)} ${addr}`;
+    }
+
     static fromCode(word) {
         const fieldValues = decodeFieldValues(word, BranchInstruction._format);
         return new BranchInstruction(fieldValues);
@@ -116,6 +132,11 @@ export class BranchAndExchangeInstruction extends Instruction {
 
     mnemonic() {
         return 'BX';
+    }
+
+    toString() {
+        const { Cond, Rn } = this.fieldValues;
+        return `BX${condToString(Cond)} ${registerToString(Rn)}`;
     }
 
     static fromCode(word) {
@@ -167,6 +188,45 @@ export class DataProcessingInstruction extends Instruction {
         return m;
     }
 
+    toString() {
+        const {Cond, I, OpCode, S, Rn, Rd, Operand2} = this.fieldValues;
+        const opcode = this.mnemonic();
+
+        let op2String;
+        if (I) {
+            const rotate = (Operand2 & 0xf00) >>> 8;
+            const imm = ((Operand2 & 0x0ff) << 24) >> 24;
+            const op = bits.rotateRight(imm, 2 * rotate) >>> 0;
+
+            op2String = `#0x${format.hex(op)}`;
+        } else {
+            const Rm = Operand2 & 0xf;
+            const shiftType = (Operand2 & 0x60) >>> 5;
+            const shiftOp = ['LSL', 'LSR', 'ASR', 'ROR'][shiftType];
+            if ((Operand2 & 0x10) === 0) {
+                // shift amount is immediate
+                const shiftAmount = (Operand2 & 0xf80) >>> 7;
+                if (shiftAmount !== 0)
+                    op2String = `${registerToString(Rm)}, ${shiftOp} #0x${format.hex(shiftAmount)}`;
+                else
+                    op2String = `${registerToString(Rm)}`;
+            } else {
+                // shift amount is in a register
+                const Rs = Operand2 >>> 8;
+                op2String = `${registerToString(Rm)}, ${shiftOp} ${registerToString(Rs)}`;
+            }
+        }
+
+        if ([0b1000, 0b1001, 0b1010, 0b1011].indexOf(OpCode) >= 0)
+            // TST/TEQ/CMP/CMN - no Rd
+            return `${opcode}${condToString(Cond)} ${registerToString(Rn)}, ${op2String}`;
+        else if ([0b1101, 0b1111].indexOf(OpCode) >= 0)
+            // MOV/MVN - no Rn
+            return `${opcode}${condToString(Cond)} ${registerToString(Rd)}, ${op2String}`;
+        else
+            return `${opcode}${condToString(Cond)} ${registerToString(Rd)}, ${registerToString(Rn)}, ${op2String}`;
+    }
+
     static fromCode(word) {
         const fieldValues = decodeFieldValues(word, DataProcessingInstruction._format);
         return new DataProcessingInstruction(fieldValues);
@@ -193,6 +253,14 @@ export class MultiplyInstruction extends Instruction {
     mnemonic() {
         const A = this.get('A');
         return A ? 'MLA' : 'MUL';
+    }
+
+    toString() {
+        const { Cond, A, S, Rd, Rn, Rs, Rm } = this.fieldValues;
+        if (A)
+            return `MLA${S? 'S' : ''}${condToString(Cond)} ${registerToString(Rd)}, ${registerToString(Rm)}, ${registerToString(Rs)}, ${registerToString(Rn)}`;
+        else
+            return `MUL${S? 'S' : ''}${condToString(Cond)} ${registerToString(Rd)}, ${registerToString(Rm)}, ${registerToString(Rs)}`;
     }
 
     static fromCode(word) {
@@ -224,6 +292,41 @@ export class SingleDataTransferInstruction extends Instruction {
         const B = this.get('B'), L = this.get('L');
         const prefix = L ? 'LDR' : 'STR';
         return B ? prefix + 'B' : prefix;
+    }
+
+    toString() {
+        const { Cond, I, P, U, W, Rn, Rd, Offset } = this.fieldValues;
+        const opcode = this.mnemonic();
+
+        let offOperand;
+        if (I === 0) {
+            // immediate offset
+            if (Offset === 0)
+                offOperand = '';
+            else
+                offOperand = `, #${U ? '' : '-'}0x${format.hex(Offset)}`;
+        } else {
+            const Rm = Offset & 0xf;
+            if ((Offset & 0x10) !== 0)
+                throw new InstructionFormatError(`Invalid ${opcode} instruction`);
+            const shiftType = (Offset & 0x60) >> 5;
+            const shiftAmount = (Offset & 0xf80) >>> 7;
+            if (shiftAmount === 0)
+                offOperand = `, ${U ? '' : '-'}${registerToString(Rm)}`;
+            else {
+                const shiftOp = ['LSL', 'LSR', 'ASR', 'ROR'][shiftType];
+                offOperand = `, ${U ? '' : '-'}${registerToString(Rm)}, ${shiftOp} #${shiftAmount}`;
+            }
+        }
+
+        const preamble =`${opcode}${condToString(Cond)} ${registerToString(Rd)},`;
+        if (P)
+            return `${preamble} [${registerToString(Rn)}${offOperand}]${W ? '!' : ''}`;
+        else {
+            if (W)
+                throw new InstructionFormatError(`Invalid ${opcode} instruction`);
+            return `${preamble} [${registerToString(Rn)}]${offOperand}`;
+        }
     }
 
     static fromCode(word) {
@@ -326,12 +429,40 @@ export class SoftwareInterruptInstruction extends Instruction {
     }
 }
 
+export class DummyInstruction extends Instruction {
+    static _format = new InstructionFormat({
+        bits: new Bitfield(32, 0)
+    });
+
+    format() {
+        return DummyInstruction._format;
+    }
+
+    mnemonic() {
+        return '[dummy instruction]';
+    }
+
+    static fromCode(_) {
+        throw new InstructionFormatError('Attempt to disassemble a dummy instruction!');
+    }
+}
+
 registerOpcodeDecoder(0x0fff_fff0, 0x012f_ff10, BranchAndExchangeInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0010, StopInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_001f, 0x0600_0011, BreakInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0400_0000, SingleDataTransferInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_0000, 0x0800_0000, BlockDataTransferInstruction.fromCode);
 registerOpcodeDecoder(0x0e00_0000, 0x0a00_0000, BranchInstruction.fromCode);
-registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
 registerOpcodeDecoder(0x0f80_00f0, 0x0000_0090, MultiplyInstruction.fromCode);
+registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
 registerOpcodeDecoder(0x0f00_0000, 0x0f00_0000, SoftwareInterruptInstruction.fromCode);
+
+function condToString(cond) {
+    if (cond === 0b1111)
+        throw new InstructionFormatError('Invalid Cond field: 0b1111');
+    return ['EQ', 'NE', 'HS', 'LO', 'MI', 'PL', 'VS', 'VC', 'HI', 'LS', 'GE', 'LT', 'GT', 'LE', ''][cond];
+}
+
+function registerToString(reg) {
+    return 'R' + reg;
+}

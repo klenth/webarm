@@ -6,7 +6,12 @@ export default class Bitfield {
     constructor(bits, offset=0) {
         this.bits = bits;
         this.offset = offset;
-        this.mask = ((1 << bits) - 1) << offset;
+        if (bits === 32 && offset === 0) {
+            this.mask = 0xffff_ffff;
+        } else if (bits === 32) {
+            throw new Error(`Invalid Bitfield: bits=32, offset=${offset}`);
+        } else
+            this.mask = ((1 << bits) - 1) << offset;
     }
 
     asConstant(value) {
