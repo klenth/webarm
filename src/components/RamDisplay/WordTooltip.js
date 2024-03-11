@@ -5,11 +5,14 @@ import * as Instruction from '../../arm32sim/Instruction.js';
 
 const Tooltip = styled.div`
     position: absolute;
-    left: ${props => `${props.x}px`};
+    left: 0;
+    right: 0;
+    width: fit-content;
     top: ${props => `${props.y}px}`};
+    margin: 0 auto;
     display: ${props => props.visible ? 'grid' : 'none'};
     background: #ffffffe0;
-    padding: 8px;
+    padding: 16px;
     border: 2px solid var(--color-night);
     border-radius: 4px;
 `;
@@ -27,6 +30,7 @@ const Label = styled.div`
 const Value = styled.div`
     grid-column: 2;
     justify-self: center;
+    width: max-content;
 `;
 
 const Letter = styled.span`

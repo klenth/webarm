@@ -1,6 +1,7 @@
 import SimulatorMemory from './SimulatorMemory.js';
 import { RegisterBank } from './RegisterBank.js';
 import Bitfield from '../bits/Bitfield.js';
+import { IOBuffer } from './IOBuffer.js';
 
 const Nbf = new Bitfield(1, 3),
     Zbf = new Bitfield(1, 2),
@@ -8,7 +9,7 @@ const Nbf = new Bitfield(1, 3),
     Vbf = new Bitfield(1, 0);
 
 export class SimulatorState {
-    constructor(registers, memory, nzcv, numSteps, state) {
+    constructor(registers, memory, nzcv, numSteps, state, stdin, stdout) {
         this.registers = new RegisterBank(registers);
         if (!registers)
             this.registers.set(13, 0xFF00_0000);
@@ -16,6 +17,8 @@ export class SimulatorState {
         this.nzcv = nzcv || 0b0000;
         this.numSteps = numSteps || 0;
         this.state = state || 'running';
+        this.stdin = stdin || new IOBuffer();
+        this.stdout = stdout || new IOBuffer();
     }
 
     getPC() {
@@ -27,7 +30,7 @@ export class SimulatorState {
     }
 
     clone() {
-        return new SimulatorState(this.registers, this.memory, this.nzcv, this.numSteps);
+        return new SimulatorState(this.registers, this.memory, this.nzcv, this.numSteps, this.state, this.stdin, this.stdout);
     }
 
     get SP() {
@@ -123,6 +126,8 @@ export class SimulatorState {
             o.nzcv,
             o.numSteps,
             o.state,
+            IOBuffer.reconstruct(o.stdin),
+            IOBuffer.reconstruct(o.stdout)
         );
     }
 }

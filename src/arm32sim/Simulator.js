@@ -11,6 +11,7 @@ import {
     StopInstruction,
     BreakInstruction, SoftwareInterruptInstruction
 } from './Instruction.js';
+import { executeSyscall } from './Syscalls.js';
 import Bitfield from '../bits/Bitfield.js';
 import { testAdditionOverflow, testSubtractionOverflow, rotateRight } from '../bits/arithmetic.js';
 
@@ -24,7 +25,7 @@ class UnimplementedException {
     }
 }
 
-class SimulatorError extends Error {
+export class SimulatorError extends Error {
     constructor(message, state) {
         super(message);
         this.state = state;
@@ -427,5 +428,5 @@ function executeBreakInstruction(state, instr) {
 function executeSoftwareInterruptInstruction(state, instr) {
     const Cond = instr.get('Cond');
     if (testCondition(Cond, state))
-        state.interrupt();
+        executeSyscall(state);
 }

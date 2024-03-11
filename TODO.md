@@ -3,14 +3,18 @@
 - [DONE] Case insensitivity
 - [DONE] Memory viewer
 - [DONE] Debugging
-- Remaining instructions
+- [DONE] Remaining instructions
   - [DONE]LSL/LSR/ASR/ROR "instructions" (actually MOVs)
   - [DONE] LDR, STR
   - [DONE] LDM, STM
   - [DONE] SWI
-  - MUL/MLA?
+  - [DONE] MUL/MLA?
   - [DONE] BX/BLX
-- [DONE] Directives
+- Directives
+  - [DONE] DCB, DCD
+  - FILL (make this do the right thing - fill with given value, not just zero)
+    - FILL nbytes value (default value is zero)
+  - ALIGN (and remove auto-alignment from realizer)
 - [DONE] Load/save
 - [DONE (enough, at least)] NZCV for all relevant instructions
 - Assembler module
@@ -21,15 +25,18 @@
 - Syscalls:
   - putchar
   - getchar
-  - print string
-  - print integer (unsigned decimal, signed decimal, hex)
-  - input line
-  - input integer (same types)
-  - generate random integer
+  - time
+  - exit
   - Implementation: SWI instruction (actual SWI takes an argument but it is ignored, so maybe just don't use it)
     - R7: syscall function number
     - R0-R6: syscall arguments
     - Result returned in R0
+- Library functions (IMPORT or EXTERN directive)
+  - print string
+  - print integer (unsigned decimal, signed decimal, hex)
+  - input line
+  - input integer (same types)
+  - generate random integer, seed
 - Linter
 - Limited buffer of simulator states when debugging (not unlimited — 256?)
 - [SUBSTITUTE] Step forward to go to next line *of code,* not next instruction
@@ -41,6 +48,15 @@
 - [DONE] Correct handling of R15 (cannot participate in some instructions)
 - Support RRX?
   - Seems like a lot of effort for something that will likely never be used.
-- Quick way to jump to register location in memory (or just SP, LR, PC?)
+- Quick way to jump to register location in memory (or just R12, SP, LR, PC)
   - Symbols too
 - Ability to copy view shown by RamDisplay
+- Title, icon
+- Options dialog
+  - Max instruction, max time for run
+  - Stop when executing zero
+  - Others?
+- Show updated registers/memory with each step
+- File I/O?
+  - Syscalls: open file, close file, fputchar, fgetchar
+  - Ability to "upload" files into app, "download" from
