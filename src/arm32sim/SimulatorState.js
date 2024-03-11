@@ -105,6 +105,10 @@ export class SimulatorState {
         return this.state === 'interrupted';
     }
 
+    continue() {
+        this.state = 'running';
+    }
+
     stop() {
         this.state = 'stopped';
     }

@@ -36,7 +36,9 @@ export function step(state) {
     if (!state.running || state.numSteps >= 1_000_000) {
         return state;
     }
+
     const newState = state.clone();
+    newState.continue();
     ++newState.numSteps;
     const pc = newState.PC;
     newState.advancePC();
@@ -312,7 +314,6 @@ function executeSingleDataTransferInstruction(state, instr) {
     }
 
     const targetAddress = P ? adjustedAddress : baseAddress;
-    console.debug(`baseAddress = ${baseAddress}, targetAddress = ${targetAddress}`);
 
     if (L && !B) {          // LDR (load word) - most common
         const alignedAddress = targetAddress & 0xffff_fffc;

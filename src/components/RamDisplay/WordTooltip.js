@@ -38,7 +38,7 @@ const Letter = styled.span`
 `;
 
 function asciiLetter(b) {
-    if (b >= 0x20 && b <= 0x7d)
+    if (b >= 0x20 && b <= 0x7e)
         return String.fromCharCode(b);
     return null;
 }

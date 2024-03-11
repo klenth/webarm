@@ -60,3 +60,6 @@
 - File I/O?
   - Syscalls: open file, close file, fputchar, fgetchar
   - Ability to "upload" files into app, "download" from
+- >>> Fix inability to lex BLT correctly
+- Scroll editor to executing instruction on a step/continue
+- 

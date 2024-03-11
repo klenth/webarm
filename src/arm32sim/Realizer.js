@@ -111,7 +111,12 @@ function handleDCD(d) {
     const words = d.words;
     return {
         data: (mapper, mem, addr) =>
-            words.forEach((word, index) => mem.writeWord(addr + 4 * index, word)),
+            words.forEach((word, index) => {
+                if (typeof(word) === 'string')
+                    mem.writeWord(addr + 4 * index, mapper(word));
+                else
+                    mem.writeWord(addr + 4 * index, word)
+            }),
         size: 4 * words.length
     };
 }
@@ -140,7 +145,7 @@ function handleFill(d) {
 
 function realizeInstruction(i) {
     const opcode = i.opcode.toUpperCase();
-    if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
+    if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'ORR', 'ORRS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
         return handleDataProcessingInstruction(i);
     else if (opcode === 'MUL' || opcode === 'MLA')
         return handleMultiplyInstruction(i);
@@ -599,7 +604,7 @@ function handleBranchAndExchangeInstruction(i) {
 
 function handleLdrPseudoInstruction(i) {
     // Already know this is LDR of an Ip (pseudo-immediate)
-    let imm = i.operands[1].value;
+    let value = i.operands[1].value;
     const S = i.s;
     const Cond = i.cond;
     const cond = parseCond(Cond);
@@ -628,9 +633,13 @@ function handleLdrPseudoInstruction(i) {
             L: 0b0,
             offset: 1   // branch one word past PC (just past the value to be LDRed
         }),
-        () => new I.DummyInstruction({
-            bits: imm
-        })
+        (mapper) => {
+            if (typeof(value) === 'string')
+                console.debug(`mapper('${value}') = ${mapper(value)}`);
+            return new I.DummyInstruction({
+                bits: (typeof(value) === 'string') ? mapper(value) : value
+            });
+        }
     ];
 }
 

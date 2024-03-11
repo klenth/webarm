@@ -143,7 +143,8 @@ class ParseError extends Error {
     function runProgram(realized, options) {
         let state;
         if (options.resume) {
-            state = debugStateStack.peek();
+            state = debugStateStack.peek().clone();
+            state.continue();
             if (!state) {
                 return {
                     result: 'error',

@@ -43,7 +43,14 @@ const Registers = styled.div`
   flex-grow: 0;
 `;
 
-const MessageDisplay = styled.pre`
+const MessageDisplay = styled.div`
+`;
+
+const SimulatorOutput = styled.pre`
+`;
+
+const Nonprintable = styled.span`
+    color: #bbb;
 `;
 
 class App extends React.Component {
@@ -66,6 +73,7 @@ class App extends React.Component {
 
     render() {
         const stateRegisters = this.state.simulatorState.registers || new RegisterBank();
+        const simulatorOutputText = this.makeSimulatorOutputText(this.state.simulatorState.stdout);
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
@@ -202,6 +210,7 @@ class App extends React.Component {
                     ) : null}
                 </Center>
                 <MessageDisplay>{this.state.message}</MessageDisplay>
+                <SimulatorOutput>{simulatorOutputText}</SimulatorOutput>
             </div>
         );
     }
@@ -408,6 +417,13 @@ class App extends React.Component {
 
     handleContinue(direction, stopEveryInstruction) {
         ++this.seq;
+
+        this.updateState({
+            state: 'debugging/running',
+            message: '',
+            debugCurrentLine: null,
+        });
+
         this.messageHandler = msg => {
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
             if (msg.result === 'error') {
@@ -503,6 +519,45 @@ class App extends React.Component {
             this.printMessage(`Line ${line}: ${text}`);
         else
             this.printMessage(text);
+    }
+
+    makeSimulatorOutputText(stdout) {
+        function printableChar(b) {
+            if (b >= 0x20 && b <= 0x7e)
+                return String.fromCharCode(b);
+            else
+                return null;
+        }
+
+        function appendRange(text, printable) {
+            if (text.length === 0)
+                return;
+            else if (printable)
+                ranges.push(text);
+            else
+                ranges.push((
+                    <Nonprintable key={key++}>{text}</Nonprintable>
+                ));
+        }
+
+        let text = '';
+        let printable = true;
+        let ranges = [];
+        let key = 0;
+        for (let byte of stdout.bytes) {
+            const c = printableChar(byte);
+            if (!!c === printable)
+                text += c || '•';
+            else {
+                appendRange(text, printable);
+                text = c || '•';
+                printable = !!c;
+            }
+        }
+
+        appendRange(text, printable);
+
+        return ranges;
     }
 }
 

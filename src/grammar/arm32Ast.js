@@ -131,12 +131,16 @@ export class DCD extends Directive {
     get words() {
         const words = [];
         for (let value of this.values) {
-            const word = parseImmediate(value);
-            if ((word & 0xffff_ffff) >>> 0 !== word) {
-                console.debug(`word & 0xffff_ffff = ${word & 0xffff_ffff}, word = ${word}`);
-                throw new AssemblyError(`Numeric value ${value} out of range for a word`);
+            if (value[0] === '.')
+                words.push(value);  // it's a symbol
+            else {
+                const word = parseImmediate(value);
+                if ((word & 0xffff_ffff) >>> 0 !== word) {
+                    console.debug(`word & 0xffff_ffff = ${word & 0xffff_ffff}, word = ${word}`);
+                    throw new AssemblyError(`Numeric value ${value} out of range for a word`);
+                }
+                words.push(word);
             }
-            words.push(word);
         }
 
         return words;
@@ -404,7 +408,10 @@ export class PseudoImmediate extends AstNode {
     }
 
     get value() {
-        return parseImmediate(this.text);
+        if (this.text[0] === '.')
+            return this.text;
+        else
+            return parseImmediate(this.text);
     }
 
     static reconstruct(o) {

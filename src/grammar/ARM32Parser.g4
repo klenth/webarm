@@ -166,6 +166,9 @@ returns [PseudoImmediate value]
     : EQUALS v=INT {
         $value = new AST.PseudoImmediate($v.text);;
     }
+    | EQUALS s=symbol {
+        $value = new AST.PseudoImmediate($s.text);;
+    }
     ;
 
 symbol
@@ -205,6 +208,9 @@ dcd_value
 returns [AstNode n]
     : INT {
         $n = $INT.text;;
+    }
+    | symbol {
+        $n = $symbol.text;;
     }
     ;
 
