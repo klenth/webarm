@@ -34,12 +34,23 @@ const Value = styled.div`
 `;
 
 const Letter = styled.span`
-    color: ${props => props.valid ? 'inherit' : '#bbb'};
+    color: ${props => props.printable ? 'inherit' : '#888'};
 `;
 
 function asciiLetter(b) {
-    if (b >= 0x20 && b <= 0x7e)
+    if (b === 0)
+        return '\\0';
+    else if (b === 0x20)
+        return '␣';
+    else if (b > 0x20 && b <= 0x7e)
         return String.fromCharCode(b);
+    else if (b === 0x09)
+        return '\\t';
+    else if (b === 0x0a)
+        return '\\n';
+    else if (b === 0x0d)
+        return '\\r';
+
     return null;
 }
 
@@ -54,7 +65,6 @@ export class WordTooltip extends React.Component {
         const addr = this.props.address || 0;
         const word = this.props.word || 0;
         const addrString = `0x${format.hexWord(addr)}`;
-        const wordString = `0x${format.hexWord(word)}`;
         const x = this.props.x || 0, y = this.props.y || 0;
         const visible = this.props.visible || false;
 
@@ -64,7 +74,7 @@ export class WordTooltip extends React.Component {
             return (
             <Letter
                 key={i}
-                valid={letter !== null}
+                printable={letter !== null && letter.length === 1 && letter !== '␣'}
             >{letter || '•'}</Letter>
         )});
 
