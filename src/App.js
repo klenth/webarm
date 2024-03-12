@@ -10,6 +10,7 @@ import NzcvDisplay from './components/NzcvDisplay';
 import RamDisplay from './components/RamDisplay';
 import OpenFileDialog from './components/OpenFileDialog';
 //import 'ace-builds/src-noconflict/mode-text';
+import 'ace-builds/src-noconflict/ext-searchbox.js';
 import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 
 const Controls = styled.div`
