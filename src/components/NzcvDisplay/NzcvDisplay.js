@@ -2,7 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 import './style.css';
 
-const displayHeight = '32px';
+const displayHeight = '24px';
 //const chromeColor = '#00b5e2';
 const chromeColor = '#8252C7';
 const foreColor = 'white';
@@ -17,7 +17,7 @@ const Display = styled.div`
   --display-height: ${displayHeight};
   height: var(--display-height);
   font-size: 1rem;
-  margin: 4px;
+  margin: 2px;
   cursor: default;
   user-select: none;
   
@@ -50,18 +50,6 @@ const Value = styled.div`
   line-height: var(--display-height);
 
   justify-self: center;
-`;
-
-const Modes = styled.span`
-  margin: 0 4px;
-  font-size: 0.7rem;
-`;
-
-const Mode = styled.span`
-  color: ${({ selected }) => selected ? foreColor : chromeColor};
-  background-color: ${({ selected }) => selected ? chromeColor : foreColor};
-  padding: 2px 3px;
-  cursor: pointer;
 `;
 
 export default class NzcvDisplay extends React.Component {

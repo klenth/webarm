@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import React from 'react';
 import * as format from '../../format.js';
-import './style.css';
+//import './style.css';
 
 const DisplayMode = {
     Binary: 'b',
@@ -10,13 +10,14 @@ const DisplayMode = {
     Hexadecimal: 'h'
 };
 
-const displayHeight = '32px';
+const displayHeight = '24px';
 //const chromeColor = '#00b5e2';
 const chromeColor = '#8252C7';
 const foreColor = 'white';
 const textColor = 'black';
 
 const Display = styled.div`
+  position: relative;
   border: 3px solid ${chromeColor};
   border-radius: 8px;
   color: #00b5e2;
@@ -24,16 +25,17 @@ const Display = styled.div`
   padding: 0;
   --display-height: ${displayHeight};
   height: var(--display-height);
-  font-size: 1rem;
-  margin: 4px;
+  font-size: 0.8rem;
+  margin: 2px;
   cursor: default;
   user-select: none;
+  width: max-content;
 `;
 
 const Label = styled.div`
-  padding: 0 8px;
+  padding: 0 2px;
   font-family: monospace;
-  margin-right: 8px;
+  margin-right: 4px;
   line-height: var(--display-height);
   height: var(--display-height);
   display: inline-block;
@@ -45,7 +47,7 @@ const Label = styled.div`
 
 const Value = styled.div`
   display: inline-block;
-  width: 192px;
+  width: 10em;
   font-family: monospace;
   color: ${textColor};
 
@@ -56,15 +58,37 @@ const Value = styled.div`
 `;
 
 const Modes = styled.span`
-  margin: 0 4px;
+  margin: 0 2px 0 18px;
   font-size: 0.7rem;
 `;
 
 const Mode = styled.span`
   color: ${({ selected }) => selected ? foreColor : chromeColor};
   background-color: ${({ selected }) => selected ? chromeColor : foreColor};
-  padding: 2px 3px;
+  border-radius: 4px;
+  padding: 2px 2px;
   cursor: pointer;
+`;
+
+const CopyButton = styled.span`
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    margin: auto 0;
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    background-image: url("data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0idXRmLTgiPz4NCjxzdmcgZmlsbD0iIzAwMDAwMCIgaGVpZ2h0PSI4MDBweCIgd2lkdGg9IjgwMHB4IiB2ZXJzaW9uPSIxLjEiIGlkPSJMYXllcl8xIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciDQoJIHZpZXdCb3g9IjAgMCA2NCA2NCIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNjQgNjQiIHhtbDpzcGFjZT0icHJlc2VydmUiPg0KPGc+DQoJPHBhdGggc3Ryb2tlPSIjODI1MkM3IiBmaWxsPSIjODI1MkM3IiBzdHJva2Utd2lkdGg9IjJweCIgZD0iTTUzLjk3OTE0ODksOS4xNDI5MDA1SDUwLjAxMDg0OWMtMC4wODI2OTg4LDAtMC4xNTYyMDA0LDAuMDI4Mzk5NS0wLjIzMzEwMDksMC4wNDY5OTk5VjUuMDIyOA0KCQlDNDkuNzc3NzQ4MSwyLjI1Myw0Ny40NzMxNDgzLDAsNDQuNjM5ODQ2OCwwaC0zNC40MjI1OTZDNy4zODM5NTE3LDAsNS4wNzkzNTE5LDIuMjUzLDUuMDc5MzUxOSw1LjAyMjh2NDYuODQzMjk5OQ0KCQljMCwyLjc2OTc5ODMsMi4zMDQ1OTk4LDUuMDIyODAwNCw1LjEzNzg5OTksNS4wMjI4MDA0aDYuMDM2NzAwMnYyLjI2Nzg5ODZDMTYuMjUzOTUyLDYxLjgyNzQwMDIsMTguNDcwMjUxMSw2NCwyMS4xOTU0NTE3LDY0DQoJCWgzMi43ODM2OTljMi43MjUyMDA3LDAsNC45NDE0OTc4LTIuMTcyNTk5OCw0Ljk0MTQ5NzgtNC44NDMyMDA3VjEzLjk4NjEwMDINCgkJQzU4LjkyMDY0NjcsMTEuMzE1NTAwMyw1Ni43MDQzNDk1LDkuMTQyOTAwNSw1My45NzkxNDg5LDkuMTQyOTAwNXogTTcuMTExMDUxNiw1MS44NjYxMDAzVjUuMDIyOA0KCQljMC0xLjY0ODc5OTksMS4zOTM4OTk5LTIuOTkwOTk5OSwzLjEwNjIwMDItMi45OTA5OTk5aDM0LjQyMjU5NmMxLjcxMjMwMzIsMCwzLjEwNjIwMTIsMS4zNDIyLDMuMTA2MjAxMiwyLjk5MDk5OTl2NDYuODQzMjk5OQ0KCQljMCwxLjY0ODc5OTktMS4zOTM4OTgsMi45OTExMDAzLTMuMTA2MjAxMiwyLjk5MTEwMDNoLTM0LjQyMjU5NkM4LjUwNDk1MTUsNTQuODU3MjAwNiw3LjExMTA1MTYsNTMuNTE0OTAwMiw3LjExMTA1MTYsNTEuODY2MTAwM3oNCgkJIE01Ni44ODg4NDc0LDU5LjE1Njc5OTNjMCwxLjU1MDYwMi0xLjMwNTUsMi44MTE1MDA1LTIuOTA5Njk4NSwyLjgxMTUwMDVoLTMyLjc4MzY5OQ0KCQljLTEuNjA0MjAwNCwwLTIuOTA5Nzk5Ni0xLjI2MDg5ODYtMi45MDk3OTk2LTIuODExNTAwNXYtMi4yNjc4OTg2aDI2LjM1NDE5NDYNCgkJYzIuODMzMzAxNSwwLDUuMTM3OTAxMy0yLjI1MzAwMjIsNS4xMzc5MDEzLTUuMDIyODAwNFYxMS4xMjc1OTk3YzAuMDc2OTAwNSwwLjAxODYwMDUsMC4xNTA0MDIxLDAuMDQ2OTk5OSwwLjIzMzEwMDksMC4wNDY5OTk5DQoJCWgzLjk2ODI5OTljMS42MDQxOTg1LDAsMi45MDk2OTg1LDEuMjYwOTAwNSwyLjkwOTY5ODUsMi44MTE1MDA1VjU5LjE1Njc5OTN6Ii8+DQo8L2c+DQo8L3N2Zz4=");
+    background-size: 16px 16px;
+    background-position-y: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    color: #8252C7;
+    opacity: 20%;
+  
+    &:hover {
+        opacity: 100%;
+    }
 `;
 
 function insertCommas(n) {
@@ -142,7 +166,7 @@ export default class RegisterDisplay extends React.Component {
 
     render() {
         const modeSelectors = [
-            /*DisplayMode.Binary,*/ DisplayMode.DecimalSigned, DisplayMode.DecimalUnsigned, DisplayMode.Hexadecimal
+            DisplayMode.DecimalSigned, DisplayMode.DecimalUnsigned, DisplayMode.Hexadecimal
         ].map(mode => (
                 <ModeSelector
                     key={mode}
@@ -156,6 +180,10 @@ export default class RegisterDisplay extends React.Component {
             <Display>
                 <Label>{this.props.label}</Label>
                 <Value>&nbsp;{valueText(this.props.value, this.state.displayMode)}&nbsp;</Value>
+                <CopyButton
+                    title={'Copy'}
+                    onClick={_ => this.copyText(valueText(this.props.value, this.state.displayMode))}
+                />
                 <Modes>
                     {modeSelectors}
                 </Modes>
@@ -169,21 +197,27 @@ export default class RegisterDisplay extends React.Component {
 
         this.setState(newState);
     }
+
+    copyText(text) {
+        if (navigator?.clipboard)
+            navigator.clipboard.writeText(text);
+    }
 }
 
 function ModeSelector(props) {
     const mode = props.mode;
-    const text =
-        (mode === DisplayMode.Binary) ? 'Bin'
-        : (mode === DisplayMode.DecimalSigned) ? 'Dec'
-        : (mode === DisplayMode.DecimalUnsigned) ? 'UDec'
-        : (mode === DisplayMode.Hexadecimal) ? 'Hex'
+    const [text, title] =
+        (mode === DisplayMode.Binary) ? ['Bin', 'Binary']
+        : (mode === DisplayMode.DecimalSigned) ? ['Dec', 'Signed decimal']
+        : (mode === DisplayMode.DecimalUnsigned) ? ['UDec', 'Unsigned decimal']
+        : (mode === DisplayMode.Hexadecimal) ? ['Hex', 'Hexadecimal word']
         : '???';
 
     return (
         <Mode
             selected={props.selected}
             onClick={() => props.handleClick(props.mode)}
+            title={title}
         >
             {text}
         </Mode>
