@@ -51,7 +51,7 @@
 - Quick way to jump to register location in memory (or just R12, SP, LR, PC)
   - Symbols too
 - Ability to copy view shown by RamDisplay
-- Title, icon
+- [DONE] Title, icon
 - Options dialog
   - Max instruction, max time for run
   - Stop when executing zero
