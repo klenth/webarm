@@ -1,4 +1,5 @@
 import { AssemblyError } from '../arm32sim/Realizer.js';
+import { parseMnemonic } from './arm32Mnemonic.js';
 
 export function parseImmediate(text) {
     if (text.startsWith("-"))
@@ -95,11 +96,12 @@ export class Line extends AstNode {
 }
 
 export class Instruction extends AstNode {
-    constructor(opcode, s, cond, operands) {
-        super(opcode);
-        this.opcode = opcode;
-        this.s = s;
-        this.cond = cond;
+    constructor(mnemonic, operands) {
+        super(mnemonic);
+        const { OpCode, S, Cond } = parseMnemonic(mnemonic);
+        this.opcode = OpCode;
+        this.s = S;
+        this.cond = Cond;
         this.operands = operands;
     }
 
@@ -113,9 +115,6 @@ export class Instruction extends AstNode {
 }
 
 export class Directive extends AstNode {
-    constructor(name) {
-        super(name);
-    }
 }
 
 export class DCD extends Directive {
@@ -218,10 +217,6 @@ export class FillDirective extends Directive {
 }
 
 export class Register extends AstNode {
-    constructor(name) {
-        super(name);
-    }
-
     static reconstruct(o) {
         return new Register(o.name);
     }
@@ -279,7 +274,7 @@ export class FlexOperand extends AstNode {
         this.register = register;
         this.shift = shift;
         if (!amountImmediate && !amountRegister)
-            throw "Exactly one of amountImmediate and amountRegister should be specified";
+            throw new Error("Exactly one of amountImmediate and amountRegister should be specified");
         this.amountImmediateText = amountImmediate;
         this.amountRegister = amountRegister;
     }
@@ -311,31 +306,6 @@ export class FlexOperand extends AstNode {
             return null;
     }
 }
-
-/*
-export class OffsetOperand extends AstNode {
-    constructor(register, offset) {
-        super('offset');
-        this.register = register;
-        this.offset = offset ? parseInt(offset) : null;
-    }
-
-    children() {
-        return [this.register];
-    }
-
-    toString() {
-        if (this.offset)
-            return '[ , ' + this.offset + ']';
-        else
-            return '[ ]';
-    }
-
-    static reconstruct(o) {
-        return new OffsetOperand(AstNode.reconstruct(o.register), o.offset);
-    }
-}
-*/
 
 export class PreindexedOperand extends AstNode {
     constructor(register, offset, writeback) {

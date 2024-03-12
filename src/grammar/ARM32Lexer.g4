@@ -45,14 +45,25 @@ SINGLE_QUOTE
     ;
 
 OPCODE
-    : ('MOV' | 'MVN' | 'ADR' | 'LDR' | 'ADD' | 'ADC' | 'SUB' | 'SBC' | 'RSB' | 'RSC' | 'AND' | 'EOR' | 'BIC' | 'ORR'
-            | 'ROR' | 'RRX' | 'ASL' | 'LSL' | 'ASR' | 'LSR'
-            | 'CMP' | 'CMN' | 'TST' | 'TEQ' | 'B' | 'BL' | 'BX'
-            | 'MUL' | 'MLA'
-            | ('LDR' | 'STR') 'B'?
-            | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'IB' | 'DA' | 'DB')
-            | 'STOP' | 'BREAK' | 'NOP' | 'SWI')
-        -> mode(M_MNEMONIC)
+    // Opcodes that can be followed by S and Cond
+    : ('AND' | 'EOR' | 'SUB' | 'RSB' | 'ADD' | 'ADC' | 'SBC' | 'RSC'
+        | 'ORR' | 'MOV' | 'BIC' | 'MVN' | 'MUL' | 'MLA' | 'LSL' | 'ASL'
+        | 'LSR' | 'ASR' | 'ROR') ( | 'S' | COND | 'S' COND | COND 'S')
+
+    // Opcodes that can be followed by a Cond (but not S)
+    | ('CMP' | 'CMN' | 'TST' | 'TEQ'
+        | 'B' | 'BL' | 'BX'
+        | 'STOP' | 'BREAK' | 'SWI') COND?
+
+    // Special cases
+    | ('LDR' | 'STR') 'B'? COND?
+    | ('LDM' | 'STM') ('FA' | 'FD' | 'EA' | 'ED' | 'IA' | 'IB' | 'DA' | 'DB') COND?
+    | 'NOP'
+    ;
+
+fragment COND
+    : 'EQ' | 'NE' | 'CS' | 'CC' | 'MI' | 'PL' | 'VS' | 'VC'
+        | 'HI' | 'LS' | 'GE' | 'LT' | 'GT' | 'LE' | 'AL'
     ;
 
 REGISTER
@@ -97,10 +108,6 @@ FILL
     : 'FILL'
     ;
 
-SHIFT
-    : 'ASL' | 'LSL' | 'LSR' | 'ASR' | 'ROR'
-    ;
-
 ID
     : '.' [a-z_] [a-z0-9_]*
     ;
@@ -125,33 +132,6 @@ COMMENT_NL
 
 COMMENT_TEXT
     : . -> skip
-    ;
-
-mode M_MNEMONIC;
-
-MNEMONIC_SEMI
-    : ';' -> more, mode(M_COMMENT)
-    ;
-
-S
-    : 'S'
-    ;
-
-COND
-    : 'EQ' | 'NE' | 'CS' | 'HS' | 'CC' | 'LO' | 'MI' | 'PL' | 'VS' | 'VC' | 'HI' | 'LS'
-    | 'GE' | 'LT' | 'GT' | 'LE' | 'AL'
-    ;
-
-MNEMONIC_WS
-    : ' '   -> skip, mode(DEFAULT_MODE)
-    ;
-
-MNEMONIC_NEWLINE
-    : [\r\n] -> mode(DEFAULT_MODE), type(NEWLINE)
-    ;
-
-MNEMONIC_OTHER
-    : .     -> mode(DEFAULT_MODE), type(INVALID)
     ;
 
 mode M_DOUBLE_STRING;

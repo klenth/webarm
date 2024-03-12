@@ -4,110 +4,106 @@ import antlr4 from 'antlr4';
 
 import * as AST from './arm32Ast';
 
-const serializedATN = [4,1,28,328,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
+const serializedATN = [4,1,24,318,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,
-2,13,7,13,2,14,7,14,2,15,7,15,2,16,7,16,1,0,5,0,36,8,0,10,0,12,0,39,9,0,
-1,0,5,0,42,8,0,10,0,12,0,45,9,0,1,0,1,0,1,0,1,1,3,1,51,8,1,1,1,4,1,54,8,
-1,11,1,12,1,55,1,1,1,1,3,1,60,8,1,1,1,1,1,4,1,64,8,1,11,1,12,1,65,1,1,1,
-1,1,1,3,1,71,8,1,1,1,1,1,4,1,75,8,1,11,1,12,1,76,1,1,1,1,3,1,81,8,1,1,2,
-1,2,1,3,1,3,3,3,87,8,3,1,3,3,3,90,8,3,1,3,1,3,1,3,5,3,95,8,3,10,3,12,3,98,
-9,3,3,3,100,8,3,1,3,1,3,1,4,1,4,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,
-1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,125,8,5,1,5,1,5,1,5,1,5,1,5,1,5,
-1,5,1,5,3,5,135,8,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,
-1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,164,8,5,1,5,
-1,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,174,8,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,182,
-8,5,1,5,1,5,1,5,3,5,187,8,5,1,5,1,5,1,5,1,5,1,5,1,5,3,5,195,8,5,1,5,1,5,
-1,5,1,5,1,5,3,5,202,8,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,1,5,
-1,5,1,5,1,5,1,5,3,5,220,8,5,1,6,1,6,1,6,1,7,1,7,1,7,1,7,1,8,1,8,1,8,1,8,
-1,8,1,8,1,8,3,8,236,8,8,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,1,9,3,9,
-249,8,9,1,10,1,10,1,10,1,10,1,11,1,11,1,11,1,11,1,11,1,11,1,11,3,11,262,
-8,11,1,12,1,12,1,12,1,13,1,13,1,13,1,13,1,13,3,13,272,8,13,1,13,1,13,1,13,
-1,13,1,13,3,13,279,8,13,1,13,1,13,3,13,283,8,13,1,14,1,14,1,14,1,14,5,14,
-289,8,14,10,14,12,14,292,9,14,1,14,1,14,1,14,1,14,1,14,1,14,5,14,300,8,14,
-10,14,12,14,303,9,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,1,14,3,14,313,8,
-14,1,15,1,15,1,15,1,15,1,15,3,15,320,8,15,1,16,1,16,1,16,1,16,3,16,326,8,
-16,1,16,0,0,17,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,32,0,0,361,0,37,
-1,0,0,0,2,80,1,0,0,0,4,82,1,0,0,0,6,84,1,0,0,0,8,103,1,0,0,0,10,219,1,0,
-0,0,12,221,1,0,0,0,14,224,1,0,0,0,16,235,1,0,0,0,18,248,1,0,0,0,20,250,1,
-0,0,0,22,261,1,0,0,0,24,263,1,0,0,0,26,282,1,0,0,0,28,312,1,0,0,0,30,319,
-1,0,0,0,32,325,1,0,0,0,34,36,5,20,0,0,35,34,1,0,0,0,36,39,1,0,0,0,37,35,
-1,0,0,0,37,38,1,0,0,0,38,43,1,0,0,0,39,37,1,0,0,0,40,42,3,2,1,0,41,40,1,
-0,0,0,42,45,1,0,0,0,43,41,1,0,0,0,43,44,1,0,0,0,44,46,1,0,0,0,45,43,1,0,
-0,0,46,47,5,0,0,1,47,48,6,0,-1,0,48,1,1,0,0,0,49,51,3,4,2,0,50,49,1,0,0,
-0,50,51,1,0,0,0,51,53,1,0,0,0,52,54,5,20,0,0,53,52,1,0,0,0,54,55,1,0,0,0,
-55,53,1,0,0,0,55,56,1,0,0,0,56,57,1,0,0,0,57,81,6,1,-1,0,58,60,3,4,2,0,59,
-58,1,0,0,0,59,60,1,0,0,0,60,61,1,0,0,0,61,63,3,6,3,0,62,64,5,20,0,0,63,62,
-1,0,0,0,64,65,1,0,0,0,65,63,1,0,0,0,65,66,1,0,0,0,66,67,1,0,0,0,67,68,6,
-1,-1,0,68,81,1,0,0,0,69,71,3,4,2,0,70,69,1,0,0,0,70,71,1,0,0,0,71,72,1,0,
-0,0,72,74,3,28,14,0,73,75,5,20,0,0,74,73,1,0,0,0,75,76,1,0,0,0,76,74,1,0,
-0,0,76,77,1,0,0,0,77,78,1,0,0,0,78,79,6,1,-1,0,79,81,1,0,0,0,80,50,1,0,0,
-0,80,59,1,0,0,0,80,70,1,0,0,0,81,3,1,0,0,0,82,83,5,19,0,0,83,5,1,0,0,0,84,
-86,3,8,4,0,85,87,5,24,0,0,86,85,1,0,0,0,86,87,1,0,0,0,87,89,1,0,0,0,88,90,
-5,25,0,0,89,88,1,0,0,0,89,90,1,0,0,0,90,99,1,0,0,0,91,96,3,10,5,0,92,93,
-5,2,0,0,93,95,3,10,5,0,94,92,1,0,0,0,95,98,1,0,0,0,96,94,1,0,0,0,96,97,1,
-0,0,0,97,100,1,0,0,0,98,96,1,0,0,0,99,91,1,0,0,0,99,100,1,0,0,0,100,101,
-1,0,0,0,101,102,6,3,-1,0,102,7,1,0,0,0,103,104,5,9,0,0,104,9,1,0,0,0,105,
-106,5,3,0,0,106,107,3,12,6,0,107,108,5,4,0,0,108,109,5,2,0,0,109,110,3,20,
-10,0,110,111,6,5,-1,0,111,220,1,0,0,0,112,113,5,3,0,0,113,114,3,12,6,0,114,
-115,5,4,0,0,115,116,5,2,0,0,116,117,3,24,12,0,117,118,6,5,-1,0,118,220,1,
-0,0,0,119,120,5,3,0,0,120,121,3,12,6,0,121,122,5,4,0,0,122,124,5,2,0,0,123,
-125,5,8,0,0,124,123,1,0,0,0,124,125,1,0,0,0,125,126,1,0,0,0,126,127,3,12,
-6,0,127,128,6,5,-1,0,128,220,1,0,0,0,129,130,5,3,0,0,130,131,3,12,6,0,131,
-132,5,4,0,0,132,134,5,2,0,0,133,135,5,8,0,0,134,133,1,0,0,0,134,135,1,0,
-0,0,135,136,1,0,0,0,136,137,3,12,6,0,137,138,5,2,0,0,138,139,3,16,8,0,139,
-140,6,5,-1,0,140,220,1,0,0,0,141,142,3,12,6,0,142,143,5,2,0,0,143,144,3,
-16,8,0,144,145,6,5,-1,0,145,220,1,0,0,0,146,147,3,14,7,0,147,148,6,5,-1,
-0,148,220,1,0,0,0,149,150,3,12,6,0,150,151,6,5,-1,0,151,220,1,0,0,0,152,
-153,5,3,0,0,153,154,3,12,6,0,154,155,5,4,0,0,155,156,6,5,-1,0,156,220,1,
-0,0,0,157,158,5,3,0,0,158,159,3,12,6,0,159,160,5,2,0,0,160,161,3,20,10,0,
-161,163,5,4,0,0,162,164,5,7,0,0,163,162,1,0,0,0,163,164,1,0,0,0,164,165,
-1,0,0,0,165,166,6,5,-1,0,166,220,1,0,0,0,167,168,5,3,0,0,168,169,3,12,6,
-0,169,170,5,2,0,0,170,171,3,24,12,0,171,173,5,4,0,0,172,174,5,7,0,0,173,
-172,1,0,0,0,173,174,1,0,0,0,174,175,1,0,0,0,175,176,6,5,-1,0,176,220,1,0,
-0,0,177,178,5,3,0,0,178,179,3,12,6,0,179,181,5,2,0,0,180,182,5,8,0,0,181,
-180,1,0,0,0,181,182,1,0,0,0,182,183,1,0,0,0,183,184,3,12,6,0,184,186,5,4,
-0,0,185,187,5,7,0,0,186,185,1,0,0,0,186,187,1,0,0,0,187,188,1,0,0,0,188,
-189,6,5,-1,0,189,220,1,0,0,0,190,191,5,3,0,0,191,192,3,12,6,0,192,194,5,
-2,0,0,193,195,5,8,0,0,194,193,1,0,0,0,194,195,1,0,0,0,195,196,1,0,0,0,196,
-197,3,12,6,0,197,198,5,2,0,0,198,199,3,16,8,0,199,201,5,4,0,0,200,202,5,
-7,0,0,201,200,1,0,0,0,201,202,1,0,0,0,202,203,1,0,0,0,203,204,6,5,-1,0,204,
-220,1,0,0,0,205,206,3,20,10,0,206,207,6,5,-1,0,207,220,1,0,0,0,208,209,3,
-22,11,0,209,210,6,5,-1,0,210,220,1,0,0,0,211,212,3,24,12,0,212,213,6,5,-1,
-0,213,220,1,0,0,0,214,215,5,5,0,0,215,216,3,26,13,0,216,217,5,6,0,0,217,
-218,6,5,-1,0,218,220,1,0,0,0,219,105,1,0,0,0,219,112,1,0,0,0,219,119,1,0,
-0,0,219,129,1,0,0,0,219,141,1,0,0,0,219,146,1,0,0,0,219,149,1,0,0,0,219,
-152,1,0,0,0,219,157,1,0,0,0,219,167,1,0,0,0,219,177,1,0,0,0,219,190,1,0,
-0,0,219,205,1,0,0,0,219,208,1,0,0,0,219,211,1,0,0,0,219,214,1,0,0,0,220,
-11,1,0,0,0,221,222,5,10,0,0,222,223,6,6,-1,0,223,13,1,0,0,0,224,225,5,10,
-0,0,225,226,5,7,0,0,226,227,6,7,-1,0,227,15,1,0,0,0,228,229,5,9,0,0,229,
-230,4,8,0,1,230,231,5,11,0,0,231,236,5,13,0,0,232,233,5,9,0,0,233,234,4,
-8,1,1,234,236,3,12,6,0,235,228,1,0,0,0,235,232,1,0,0,0,236,17,1,0,0,0,237,
-238,3,12,6,0,238,239,6,9,-1,0,239,249,1,0,0,0,240,241,3,12,6,0,241,242,5,
-2,0,0,242,243,3,16,8,0,243,244,6,9,-1,0,244,249,1,0,0,0,245,246,3,20,10,
-0,246,247,6,9,-1,0,247,249,1,0,0,0,248,237,1,0,0,0,248,240,1,0,0,0,248,245,
-1,0,0,0,249,19,1,0,0,0,250,251,5,11,0,0,251,252,5,13,0,0,252,253,6,10,-1,
-0,253,21,1,0,0,0,254,255,5,12,0,0,255,256,5,13,0,0,256,262,6,11,-1,0,257,
-258,5,12,0,0,258,259,3,24,12,0,259,260,6,11,-1,0,260,262,1,0,0,0,261,254,
-1,0,0,0,261,257,1,0,0,0,262,23,1,0,0,0,263,264,5,19,0,0,264,265,6,12,-1,
-0,265,25,1,0,0,0,266,267,3,12,6,0,267,268,5,8,0,0,268,271,3,12,6,0,269,270,
-5,2,0,0,270,272,3,26,13,0,271,269,1,0,0,0,271,272,1,0,0,0,272,273,1,0,0,
-0,273,274,6,13,-1,0,274,283,1,0,0,0,275,278,3,12,6,0,276,277,5,2,0,0,277,
-279,3,26,13,0,278,276,1,0,0,0,278,279,1,0,0,0,279,280,1,0,0,0,280,281,6,
-13,-1,0,281,283,1,0,0,0,282,266,1,0,0,0,282,275,1,0,0,0,283,27,1,0,0,0,284,
-285,5,14,0,0,285,290,3,30,15,0,286,287,5,2,0,0,287,289,3,30,15,0,288,286,
-1,0,0,0,289,292,1,0,0,0,290,288,1,0,0,0,290,291,1,0,0,0,291,293,1,0,0,0,
-292,290,1,0,0,0,293,294,6,14,-1,0,294,313,1,0,0,0,295,296,5,15,0,0,296,301,
-3,32,16,0,297,298,5,2,0,0,298,300,3,32,16,0,299,297,1,0,0,0,300,303,1,0,
-0,0,301,299,1,0,0,0,301,302,1,0,0,0,302,304,1,0,0,0,303,301,1,0,0,0,304,
-305,6,14,-1,0,305,313,1,0,0,0,306,307,5,16,0,0,307,308,5,13,0,0,308,313,
-6,14,-1,0,309,310,5,17,0,0,310,311,5,13,0,0,311,313,6,14,-1,0,312,284,1,
-0,0,0,312,295,1,0,0,0,312,306,1,0,0,0,312,309,1,0,0,0,313,29,1,0,0,0,314,
-315,5,13,0,0,315,320,6,15,-1,0,316,317,3,24,12,0,317,318,6,15,-1,0,318,320,
-1,0,0,0,319,314,1,0,0,0,319,316,1,0,0,0,320,31,1,0,0,0,321,322,5,13,0,0,
-322,326,6,16,-1,0,323,324,5,27,0,0,324,326,6,16,-1,0,325,321,1,0,0,0,325,
-323,1,0,0,0,326,33,1,0,0,0,33,37,43,50,55,59,65,70,76,80,86,89,96,99,124,
-134,163,173,181,186,194,201,219,235,248,261,271,278,282,290,301,312,319,
-325];
+2,13,7,13,2,14,7,14,2,15,7,15,1,0,5,0,34,8,0,10,0,12,0,37,9,0,1,0,5,0,40,
+8,0,10,0,12,0,43,9,0,1,0,1,0,1,0,1,1,3,1,49,8,1,1,1,4,1,52,8,1,11,1,12,1,
+53,1,1,1,1,3,1,58,8,1,1,1,1,1,4,1,62,8,1,11,1,12,1,63,1,1,1,1,1,1,3,1,69,
+8,1,1,1,1,1,4,1,73,8,1,11,1,12,1,74,1,1,1,1,3,1,79,8,1,1,2,1,2,1,3,1,3,1,
+3,1,3,5,3,87,8,3,10,3,12,3,90,9,3,3,3,92,8,3,1,3,1,3,1,4,1,4,1,4,1,4,1,4,
+1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,115,8,4,1,4,
+1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,125,8,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,
+1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,
+1,4,3,4,154,8,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,164,8,4,1,4,1,4,1,4,
+1,4,1,4,1,4,3,4,172,8,4,1,4,1,4,1,4,3,4,177,8,4,1,4,1,4,1,4,1,4,1,4,1,4,
+3,4,185,8,4,1,4,1,4,1,4,1,4,1,4,3,4,192,8,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,
+1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,210,8,4,1,5,1,5,1,5,1,6,1,6,1,6,
+1,6,1,7,1,7,1,7,1,7,1,7,1,7,1,7,3,7,226,8,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,
+1,8,1,8,1,8,1,8,3,8,239,8,8,1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,10,1,10,
+1,10,3,10,252,8,10,1,11,1,11,1,11,1,12,1,12,1,12,1,12,1,12,3,12,262,8,12,
+1,12,1,12,1,12,1,12,1,12,3,12,269,8,12,1,12,1,12,3,12,273,8,12,1,13,1,13,
+1,13,1,13,5,13,279,8,13,10,13,12,13,282,9,13,1,13,1,13,1,13,1,13,1,13,1,
+13,5,13,290,8,13,10,13,12,13,293,9,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,
+1,13,3,13,303,8,13,1,14,1,14,1,14,1,14,1,14,3,14,310,8,14,1,15,1,15,1,15,
+1,15,3,15,316,8,15,1,15,0,0,16,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,
+0,0,350,0,35,1,0,0,0,2,78,1,0,0,0,4,80,1,0,0,0,6,82,1,0,0,0,8,209,1,0,0,
+0,10,211,1,0,0,0,12,214,1,0,0,0,14,225,1,0,0,0,16,238,1,0,0,0,18,240,1,0,
+0,0,20,251,1,0,0,0,22,253,1,0,0,0,24,272,1,0,0,0,26,302,1,0,0,0,28,309,1,
+0,0,0,30,315,1,0,0,0,32,34,5,19,0,0,33,32,1,0,0,0,34,37,1,0,0,0,35,33,1,
+0,0,0,35,36,1,0,0,0,36,41,1,0,0,0,37,35,1,0,0,0,38,40,3,2,1,0,39,38,1,0,
+0,0,40,43,1,0,0,0,41,39,1,0,0,0,41,42,1,0,0,0,42,44,1,0,0,0,43,41,1,0,0,
+0,44,45,5,0,0,1,45,46,6,0,-1,0,46,1,1,0,0,0,47,49,3,4,2,0,48,47,1,0,0,0,
+48,49,1,0,0,0,49,51,1,0,0,0,50,52,5,19,0,0,51,50,1,0,0,0,52,53,1,0,0,0,53,
+51,1,0,0,0,53,54,1,0,0,0,54,55,1,0,0,0,55,79,6,1,-1,0,56,58,3,4,2,0,57,56,
+1,0,0,0,57,58,1,0,0,0,58,59,1,0,0,0,59,61,3,6,3,0,60,62,5,19,0,0,61,60,1,
+0,0,0,62,63,1,0,0,0,63,61,1,0,0,0,63,64,1,0,0,0,64,65,1,0,0,0,65,66,6,1,
+-1,0,66,79,1,0,0,0,67,69,3,4,2,0,68,67,1,0,0,0,68,69,1,0,0,0,69,70,1,0,0,
+0,70,72,3,26,13,0,71,73,5,19,0,0,72,71,1,0,0,0,73,74,1,0,0,0,74,72,1,0,0,
+0,74,75,1,0,0,0,75,76,1,0,0,0,76,77,6,1,-1,0,77,79,1,0,0,0,78,48,1,0,0,0,
+78,57,1,0,0,0,78,68,1,0,0,0,79,3,1,0,0,0,80,81,5,18,0,0,81,5,1,0,0,0,82,
+91,5,9,0,0,83,88,3,8,4,0,84,85,5,2,0,0,85,87,3,8,4,0,86,84,1,0,0,0,87,90,
+1,0,0,0,88,86,1,0,0,0,88,89,1,0,0,0,89,92,1,0,0,0,90,88,1,0,0,0,91,83,1,
+0,0,0,91,92,1,0,0,0,92,93,1,0,0,0,93,94,6,3,-1,0,94,7,1,0,0,0,95,96,5,3,
+0,0,96,97,3,10,5,0,97,98,5,4,0,0,98,99,5,2,0,0,99,100,3,18,9,0,100,101,6,
+4,-1,0,101,210,1,0,0,0,102,103,5,3,0,0,103,104,3,10,5,0,104,105,5,4,0,0,
+105,106,5,2,0,0,106,107,3,22,11,0,107,108,6,4,-1,0,108,210,1,0,0,0,109,110,
+5,3,0,0,110,111,3,10,5,0,111,112,5,4,0,0,112,114,5,2,0,0,113,115,5,8,0,0,
+114,113,1,0,0,0,114,115,1,0,0,0,115,116,1,0,0,0,116,117,3,10,5,0,117,118,
+6,4,-1,0,118,210,1,0,0,0,119,120,5,3,0,0,120,121,3,10,5,0,121,122,5,4,0,
+0,122,124,5,2,0,0,123,125,5,8,0,0,124,123,1,0,0,0,124,125,1,0,0,0,125,126,
+1,0,0,0,126,127,3,10,5,0,127,128,5,2,0,0,128,129,3,14,7,0,129,130,6,4,-1,
+0,130,210,1,0,0,0,131,132,3,10,5,0,132,133,5,2,0,0,133,134,3,14,7,0,134,
+135,6,4,-1,0,135,210,1,0,0,0,136,137,3,12,6,0,137,138,6,4,-1,0,138,210,1,
+0,0,0,139,140,3,10,5,0,140,141,6,4,-1,0,141,210,1,0,0,0,142,143,5,3,0,0,
+143,144,3,10,5,0,144,145,5,4,0,0,145,146,6,4,-1,0,146,210,1,0,0,0,147,148,
+5,3,0,0,148,149,3,10,5,0,149,150,5,2,0,0,150,151,3,18,9,0,151,153,5,4,0,
+0,152,154,5,7,0,0,153,152,1,0,0,0,153,154,1,0,0,0,154,155,1,0,0,0,155,156,
+6,4,-1,0,156,210,1,0,0,0,157,158,5,3,0,0,158,159,3,10,5,0,159,160,5,2,0,
+0,160,161,3,22,11,0,161,163,5,4,0,0,162,164,5,7,0,0,163,162,1,0,0,0,163,
+164,1,0,0,0,164,165,1,0,0,0,165,166,6,4,-1,0,166,210,1,0,0,0,167,168,5,3,
+0,0,168,169,3,10,5,0,169,171,5,2,0,0,170,172,5,8,0,0,171,170,1,0,0,0,171,
+172,1,0,0,0,172,173,1,0,0,0,173,174,3,10,5,0,174,176,5,4,0,0,175,177,5,7,
+0,0,176,175,1,0,0,0,176,177,1,0,0,0,177,178,1,0,0,0,178,179,6,4,-1,0,179,
+210,1,0,0,0,180,181,5,3,0,0,181,182,3,10,5,0,182,184,5,2,0,0,183,185,5,8,
+0,0,184,183,1,0,0,0,184,185,1,0,0,0,185,186,1,0,0,0,186,187,3,10,5,0,187,
+188,5,2,0,0,188,189,3,14,7,0,189,191,5,4,0,0,190,192,5,7,0,0,191,190,1,0,
+0,0,191,192,1,0,0,0,192,193,1,0,0,0,193,194,6,4,-1,0,194,210,1,0,0,0,195,
+196,3,18,9,0,196,197,6,4,-1,0,197,210,1,0,0,0,198,199,3,20,10,0,199,200,
+6,4,-1,0,200,210,1,0,0,0,201,202,3,22,11,0,202,203,6,4,-1,0,203,210,1,0,
+0,0,204,205,5,5,0,0,205,206,3,24,12,0,206,207,5,6,0,0,207,208,6,4,-1,0,208,
+210,1,0,0,0,209,95,1,0,0,0,209,102,1,0,0,0,209,109,1,0,0,0,209,119,1,0,0,
+0,209,131,1,0,0,0,209,136,1,0,0,0,209,139,1,0,0,0,209,142,1,0,0,0,209,147,
+1,0,0,0,209,157,1,0,0,0,209,167,1,0,0,0,209,180,1,0,0,0,209,195,1,0,0,0,
+209,198,1,0,0,0,209,201,1,0,0,0,209,204,1,0,0,0,210,9,1,0,0,0,211,212,5,
+10,0,0,212,213,6,5,-1,0,213,11,1,0,0,0,214,215,5,10,0,0,215,216,5,7,0,0,
+216,217,6,6,-1,0,217,13,1,0,0,0,218,219,5,9,0,0,219,220,4,7,0,1,220,221,
+5,11,0,0,221,226,5,13,0,0,222,223,5,9,0,0,223,224,4,7,1,1,224,226,3,10,5,
+0,225,218,1,0,0,0,225,222,1,0,0,0,226,15,1,0,0,0,227,228,3,10,5,0,228,229,
+6,8,-1,0,229,239,1,0,0,0,230,231,3,10,5,0,231,232,5,2,0,0,232,233,3,14,7,
+0,233,234,6,8,-1,0,234,239,1,0,0,0,235,236,3,18,9,0,236,237,6,8,-1,0,237,
+239,1,0,0,0,238,227,1,0,0,0,238,230,1,0,0,0,238,235,1,0,0,0,239,17,1,0,0,
+0,240,241,5,11,0,0,241,242,5,13,0,0,242,243,6,9,-1,0,243,19,1,0,0,0,244,
+245,5,12,0,0,245,246,5,13,0,0,246,252,6,10,-1,0,247,248,5,12,0,0,248,249,
+3,22,11,0,249,250,6,10,-1,0,250,252,1,0,0,0,251,244,1,0,0,0,251,247,1,0,
+0,0,252,21,1,0,0,0,253,254,5,18,0,0,254,255,6,11,-1,0,255,23,1,0,0,0,256,
+257,3,10,5,0,257,258,5,8,0,0,258,261,3,10,5,0,259,260,5,2,0,0,260,262,3,
+24,12,0,261,259,1,0,0,0,261,262,1,0,0,0,262,263,1,0,0,0,263,264,6,12,-1,
+0,264,273,1,0,0,0,265,268,3,10,5,0,266,267,5,2,0,0,267,269,3,24,12,0,268,
+266,1,0,0,0,268,269,1,0,0,0,269,270,1,0,0,0,270,271,6,12,-1,0,271,273,1,
+0,0,0,272,256,1,0,0,0,272,265,1,0,0,0,273,25,1,0,0,0,274,275,5,14,0,0,275,
+280,3,28,14,0,276,277,5,2,0,0,277,279,3,28,14,0,278,276,1,0,0,0,279,282,
+1,0,0,0,280,278,1,0,0,0,280,281,1,0,0,0,281,283,1,0,0,0,282,280,1,0,0,0,
+283,284,6,13,-1,0,284,303,1,0,0,0,285,286,5,15,0,0,286,291,3,30,15,0,287,
+288,5,2,0,0,288,290,3,30,15,0,289,287,1,0,0,0,290,293,1,0,0,0,291,289,1,
+0,0,0,291,292,1,0,0,0,292,294,1,0,0,0,293,291,1,0,0,0,294,295,6,13,-1,0,
+295,303,1,0,0,0,296,297,5,16,0,0,297,298,5,13,0,0,298,303,6,13,-1,0,299,
+300,5,17,0,0,300,301,5,13,0,0,301,303,6,13,-1,0,302,274,1,0,0,0,302,285,
+1,0,0,0,302,296,1,0,0,0,302,299,1,0,0,0,303,27,1,0,0,0,304,305,5,13,0,0,
+305,310,6,14,-1,0,306,307,3,22,11,0,307,308,6,14,-1,0,308,310,1,0,0,0,309,
+304,1,0,0,0,309,306,1,0,0,0,310,29,1,0,0,0,311,312,5,13,0,0,312,316,6,15,
+-1,0,313,314,5,23,0,0,314,316,6,15,-1,0,315,311,1,0,0,0,315,313,1,0,0,0,
+316,31,1,0,0,0,31,35,41,48,53,57,63,68,74,78,88,91,114,124,153,163,171,176,
+184,191,209,225,238,251,261,268,272,280,291,302,309,315];
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -119,18 +115,16 @@ const sharedContextCache = new antlr4.atn.PredictionContextCache();
 export default class ARM32Parser extends antlr4.Parser {
 
     static grammarFileName = "ARM32Parser.g4";
-    static literalNames = [ null, null, "','", "'['", "']'", "'{'", "'}'", 
+    static literalNames = [ null, "';'", "','", "'['", "']'", "'{'", "'}'", 
                             "'!'", "'-'", null, null, "'#'", "'='", null, 
-                            "'DCD'", "'DCB'", "'EQU'", "'FILL'", null, null, 
-                            null, null, null, null, "'S'", null, "' '" ];
+                            "'DCD'", "'DCB'", "'EQU'", "'FILL'" ];
     static symbolicNames = [ null, "COMMENT", "COMMA", "LBRACK", "RBRACK", 
                              "LBRACE", "RBRACE", "BANG", "HYPHEN", "OPCODE", 
                              "REGISTER", "POUND", "EQUALS", "INT", "DCD", 
-                             "DCB", "EQU", "FILL", "SHIFT", "ID", "NEWLINE", 
-                             "WS", "INVALID", "COMMENT_TEXT", "S", "COND", 
-                             "MNEMONIC_WS", "STRING", "DOUBLE_QUOTE" ];
-    static ruleNames = [ "program", "line", "label", "instruction", "opcode", 
-                         "operand", "register", "writebackRegister", "flexOperandSpec", 
+                             "DCB", "EQU", "FILL", "ID", "NEWLINE", "WS", 
+                             "INVALID", "COMMENT_TEXT", "STRING", "DOUBLE_QUOTE" ];
+    static ruleNames = [ "program", "line", "label", "instruction", "operand", 
+                         "register", "writebackRegister", "flexOperandSpec", 
                          "offset", "immediate", "pseudoImmediate", "symbol", 
                          "registerSet", "directive", "dcd_value", "dcb_value" ];
 
@@ -144,7 +138,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
     sempred(localctx, ruleIndex, predIndex) {
     	switch(ruleIndex) {
-    	case 8:
+    	case 7:
     	    		return this.flexOperandSpec_sempred(localctx, predIndex);
         default:
             throw "No predicate with index:" + ruleIndex;
@@ -171,31 +165,31 @@ export default class ARM32Parser extends antlr4.Parser {
 	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 37;
+	        this.state = 35;
 	        this._errHandler.sync(this);
 	        var _alt = this._interp.adaptivePredict(this._input,0,this._ctx)
 	        while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
 	            if(_alt===1) {
-	                this.state = 34;
+	                this.state = 32;
 	                this.match(ARM32Parser.NEWLINE); 
 	            }
-	            this.state = 39;
+	            this.state = 37;
 	            this._errHandler.sync(this);
 	            _alt = this._interp.adaptivePredict(this._input,0,this._ctx);
 	        }
 
-	        this.state = 43;
+	        this.state = 41;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) === 0 && ((1 << _la) & 1819136) !== 0)) {
-	            this.state = 40;
+	        while((((_la) & ~0x1f) === 0 && ((1 << _la) & 1032704) !== 0)) {
+	            this.state = 38;
 	            localctx._line = this.line();
 	            localctx.lines.push(localctx._line);
-	            this.state = 45;
+	            this.state = 43;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	        }
-	        this.state = 46;
+	        this.state = 44;
 	        this.match(ARM32Parser.EOF);
 
 	                localctx.p =  new AST.Program(localctx.lines.map(l => l.l))
@@ -221,33 +215,33 @@ export default class ARM32Parser extends antlr4.Parser {
 	    this.enterRule(localctx, 2, ARM32Parser.RULE_line);
 	    var _la = 0;
 	    try {
-	        this.state = 80;
+	        this.state = 78;
 	        this._errHandler.sync(this);
 	        var la_ = this._interp.adaptivePredict(this._input,8,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 50;
+	            this.state = 48;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===19) {
-	                this.state = 49;
+	            if(_la===18) {
+	                this.state = 47;
 	                localctx.lab = this.label();
 	            }
 
-	            this.state = 53; 
+	            this.state = 51; 
 	            this._errHandler.sync(this);
 	            var _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
-	            		this.state = 52;
+	            		this.state = 50;
 	            		this.match(ARM32Parser.NEWLINE);
 	            		break;
 	            	default:
 	            		throw new antlr4.error.NoViableAltException(this);
 	            	}
-	            	this.state = 55; 
+	            	this.state = 53; 
 	            	this._errHandler.sync(this);
 	            	_alt = this._interp.adaptivePredict(this._input,3, this._ctx);
 	            } while ( _alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER );
@@ -258,29 +252,29 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 59;
+	            this.state = 57;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===19) {
-	                this.state = 58;
+	            if(_la===18) {
+	                this.state = 56;
 	                localctx.lab = this.label();
 	            }
 
-	            this.state = 61;
+	            this.state = 59;
 	            localctx.inst = this.instruction();
-	            this.state = 63; 
+	            this.state = 61; 
 	            this._errHandler.sync(this);
 	            var _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
-	            		this.state = 62;
+	            		this.state = 60;
 	            		this.match(ARM32Parser.NEWLINE);
 	            		break;
 	            	default:
 	            		throw new antlr4.error.NoViableAltException(this);
 	            	}
-	            	this.state = 65; 
+	            	this.state = 63; 
 	            	this._errHandler.sync(this);
 	            	_alt = this._interp.adaptivePredict(this._input,5, this._ctx);
 	            } while ( _alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER );
@@ -291,29 +285,29 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 3:
 	            this.enterOuterAlt(localctx, 3);
-	            this.state = 70;
+	            this.state = 68;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===19) {
-	                this.state = 69;
+	            if(_la===18) {
+	                this.state = 67;
 	                localctx.lab = this.label();
 	            }
 
-	            this.state = 72;
+	            this.state = 70;
 	            localctx.dir = this.directive();
-	            this.state = 74; 
+	            this.state = 72; 
 	            this._errHandler.sync(this);
 	            var _alt = 1;
 	            do {
 	            	switch (_alt) {
 	            	case 1:
-	            		this.state = 73;
+	            		this.state = 71;
 	            		this.match(ARM32Parser.NEWLINE);
 	            		break;
 	            	default:
 	            		throw new antlr4.error.NoViableAltException(this);
 	            	}
-	            	this.state = 76; 
+	            	this.state = 74; 
 	            	this._errHandler.sync(this);
 	            	_alt = this._interp.adaptivePredict(this._input,7, this._ctx);
 	            } while ( _alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER );
@@ -344,7 +338,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	    this.enterRule(localctx, 4, ARM32Parser.RULE_label);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 82;
+	        this.state = 80;
 	        this.match(ARM32Parser.ID);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -368,72 +362,33 @@ export default class ARM32Parser extends antlr4.Parser {
 	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 84;
-	        localctx.op = this.opcode();
-	        this.state = 86;
+	        this.state = 82;
+	        localctx.op = this.match(ARM32Parser.OPCODE);
+	        this.state = 91;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if(_la===24) {
-	            this.state = 85;
-	            localctx.s = this.match(ARM32Parser.S);
-	        }
-
-	        this.state = 89;
-	        this._errHandler.sync(this);
-	        _la = this._input.LA(1);
-	        if(_la===25) {
-	            this.state = 88;
-	            localctx.cond = this.match(ARM32Parser.COND);
-	        }
-
-	        this.state = 99;
-	        this._errHandler.sync(this);
-	        _la = this._input.LA(1);
-	        if((((_la) & ~0x1f) === 0 && ((1 << _la) & 531496) !== 0)) {
-	            this.state = 91;
+	        if((((_la) & ~0x1f) === 0 && ((1 << _la) & 269352) !== 0)) {
+	            this.state = 83;
 	            localctx._operand = this.operand();
 	            localctx.operands.push(localctx._operand);
-	            this.state = 96;
+	            this.state = 88;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            while(_la===2) {
-	                this.state = 92;
+	                this.state = 84;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 93;
+	                this.state = 85;
 	                localctx._operand = this.operand();
 	                localctx.operands.push(localctx._operand);
-	                this.state = 98;
+	                this.state = 90;
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
 	            }
 	        }
 
 
-	                localctx.i =  new AST.Instruction((localctx.op == null ? null : this._input.getText(new antlr4.Interval(localctx.op.start,localctx.op.stop))), (localctx.s == null ? null : localctx.s.text) || '', (localctx.cond == null ? null : localctx.cond.text) || '', localctx.operands.map(o => o.op));
+	                localctx.i =  new AST.Instruction((localctx.op == null ? null : localctx.op.text), localctx.operands.map(o => o.op));
 	            
-	    } catch (re) {
-	    	if(re instanceof antlr4.error.RecognitionException) {
-		        localctx.exception = re;
-		        this._errHandler.reportError(this, re);
-		        this._errHandler.recover(this, re);
-		    } else {
-		    	throw re;
-		    }
-	    } finally {
-	        this.exitRule();
-	    }
-	    return localctx;
-	}
-
-
-
-	opcode() {
-	    let localctx = new OpcodeContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 8, ARM32Parser.RULE_opcode);
-	    try {
-	        this.enterOuterAlt(localctx, 1);
-	        this.state = 103;
-	        this.match(ARM32Parser.OPCODE);
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
 		        localctx.exception = re;
@@ -452,24 +407,24 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	operand() {
 	    let localctx = new OperandContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 10, ARM32Parser.RULE_operand);
+	    this.enterRule(localctx, 8, ARM32Parser.RULE_operand);
 	    var _la = 0;
 	    try {
-	        this.state = 219;
+	        this.state = 209;
 	        this._errHandler.sync(this);
-	        var la_ = this._interp.adaptivePredict(this._input,21,this._ctx);
+	        var la_ = this._interp.adaptivePredict(this._input,19,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 105;
+	            this.state = 95;
 	            this.match(ARM32Parser.LBRACK);
-	            this.state = 106;
+	            this.state = 96;
 	            localctx.r = this.register();
-	            this.state = 107;
+	            this.state = 97;
 	            this.match(ARM32Parser.RBRACK);
-	            this.state = 108;
+	            this.state = 98;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 109;
+	            this.state = 99;
 	            localctx.i = this.immediate();
 
 	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, localctx.i.value);
@@ -478,15 +433,15 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 112;
+	            this.state = 102;
 	            this.match(ARM32Parser.LBRACK);
-	            this.state = 113;
+	            this.state = 103;
 	            localctx.r = this.register();
-	            this.state = 114;
+	            this.state = 104;
 	            this.match(ARM32Parser.RBRACK);
-	            this.state = 115;
+	            this.state = 105;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 116;
+	            this.state = 106;
 	            localctx.s = this.symbol();
 
 	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, localctx.s.text);
@@ -495,6 +450,31 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 3:
 	            this.enterOuterAlt(localctx, 3);
+	            this.state = 109;
+	            this.match(ARM32Parser.LBRACK);
+	            this.state = 110;
+	            localctx.r = this.register();
+	            this.state = 111;
+	            this.match(ARM32Parser.RBRACK);
+	            this.state = 112;
+	            this.match(ARM32Parser.COMMA);
+	            this.state = 114;
+	            this._errHandler.sync(this);
+	            _la = this._input.LA(1);
+	            if(_la===8) {
+	                this.state = 113;
+	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
+	            }
+
+	            this.state = 116;
+	            localctx.roff = this.register();
+
+	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, new AST.SignedRegister((localctx._HYPHEN == null ? null : localctx._HYPHEN.text), localctx.roff.reg.name));
+	                
+	            break;
+
+	        case 4:
+	            this.enterOuterAlt(localctx, 4);
 	            this.state = 119;
 	            this.match(ARM32Parser.LBRACK);
 	            this.state = 120;
@@ -513,34 +493,9 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	            this.state = 126;
 	            localctx.roff = this.register();
-
-	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, new AST.SignedRegister((localctx._HYPHEN == null ? null : localctx._HYPHEN.text), localctx.roff.reg.name));
-	                
-	            break;
-
-	        case 4:
-	            this.enterOuterAlt(localctx, 4);
-	            this.state = 129;
-	            this.match(ARM32Parser.LBRACK);
-	            this.state = 130;
-	            localctx.r = this.register();
-	            this.state = 131;
-	            this.match(ARM32Parser.RBRACK);
-	            this.state = 132;
+	            this.state = 127;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 134;
-	            this._errHandler.sync(this);
-	            _la = this._input.LA(1);
-	            if(_la===8) {
-	                this.state = 133;
-	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
-	            }
-
-	            this.state = 136;
-	            localctx.roff = this.register();
-	            this.state = 137;
-	            this.match(ARM32Parser.COMMA);
-	            this.state = 138;
+	            this.state = 128;
 	            localctx.f = this.flexOperandSpec();
 
 	                    localctx.op =  new AST.PostindexedOperand(
@@ -557,11 +512,11 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 5:
 	            this.enterOuterAlt(localctx, 5);
-	            this.state = 141;
+	            this.state = 131;
 	            localctx.r = this.register();
-	            this.state = 142;
+	            this.state = 132;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 143;
+	            this.state = 133;
 	            localctx.f = this.flexOperandSpec();
 
 	                    localctx.op =  new AST.FlexOperand(localctx.r.reg, localctx.f.op.text, localctx.f.amount !== null ? localctx.f.amount.text : null, localctx.f.register() !== null ? localctx.f.register().reg : null);
@@ -570,7 +525,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 6:
 	            this.enterOuterAlt(localctx, 6);
-	            this.state = 146;
+	            this.state = 136;
 	            localctx.wr = this.writebackRegister();
 
 	                    localctx.op =  localctx.wr.reg;
@@ -579,7 +534,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 7:
 	            this.enterOuterAlt(localctx, 7);
-	            this.state = 149;
+	            this.state = 139;
 	            localctx.r = this.register();
 
 	                    localctx.op =  localctx.r.reg;
@@ -588,11 +543,11 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 8:
 	            this.enterOuterAlt(localctx, 8);
-	            this.state = 152;
+	            this.state = 142;
 	            this.match(ARM32Parser.LBRACK);
-	            this.state = 153;
+	            this.state = 143;
 	            localctx.r = this.register();
-	            this.state = 154;
+	            this.state = 144;
 	            this.match(ARM32Parser.RBRACK);
 
 	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, null, null);
@@ -601,6 +556,31 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 9:
 	            this.enterOuterAlt(localctx, 9);
+	            this.state = 147;
+	            this.match(ARM32Parser.LBRACK);
+	            this.state = 148;
+	            localctx.r = this.register();
+	            this.state = 149;
+	            this.match(ARM32Parser.COMMA);
+	            this.state = 150;
+	            localctx.i = this.immediate();
+	            this.state = 151;
+	            this.match(ARM32Parser.RBRACK);
+	            this.state = 153;
+	            this._errHandler.sync(this);
+	            _la = this._input.LA(1);
+	            if(_la===7) {
+	                this.state = 152;
+	                localctx._BANG = this.match(ARM32Parser.BANG);
+	            }
+
+
+	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, localctx.i.value, !!(localctx._BANG == null ? null : localctx._BANG.text));
+	                
+	            break;
+
+	        case 10:
+	            this.enterOuterAlt(localctx, 10);
 	            this.state = 157;
 	            this.match(ARM32Parser.LBRACK);
 	            this.state = 158;
@@ -608,7 +588,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 159;
 	            this.match(ARM32Parser.COMMA);
 	            this.state = 160;
-	            localctx.i = this.immediate();
+	            localctx.s = this.symbol();
 	            this.state = 161;
 	            this.match(ARM32Parser.RBRACK);
 	            this.state = 163;
@@ -620,60 +600,35 @@ export default class ARM32Parser extends antlr4.Parser {
 	            }
 
 
-	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, localctx.i.value, !!(localctx._BANG == null ? null : localctx._BANG.text));
-	                
-	            break;
-
-	        case 10:
-	            this.enterOuterAlt(localctx, 10);
-	            this.state = 167;
-	            this.match(ARM32Parser.LBRACK);
-	            this.state = 168;
-	            localctx.r = this.register();
-	            this.state = 169;
-	            this.match(ARM32Parser.COMMA);
-	            this.state = 170;
-	            localctx.s = this.symbol();
-	            this.state = 171;
-	            this.match(ARM32Parser.RBRACK);
-	            this.state = 173;
-	            this._errHandler.sync(this);
-	            _la = this._input.LA(1);
-	            if(_la===7) {
-	                this.state = 172;
-	                localctx._BANG = this.match(ARM32Parser.BANG);
-	            }
-
-
 	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, localctx.s.text, !!(localctx._BANG == null ? null : localctx._BANG.text));
 	                
 	            break;
 
 	        case 11:
 	            this.enterOuterAlt(localctx, 11);
-	            this.state = 177;
+	            this.state = 167;
 	            this.match(ARM32Parser.LBRACK);
-	            this.state = 178;
+	            this.state = 168;
 	            localctx.r = this.register();
-	            this.state = 179;
+	            this.state = 169;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 181;
+	            this.state = 171;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===8) {
-	                this.state = 180;
+	                this.state = 170;
 	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
 	            }
 
-	            this.state = 183;
+	            this.state = 173;
 	            localctx.roff = this.register();
-	            this.state = 184;
+	            this.state = 174;
 	            this.match(ARM32Parser.RBRACK);
-	            this.state = 186;
+	            this.state = 176;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===7) {
-	                this.state = 185;
+	                this.state = 175;
 	                localctx._BANG = this.match(ARM32Parser.BANG);
 	            }
 
@@ -684,33 +639,33 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 12:
 	            this.enterOuterAlt(localctx, 12);
-	            this.state = 190;
+	            this.state = 180;
 	            this.match(ARM32Parser.LBRACK);
-	            this.state = 191;
+	            this.state = 181;
 	            localctx.r = this.register();
-	            this.state = 192;
+	            this.state = 182;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 194;
+	            this.state = 184;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===8) {
-	                this.state = 193;
+	                this.state = 183;
 	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
 	            }
 
-	            this.state = 196;
+	            this.state = 186;
 	            localctx.roff = this.register();
-	            this.state = 197;
+	            this.state = 187;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 198;
+	            this.state = 188;
 	            localctx.f = this.flexOperandSpec();
-	            this.state = 199;
+	            this.state = 189;
 	            this.match(ARM32Parser.RBRACK);
-	            this.state = 201;
+	            this.state = 191;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===7) {
-	                this.state = 200;
+	                this.state = 190;
 	                localctx._BANG = this.match(ARM32Parser.BANG);
 	            }
 
@@ -730,7 +685,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 13:
 	            this.enterOuterAlt(localctx, 13);
-	            this.state = 205;
+	            this.state = 195;
 	            localctx.i = this.immediate();
 
 	                    localctx.op =  localctx.i.value;
@@ -739,7 +694,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 14:
 	            this.enterOuterAlt(localctx, 14);
-	            this.state = 208;
+	            this.state = 198;
 	            localctx.pi = this.pseudoImmediate();
 
 	                    localctx.op =  localctx.pi.value;
@@ -748,7 +703,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 15:
 	            this.enterOuterAlt(localctx, 15);
-	            this.state = 211;
+	            this.state = 201;
 	            localctx.s = this.symbol();
 
 	                    localctx.op =  localctx.s.text;
@@ -757,11 +712,11 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 16:
 	            this.enterOuterAlt(localctx, 16);
-	            this.state = 214;
+	            this.state = 204;
 	            this.match(ARM32Parser.LBRACE);
-	            this.state = 215;
+	            this.state = 205;
 	            localctx.rs = this.registerSet();
-	            this.state = 216;
+	            this.state = 206;
 	            this.match(ARM32Parser.RBRACE);
 
 	                    localctx.op =  localctx.rs.registers;
@@ -787,10 +742,10 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	register() {
 	    let localctx = new RegisterContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 12, ARM32Parser.RULE_register);
+	    this.enterRule(localctx, 10, ARM32Parser.RULE_register);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 221;
+	        this.state = 211;
 	        localctx.r = this.match(ARM32Parser.REGISTER);
 
 	                localctx.reg =  new AST.Register((localctx.r == null ? null : localctx.r.text));
@@ -813,12 +768,12 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	writebackRegister() {
 	    let localctx = new WritebackRegisterContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 14, ARM32Parser.RULE_writebackRegister);
+	    this.enterRule(localctx, 12, ARM32Parser.RULE_writebackRegister);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 224;
+	        this.state = 214;
 	        localctx.r = this.match(ARM32Parser.REGISTER);
-	        this.state = 225;
+	        this.state = 215;
 	        this.match(ARM32Parser.BANG);
 
 	                localctx.reg =  new AST.WritebackRegister((localctx.r == null ? null : localctx.r.text));
@@ -841,35 +796,35 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	flexOperandSpec() {
 	    let localctx = new FlexOperandSpecContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 16, ARM32Parser.RULE_flexOperandSpec);
+	    this.enterRule(localctx, 14, ARM32Parser.RULE_flexOperandSpec);
 	    try {
-	        this.state = 235;
+	        this.state = 225;
 	        this._errHandler.sync(this);
-	        var la_ = this._interp.adaptivePredict(this._input,22,this._ctx);
+	        var la_ = this._interp.adaptivePredict(this._input,20,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 228;
+	            this.state = 218;
 	            localctx.op = this.match(ARM32Parser.OPCODE);
-	            this.state = 229;
+	            this.state = 219;
 	            if (!( ['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0)) {
 	                throw new antlr4.error.FailedPredicateException(this, "['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0");
 	            }
-	            this.state = 230;
+	            this.state = 220;
 	            this.match(ARM32Parser.POUND);
-	            this.state = 231;
+	            this.state = 221;
 	            localctx.amount = this.match(ARM32Parser.INT);
 	            break;
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 232;
+	            this.state = 222;
 	            localctx.op = this.match(ARM32Parser.OPCODE);
-	            this.state = 233;
+	            this.state = 223;
 	            if (!( ['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0)) {
 	                throw new antlr4.error.FailedPredicateException(this, "['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf($op.text.toUpperCase()) >= 0");
 	            }
-	            this.state = 234;
+	            this.state = 224;
 	            this.register();
 	            break;
 
@@ -892,15 +847,15 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	offset() {
 	    let localctx = new OffsetContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 18, ARM32Parser.RULE_offset);
+	    this.enterRule(localctx, 16, ARM32Parser.RULE_offset);
 	    try {
-	        this.state = 248;
+	        this.state = 238;
 	        this._errHandler.sync(this);
-	        var la_ = this._interp.adaptivePredict(this._input,23,this._ctx);
+	        var la_ = this._interp.adaptivePredict(this._input,21,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 237;
+	            this.state = 227;
 	            localctx.r = this.register();
 
 	                    localctx.off =  localctx.r.reg;
@@ -909,11 +864,11 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 240;
+	            this.state = 230;
 	            localctx.r = this.register();
-	            this.state = 241;
+	            this.state = 231;
 	            this.match(ARM32Parser.COMMA);
-	            this.state = 242;
+	            this.state = 232;
 	            localctx.f = this.flexOperandSpec();
 
 	                    localctx.off =  new AST.FlexOperand(localctx.r.reg, localctx.f.op.text, parseInt(localctx.f.amount.text));
@@ -922,7 +877,7 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 3:
 	            this.enterOuterAlt(localctx, 3);
-	            this.state = 245;
+	            this.state = 235;
 	            localctx.i = this.immediate();
 
 	                    localctx.off =  localctx.i.value;
@@ -948,12 +903,12 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	immediate() {
 	    let localctx = new ImmediateContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 20, ARM32Parser.RULE_immediate);
+	    this.enterRule(localctx, 18, ARM32Parser.RULE_immediate);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 250;
+	        this.state = 240;
 	        this.match(ARM32Parser.POUND);
-	        this.state = 251;
+	        this.state = 241;
 	        localctx.v = this.match(ARM32Parser.INT);
 
 	                localctx.value =  new AST.Immediate((localctx.v == null ? null : localctx.v.text));
@@ -976,17 +931,17 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	pseudoImmediate() {
 	    let localctx = new PseudoImmediateContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 22, ARM32Parser.RULE_pseudoImmediate);
+	    this.enterRule(localctx, 20, ARM32Parser.RULE_pseudoImmediate);
 	    try {
-	        this.state = 261;
+	        this.state = 251;
 	        this._errHandler.sync(this);
-	        var la_ = this._interp.adaptivePredict(this._input,24,this._ctx);
+	        var la_ = this._interp.adaptivePredict(this._input,22,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 254;
+	            this.state = 244;
 	            this.match(ARM32Parser.EQUALS);
-	            this.state = 255;
+	            this.state = 245;
 	            localctx.v = this.match(ARM32Parser.INT);
 
 	                    localctx.value =  new AST.PseudoImmediate((localctx.v == null ? null : localctx.v.text));
@@ -995,9 +950,9 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 257;
+	            this.state = 247;
 	            this.match(ARM32Parser.EQUALS);
-	            this.state = 258;
+	            this.state = 248;
 	            localctx.s = this.symbol();
 
 	                    localctx.value =  new AST.PseudoImmediate(localctx.s.text);
@@ -1023,10 +978,10 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	symbol() {
 	    let localctx = new SymbolContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 24, ARM32Parser.RULE_symbol);
+	    this.enterRule(localctx, 22, ARM32Parser.RULE_symbol);
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 263;
+	        this.state = 253;
 	        localctx.t = this.match(ARM32Parser.ID);
 
 	                localctx.text =  (localctx.t == null ? null : localctx.t.text);
@@ -1049,28 +1004,28 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	registerSet() {
 	    let localctx = new RegisterSetContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 26, ARM32Parser.RULE_registerSet);
+	    this.enterRule(localctx, 24, ARM32Parser.RULE_registerSet);
 	    var _la = 0;
 	    try {
-	        this.state = 282;
+	        this.state = 272;
 	        this._errHandler.sync(this);
-	        var la_ = this._interp.adaptivePredict(this._input,27,this._ctx);
+	        var la_ = this._interp.adaptivePredict(this._input,25,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 266;
+	            this.state = 256;
 	            localctx.r1 = this.register();
-	            this.state = 267;
+	            this.state = 257;
 	            this.match(ARM32Parser.HYPHEN);
-	            this.state = 268;
+	            this.state = 258;
 	            localctx.r2 = this.register();
-	            this.state = 271;
+	            this.state = 261;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===2) {
-	                this.state = 269;
+	                this.state = 259;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 270;
+	                this.state = 260;
 	                localctx.child = this.registerSet();
 	            }
 
@@ -1081,15 +1036,15 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 275;
+	            this.state = 265;
 	            localctx.r1 = this.register();
-	            this.state = 278;
+	            this.state = 268;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===2) {
-	                this.state = 276;
+	                this.state = 266;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 277;
+	                this.state = 267;
 	                localctx.child = this.registerSet();
 	            }
 
@@ -1117,30 +1072,30 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	directive() {
 	    let localctx = new DirectiveContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 28, ARM32Parser.RULE_directive);
+	    this.enterRule(localctx, 26, ARM32Parser.RULE_directive);
 	    var _la = 0;
 	    try {
-	        this.state = 312;
+	        this.state = 302;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case 14:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 284;
+	            this.state = 274;
 	            this.match(ARM32Parser.DCD);
 
-	            this.state = 285;
+	            this.state = 275;
 	            localctx._dcd_value = this.dcd_value();
 	            localctx.dcd_values.push(localctx._dcd_value);
-	            this.state = 290;
+	            this.state = 280;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            while(_la===2) {
-	                this.state = 286;
+	                this.state = 276;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 287;
+	                this.state = 277;
 	                localctx._dcd_value = this.dcd_value();
 	                localctx.dcd_values.push(localctx._dcd_value);
-	                this.state = 292;
+	                this.state = 282;
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
 	            }
@@ -1150,22 +1105,22 @@ export default class ARM32Parser extends antlr4.Parser {
 	            break;
 	        case 15:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 295;
+	            this.state = 285;
 	            this.match(ARM32Parser.DCB);
 
-	            this.state = 296;
+	            this.state = 286;
 	            localctx._dcb_value = this.dcb_value();
 	            localctx.dcb_values.push(localctx._dcb_value);
-	            this.state = 301;
+	            this.state = 291;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            while(_la===2) {
-	                this.state = 297;
+	                this.state = 287;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 298;
+	                this.state = 288;
 	                localctx._dcb_value = this.dcb_value();
 	                localctx.dcb_values.push(localctx._dcb_value);
-	                this.state = 303;
+	                this.state = 293;
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
 	            }
@@ -1175,9 +1130,9 @@ export default class ARM32Parser extends antlr4.Parser {
 	            break;
 	        case 16:
 	            this.enterOuterAlt(localctx, 3);
-	            this.state = 306;
+	            this.state = 296;
 	            this.match(ARM32Parser.EQU);
-	            this.state = 307;
+	            this.state = 297;
 	            localctx.value = this.match(ARM32Parser.INT);
 
 	                    localctx.d =  new AST.EquateDirective((localctx.value == null ? null : localctx.value.text));
@@ -1185,9 +1140,9 @@ export default class ARM32Parser extends antlr4.Parser {
 	            break;
 	        case 17:
 	            this.enterOuterAlt(localctx, 4);
-	            this.state = 309;
+	            this.state = 299;
 	            this.match(ARM32Parser.FILL);
-	            this.state = 310;
+	            this.state = 300;
 	            localctx.value = this.match(ARM32Parser.INT);
 
 	                    localctx.d =  new AST.FillDirective((localctx.value == null ? null : localctx.value.text));
@@ -1214,22 +1169,22 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	dcd_value() {
 	    let localctx = new Dcd_valueContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 30, ARM32Parser.RULE_dcd_value);
+	    this.enterRule(localctx, 28, ARM32Parser.RULE_dcd_value);
 	    try {
-	        this.state = 319;
+	        this.state = 309;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case 13:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 314;
+	            this.state = 304;
 	            localctx._INT = this.match(ARM32Parser.INT);
 
 	                    localctx.n =  (localctx._INT == null ? null : localctx._INT.text);
 	                
 	            break;
-	        case 19:
+	        case 18:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 316;
+	            this.state = 306;
 	            localctx._symbol = this.symbol();
 
 	                    localctx.n =  localctx._symbol.text;
@@ -1256,22 +1211,22 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	dcb_value() {
 	    let localctx = new Dcb_valueContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 32, ARM32Parser.RULE_dcb_value);
+	    this.enterRule(localctx, 30, ARM32Parser.RULE_dcb_value);
 	    try {
-	        this.state = 325;
+	        this.state = 315;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
 	        case 13:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 321;
+	            this.state = 311;
 	            localctx._INT = this.match(ARM32Parser.INT);
 
 	                    localctx.n =  (localctx._INT == null ? null : localctx._INT.text);
 	                
 	            break;
-	        case 27:
+	        case 23:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 323;
+	            this.state = 313;
 	            localctx._STRING = this.match(ARM32Parser.STRING);
 
 	                    localctx.n =  (localctx._STRING == null ? null : localctx._STRING.text);
@@ -1315,35 +1270,30 @@ ARM32Parser.DCD = 14;
 ARM32Parser.DCB = 15;
 ARM32Parser.EQU = 16;
 ARM32Parser.FILL = 17;
-ARM32Parser.SHIFT = 18;
-ARM32Parser.ID = 19;
-ARM32Parser.NEWLINE = 20;
-ARM32Parser.WS = 21;
-ARM32Parser.INVALID = 22;
-ARM32Parser.COMMENT_TEXT = 23;
-ARM32Parser.S = 24;
-ARM32Parser.COND = 25;
-ARM32Parser.MNEMONIC_WS = 26;
-ARM32Parser.STRING = 27;
-ARM32Parser.DOUBLE_QUOTE = 28;
+ARM32Parser.ID = 18;
+ARM32Parser.NEWLINE = 19;
+ARM32Parser.WS = 20;
+ARM32Parser.INVALID = 21;
+ARM32Parser.COMMENT_TEXT = 22;
+ARM32Parser.STRING = 23;
+ARM32Parser.DOUBLE_QUOTE = 24;
 
 ARM32Parser.RULE_program = 0;
 ARM32Parser.RULE_line = 1;
 ARM32Parser.RULE_label = 2;
 ARM32Parser.RULE_instruction = 3;
-ARM32Parser.RULE_opcode = 4;
-ARM32Parser.RULE_operand = 5;
-ARM32Parser.RULE_register = 6;
-ARM32Parser.RULE_writebackRegister = 7;
-ARM32Parser.RULE_flexOperandSpec = 8;
-ARM32Parser.RULE_offset = 9;
-ARM32Parser.RULE_immediate = 10;
-ARM32Parser.RULE_pseudoImmediate = 11;
-ARM32Parser.RULE_symbol = 12;
-ARM32Parser.RULE_registerSet = 13;
-ARM32Parser.RULE_directive = 14;
-ARM32Parser.RULE_dcd_value = 15;
-ARM32Parser.RULE_dcb_value = 16;
+ARM32Parser.RULE_operand = 4;
+ARM32Parser.RULE_register = 5;
+ARM32Parser.RULE_writebackRegister = 6;
+ARM32Parser.RULE_flexOperandSpec = 7;
+ARM32Parser.RULE_offset = 8;
+ARM32Parser.RULE_immediate = 9;
+ARM32Parser.RULE_pseudoImmediate = 10;
+ARM32Parser.RULE_symbol = 11;
+ARM32Parser.RULE_registerSet = 12;
+ARM32Parser.RULE_directive = 13;
+ARM32Parser.RULE_dcd_value = 14;
+ARM32Parser.RULE_dcb_value = 15;
 
 class ProgramContext extends antlr4.ParserRuleContext {
 
@@ -1478,22 +1428,12 @@ class InstructionContext extends antlr4.ParserRuleContext {
         this.ruleIndex = ARM32Parser.RULE_instruction;
         this.i = null
         this.op = null;
-        this.s = null;
-        this.cond = null;
         this._operand = null;
         this.operands = [];
     }
 
-	opcode() {
-	    return this.getTypedRuleContext(OpcodeContext,0);
-	};
-
-	S() {
-	    return this.getToken(ARM32Parser.S, 0);
-	};
-
-	COND() {
-	    return this.getToken(ARM32Parser.COND, 0);
+	OPCODE() {
+	    return this.getToken(ARM32Parser.OPCODE, 0);
 	};
 
 	operand = function(i) {
@@ -1518,29 +1458,6 @@ class InstructionContext extends antlr4.ParserRuleContext {
 	    }
 	};
 
-
-
-}
-
-
-
-class OpcodeContext extends antlr4.ParserRuleContext {
-
-    constructor(parser, parent, invokingState) {
-        if(parent===undefined) {
-            parent = null;
-        }
-        if(invokingState===undefined || invokingState===null) {
-            invokingState = -1;
-        }
-        super(parent, invokingState);
-        this.parser = parser;
-        this.ruleIndex = ARM32Parser.RULE_opcode;
-    }
-
-	OPCODE() {
-	    return this.getToken(ARM32Parser.OPCODE, 0);
-	};
 
 
 }
@@ -2056,7 +1973,6 @@ ARM32Parser.ProgramContext = ProgramContext;
 ARM32Parser.LineContext = LineContext; 
 ARM32Parser.LabelContext = LabelContext; 
 ARM32Parser.InstructionContext = InstructionContext; 
-ARM32Parser.OpcodeContext = OpcodeContext; 
 ARM32Parser.OperandContext = OperandContext; 
 ARM32Parser.RegisterContext = RegisterContext; 
 ARM32Parser.WritebackRegisterContext = WritebackRegisterContext; 

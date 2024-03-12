@@ -34,13 +34,9 @@ label
 
 instruction
 returns [Instruction i]
-    : op=opcode s=S? cond=COND? (operands+=operand (COMMA operands+=operand)*)? {
-        $i = new AST.Instruction($op.text, $s.text || '', $cond.text || '', $operands.map(o => o.op));;
+    : op=OPCODE (operands+=operand (COMMA operands+=operand)*)? {
+        $i = new AST.Instruction($op.text, $operands.map(o => o.op));;
     }
-    ;
-
-opcode
-    : OPCODE
     ;
 
 operand
