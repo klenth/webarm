@@ -49,11 +49,11 @@ export class AstNode {
 
         const className = o.className;
         if (!className)
-            throw 'No className found!';
+            throw new Error('No className found!');
         if (typeof(exports[className]) !== 'undefined')
             return exports[className].reconstruct(o);
         else
-            throw 'No class found called "' + className + '"';
+            throw new Error('No class found called "' + className + '"');
     }
 }
 
@@ -198,21 +198,26 @@ export class EquateDirective extends Directive {
 }
 
 export class FillDirective extends Directive {
-    constructor(value) {
+    constructor(bytesText, valueText) {
         super('FILL');
-        this.value = value;
+        this.bytesText = bytesText;
+        this.valueText = valueText;
     }
 
     toString() {
-        return 'FILL ' + this.value;
+        return 'FILL ' + this.bytesText + (this.valueText ? ' ' + this.valueText : '');
     }
 
     get bytes() {
-        return parseImmediate(this.value);
+        return parseImmediate(this.bytesText);
+    }
+
+    get value() {
+        return (this.valueText === null) ? null : parseImmediate(this.valueText);
     }
 
     static reconstruct(o) {
-        return new FillDirective(o.value);
+        return new FillDirective(o.bytesText, o.valueText);
     }
 }
 

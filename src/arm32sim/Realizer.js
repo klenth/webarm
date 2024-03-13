@@ -140,8 +140,15 @@ function handleEquate(d) {
 
 function handleFill(d) {
     const bytes = d.bytes;
+    const value = d.value;
+    if (value < -128 || value > 255)
+        throw new AssemblyError(`Out of range value ${d.value} in FILL (must be between -128 and 255)`);
     return {
-        data: () => {},
+        data: (mapper, mem, addr) => {
+            if (bytes)
+                for (let i = 0; i < bytes; ++i)
+                    mem.writeByte(addr + i, value & 0xff);
+        },
         size: () => bytes,
     };
 }

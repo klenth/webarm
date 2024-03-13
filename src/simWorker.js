@@ -69,8 +69,16 @@ class ParseError extends Error {
                         text: ex.message,
                     }
                 };
-            } else
+            } else {
                 console.error(`Unhandled error on parse or assembly: ${ex}`);
+                return {
+                    result: 'error',
+                    error: {
+                        line: null,
+                        text: `[Internal error - please report!] ${ex.message}`,
+                    }
+                };
+            }
         }
     }
 

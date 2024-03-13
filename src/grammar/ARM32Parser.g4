@@ -195,8 +195,8 @@ returns [Directive d]
     | EQU value=INT {
         $d = new AST.EquateDirective($value.text);;
     }
-    | FILL value=INT {
-        $d = new AST.FillDirective($value.text);;
+    | FILL bytes=INT value=INT? {
+        $d = new AST.FillDirective($bytes.text, $value.text);;
     }
     | ALIGN (value=INT)? {
         $d = new AST.AlignDirective($value.text);;
