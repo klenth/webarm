@@ -14,8 +14,10 @@ import 'ace-builds/src-noconflict/ext-searchbox.js';
 import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 
 const Controls = styled.div`
+  grid-area: controls;
   text-align: right;
   padding: 8px;
+  border-bottom: 2px solid var(--color-thistle);
   
   & > * {
     margin: 2px 8px;
@@ -31,8 +33,9 @@ const Center = styled.div`
 `;
 
 const Editor = styled(AceEditor)`
-  flex-grow: 1;
-  height: 100%;
+  grid-area: editor;
+  /*flex-grow: 1;*/
+  /*height: 100%;*/
   
   .debug-current-line {
     background-color: var(--color-for-current-highlight);
@@ -41,27 +44,36 @@ const Editor = styled(AceEditor)`
 `;
 
 const Registers = styled.div`
-  flex-grow: 0;
+  grid-area: registers;
+  /*flex-grow: 0;*/
 `;
 
 const MessageDisplay = styled.div`
+    grid-area: message;
+    padding-left: 8px;
+    height: 2rem;
+    line-height: 2rem;
+    margin: 4px;
+    border-top: 2px solid var(--color-thistle);
 `;
 
 const SimulatorOutput = styled.pre`
+    margin: 4px;
+    grid-area: output;
     border: 2px solid var(--color-thistle);
     position: relative;
     min-height: 8em;
-    padding-top: 2rem;
+    overflow: scroll;
   
     &:before {
         content: "Simulator output";
         position: absolute;
-        left: 0;
+        right: 0;
         top: 0;
         background-color: var(--color-thistle);
         color: white;
         padding: 4px;
-        border-radius: 0 0 4px 4px;
+        border-radius: 0 0 0 4px;
     }
 `;
 
@@ -192,18 +204,20 @@ class App extends React.Component {
                     {memoryCheckbox}
                     {buttons}
                 </Controls>
-                <Center>
                     <Editor
                         ref={ref => this.setEditorRef(ref)}
                         value={this.state.code}
                         fontSize={24}
                         onChange={(s) => this.handleCodeChange(s)}
                         mode={'text'}
-                        height={'inherit'}
                         markers={markers}
                         readOnly={readOnly}
                         className={readOnly ? 'read-only' : ''}
                         tabSize={8}
+                        width={'initial'}
+                        height={'initial'}
+                        wrapEnabled={false}
+                        showPrintMargin={false}
                         setOptions={{
                             highlightActiveLine: !readOnly,
                             highlightGutterLine: !readOnly,
@@ -224,7 +238,6 @@ class App extends React.Component {
                             highlightWord={this.state.state === 'debugging/paused' ? this.state.simulatorState.PC : null}
                         />
                     ) : null}
-                </Center>
                 <MessageDisplay>{this.state.message || ' '}</MessageDisplay>
                 <SimulatorOutput>{simulatorOutputText}</SimulatorOutput>
             </div>

@@ -1,4 +1,5 @@
 .App {
+  width: 100vw;
   height: 100vh;
   --color-night: #211551;
   --color-copper: #9D581F;
@@ -8,6 +9,15 @@
   --color-thistle: #8252C7;
   --color-sky: #00B5E2;
   --color-for-current-highlight: rgba(142, 102, 199, 0.4);
+
+  display: grid;
+  grid-template-columns: 1fr 0fr;
+  grid-template-rows: 0fr 1fr 0fr 0.25fr;
+  grid-template-areas:
+    "controls controls"
+    "editor registers"
+    "message message"
+    "output output";
 }
 
 .App-logo {
