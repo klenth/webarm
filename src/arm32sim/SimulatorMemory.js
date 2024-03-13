@@ -36,7 +36,6 @@ export default class SimulatorMemory {
         this.checkWordAlignment(address);
         this.overrides[address >>> 2] = (value & 0xffff_ffff);
         this.writtenAddresses.add((address & 0xffff_fffc) >>> 0);
-        console.debug(`Added 0x${((address & 0xffff_fffc) >>> 0).toString(16)} to writtenAddresses`);
     }
 
     writeByte(address, value) {

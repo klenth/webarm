@@ -198,8 +198,6 @@ class App extends React.Component {
 
         const readOnly = (this.state.state !== '');
 
-        console.debug(this.state.memory?.writtenAddresses);
-
         return (
             <div className="App">
                 <OpenFileDialog
@@ -458,6 +456,9 @@ class App extends React.Component {
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                 });
+
+            if (this.state.debugCurrentLine)
+                this.editorRef.editor.scrollToLine(this.state.debugCurrentLine - 1, true, true, () => {});
         };
 
         this.getWorker().postMessage({
@@ -514,6 +515,9 @@ class App extends React.Component {
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                 });
+
+            if (this.state.debugCurrentLine)
+                this.editorRef.editor.scrollToLine(this.state.debugCurrentLine - 1, true, true, () => {});
         };
 
         this.getWorker().postMessage({
