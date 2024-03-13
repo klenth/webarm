@@ -13,29 +13,36 @@ import OpenFileDialog from './components/OpenFileDialog';
 import 'ace-builds/src-noconflict/ext-searchbox.js';
 import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 
-const Controls = styled.div`
-  grid-area: controls;
-  text-align: right;
+const Top = styled.div`
+  grid-area: top;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: stretch;
   padding: 8px;
-  border-bottom: 2px solid var(--color-thistle);
+  border-bottom: 2px solid var(--color-thistle):
+`
+
+const Controls = styled.div`
+  flex-grow: 0;
+  text-align: right;
   
   & > * {
     margin: 2px 8px;
   }
 `;
 
-const Center = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: stretch;
-  gap: 16px;
-  
+const Title = styled.div`
+    flex-grow: 1.0;
+    text-align: center;
+    font-size: 1.2rem;
 `;
 
 const Editor = styled(AceEditor)`
   grid-area: editor;
   /*flex-grow: 1;*/
   /*height: 100%;*/
+  font-family: var(--mono-font);
+  font-stretch: expanded;
   
   .debug-current-line {
     background-color: var(--color-for-current-highlight);
@@ -204,14 +211,22 @@ class App extends React.Component {
                     ref={ref => this.openFileDialogRef = ref}
                     onOpen={code => this.handleOpenFile(code)}
                 />
-                <Controls>
-                    {memoryCheckbox}
-                    {buttons}
-                </Controls>
+                <Top>
+                    <Controls>
+                        <a href={"https://cs.westminsteru.edu/cmpt328/webarm/docs/"} target={"docs"}>Help</a>
+                    </Controls>
+                    <Title>
+                        WebARM
+                    </Title>
+                    <Controls>
+                        {memoryCheckbox}
+                        {buttons}
+                    </Controls>
+                </Top>
                     <Editor
                         ref={ref => this.setEditorRef(ref)}
                         value={this.state.code}
-                        fontSize={24}
+                        fontSize={18}
                         onChange={(s) => this.handleCodeChange(s)}
                         mode={'text'}
                         markers={markers}
@@ -263,6 +278,7 @@ class App extends React.Component {
     componentDidMount() {
         const customMode = new AssemblyARM32Mode();
         this.editorRef.editor.getSession().setMode(customMode);
+        console.debug(`Editor theme: ${this.editorRef.editor.getTheme()}`);
     }
 
     updateState(changedProperties) {

@@ -18,22 +18,22 @@ export class AssemblyARM32HighlightRules extends window.ace.acequire('ace/mode/t
                 {
                     token: 'variable.parameter.register.assembly',
                     //          first half are actual registers until spsr, where it changes to fields and flexible operands
-                    regex: '\\b(?:r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15|fp|ip|sp|lr|pc|cpsr|spsr|c|f|s|x)\\b',
+                    regex: '\\b(?:r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15|sp|lr|pc)\\b',
                     caseInsensitive: true
                 },
                 {
                     token: 'constant.character.hexadecimal.assembly',
-                    regex: '#-?0x[A-F0-9_]+',
+                    regex: '[#=]-?0x[A-F0-9_]+',
                     caseInsensitive: true
                 },
                 {
                     token: 'constant.character.binary.assembly',
-                    regex: '#-?0b[01_]+',
+                    regex: '[#=]-?0b[01_]+',
                     caseInsensitive: true
                 },
                 {
                     token: 'constant.character.decimal.assembly',
-                    regex: '#-?[0-9_]+'
+                    regex: '[#=]-?[0-9_]+'
                 },
                 {
                     token: 'string.assembly',

@@ -175,6 +175,8 @@ export class DCB extends Directive {
                             bytes.push(0x09);
                         else if (c === 'r')
                             bytes.push(0x0d);
+                        else
+                            bytes.push(value.charCodeAt(i + 1));
                         ++i;
                     } else
                         bytes.push(value.charCodeAt(i));

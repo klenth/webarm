@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en" class="fancy">
+<head>
+    <meta charset="UTF-8">
+    <title>WebARM: documentation</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="highlighting.css">
+
+    <style>
+        pre, code {
+            font-family: Iosevka Kathy Web, monospace;
+            font-stretch: expanded;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul class="problem-links"></ul>
+        <div class="icon"></div>
+        <div class="plain-link"></div>
+    </nav>
+
+    <main class="justified">
+        <div class="assignment-info">
+            <h1>WebARM</h1>
+            <h2>An ARM32 assembler/simulator for education</h2>
+
+            <p>
+                Using WebARM, you can easily write and execute 32-bit ARM code from within your browser. This page documents the ARM32 assembly dialect used in WebARM.
+            </p>
+        </div>
+
+        <div class="problems">
+
+            <div class="problem">
+                <div class="title">Structure</div>
+
+                <p>
+                    In a WebARM program, each line consists of the following:
+                </p>
+                <ol>
+                    <li><em>(optional)</em> a <em>symbol</em>, starting with a period, that can be used to refer to this location in the program;</li>
+                    <li>either an <em>instruction</em> (one operation for the processor to perform) or a <em>directive</em> (instructing the assembler to modify the generated code in some fashion).</li>
+                </ol>
+
+                <p>
+                    Some examples:
+                </p>
+                <pre class="indented highlight" data-language="arm32">
+    ; A symbol on a line by itself (will refer to the *next* nonempty line)
+    .top
+    ; A single instruction
+            ADD     R0, R0, R2
+    ; (So the symbol ".top" refers to the ADD instruction)
+
+    ; Another instruction
+            B       .main
+
+    ; The next line defines a symbol (.msg) and uses the DCB directive to include
+    ; some data (in this case, text) directly within the program. The ", 0" at the
+    ; end includes a zero byte (NUL terminator) to mark the end of the string.
+    .msg    DCB     'Hello, world!', 0
+
+    ; A directive: ALIGN inserts any zero padding necessary to ensure that the next
+    ; stuff will start at a multiple of 4 bytes within the file (necessary for
+    ; instructions).
+            ALIGN
+
+    ; A symbol (.main) referring to a LDR instruction
+    .main   LDR     R1, =123_456
+                </pre>
+
+                <h3>Comments</h3>
+                <p>
+                    Comments begin with a <code>;</code> and extend to the end of the line. There is no equivalent of the C-style <code>/* ... */</code> block comment.
+                </p>
+
+                <h3>Spacing</h3>
+                <p>
+                    Unlike most high-level languages, <em>code is not allowed to cross lines</em> (you cannot split an instruction or directive across lines).
+                </p>
+
+                <p>
+                    Aside from this, spacing is arbitrary. It is not <em>required</em> to follow spacing similar to what is shown above (symbols at the far left, instructions indented once, operands indented one more time), but it does make the code easier to read.
+                </p>
+
+                <h3>Case sensitivity</h3>
+                <p>
+                    Instructions, directives, and the names of registers are case-insensitive (<code class="highlight" data-language="arm32">mov r0, pc</code> is the same as <code class="highlight" data-language="arm32">MOV R0, PC</code>), but symbol names are case-sensitive (<code class="highlight" data-language="arm32">.msg</code> and <code class="highlight" data-language="arm32">.MSG</code> are different symbols).
+                </p>
+
+                <h3>Registers</h3>
+                <p>
+                    ARM32 has 16 registers: <code class="highlight" data-language="arm32">R0</code> through <code class="highlight" data-language="arm32">R15</code>. The last several registers serve special purposes and have alternate names:
+                </p>
+                <table class="indented">
+                    <thead>
+                        <tr>
+                            <th scope="col">Register</th>
+                            <th scope="col">Alternate</th>
+                            <th scope="col">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="centered"><code class="highlight" data-language="arm32">R13</code></td>
+                            <td class="centered"><code class="highlight" data-language="arm32">SP</code></td>
+                            <td>Stack pointer (holds the address of the top of stack)</td>
+                        </tr>
+                        <tr>
+                            <td class="centered"><code class="highlight" data-language="arm32">R14</code></td>
+                            <td class="centered"><code class="highlight" data-language="arm32">LR</code></td>
+                            <td>Link register (the return address of the current function)</td>
+                        </tr>
+                        <tr>
+                            <td class="centered"><code class="highlight" data-language="arm32">R15</code></td>
+                            <td class="centered"><code class="highlight" data-language="arm32">PC</code></td>
+                            <td>Program counter (the address of the instruction to be executed next)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Numbers</h3>
+                <p>
+                    In all places where numbers are expected — for example, in immediate values (such as <code class="highlight" data-language="arm32">#123</code>) — they can be expressed in decimal (<code>123</code>), hexadecimal (<code>0x7b</code>), or binary (<code>0b1111011</code>). You can use <code>_</code> to group digits within numbers (like <code>0b111_1011</code>) with no impact on the value.
+                </p>
+
+                <h3>Strings</h3>
+                <p>
+                    The <code class="highlight" data-language="arm32">DCB</code> directive allows you to enter strings whose characters (bytes) are directly included in the program; this is the only place in WebARM where strings can be used. These strings can be delimited by either single quotes (<code class="highlight" data-language="arm32">'...'</code>) or double quotes (<code class="highlight" data-language="arm32">"..."</code>), and in either case the usual escape sequences <code>\n</code>, <code>\'</code>, <code>\"</code>, <code>\\</code>, <code>\t</code>, and <code>\0</code> are recognized.
+                </p>
+            </div>
+
+            <div class="problem">
+                <div class="title">Condition codes</div>
+
+            </div>
+
+            <div class="problem">
+                <div class="title">Instructions: data processing</div>
+            </div>
+
+            <div class="problem">
+                <div class="title">Instructions: multiplication</div>
+            </div>
+
+            <div class="problem">
+                <div class="title">Instructions: branching</div>
+            </div>
+
+            <div class="problem">
+                <div class="title">Instructions: memory</div>
+            </div>
+
+            <div class="problem">
+                <div class="title">Directives</div>
+            </div>
+        </div>
+    </main>
+
+    <script src="scripts.js"></script>
+    <script src="highlighting.js"></script>
+</body>
+</html>
