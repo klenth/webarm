@@ -225,6 +225,8 @@ class App extends React.Component {
                         setOptions={{
                             highlightActiveLine: !readOnly,
                             highlightGutterLine: !readOnly,
+                            fixedWidthGutter: true,
+                            animatedScroll: true,
                         }}
                     />
                     <Registers>
