@@ -553,7 +553,7 @@ class App extends React.Component {
 
     makeSimulatorOutputText(stdout) {
         function printableChar(b) {
-            if (b === 0x0A || b >= 0x20 && b <= 0x7e)
+            if (b === 0x09 || b === 0x0A || b >= 0x20 && b <= 0x7e)
                 return String.fromCharCode(b);
             else
                 return null;

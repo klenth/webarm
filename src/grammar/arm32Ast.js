@@ -164,8 +164,21 @@ export class DCB extends Directive {
         const bytes = [];
         for (const value of this.values) {
             if (value[0] === '"' || value[0] === "'") {
-                for (let i = 1; i + 1 < value.length; ++i)
-                    bytes.push(value.charCodeAt(i));
+                for (let i = 1; i + 1 < value.length; ++i) {
+                    if (value[i] === '\\' && i + 2 < value.length) {
+                        const c = value[i + 1];
+                        if (c === 'n')
+                            bytes.push(0x0a);
+                        else if (c === '0')
+                            bytes.push(0);
+                        else if (c === 't')
+                            bytes.push(0x09);
+                        else if (c === 'r')
+                            bytes.push(0x0d);
+                        ++i;
+                    } else
+                        bytes.push(value.charCodeAt(i));
+                }
             } else {
                 const byte = parseImmediate(value) >>> 0;
                 if (byte < -128 || byte > 255)

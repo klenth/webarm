@@ -12,9 +12,9 @@
   - [DONE] BX/BLX
 - Directives
   - [DONE] DCB, DCD
-  - FILL (make this do the right thing - fill with given value, not just zero)
+  - [DONE] FILL (make this do the right thing - fill with given value, not just zero)
     - FILL nbytes value (default value is zero)
-  - ALIGN (and remove auto-alignment from realizer)
+  - [DONE] ALIGN (and remove auto-alignment from realizer)
 - [DONE] Load/save
 - [DONE (enough, at least)] NZCV for all relevant instructions
 - Assembler module
