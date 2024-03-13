@@ -216,6 +216,25 @@ export class FillDirective extends Directive {
     }
 }
 
+export class AlignDirective extends Directive {
+    constructor(value) {
+        super('ALIGN');
+        this.value = value;
+    }
+
+    toString() {
+        return this.value ? `ALIGN ${this.value}` : 'ALIGN';
+    }
+
+    get bytes() {
+        return this.value ? parseImmediate(this.value) : null;
+    }
+
+    static reconstruct(o) {
+        return new AlignDirective(o.value);
+    }
+}
+
 export class Register extends AstNode {
     static reconstruct(o) {
         return new Register(o.name);
@@ -413,6 +432,7 @@ const exports = {
     'DCB': DCB,
     'EquateDirective': EquateDirective,
     'FillDirective': FillDirective,
+    'AlignDirective': AlignDirective,
     'Register': Register,
     'WritebackRegister': WritebackRegister,
     'SignedRegister': SignedRegister,

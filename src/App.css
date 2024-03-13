@@ -11,13 +11,13 @@
   --color-for-current-highlight: rgba(142, 102, 199, 0.4);
 
   display: grid;
-  grid-template-columns: 1fr 0fr;
+  grid-template-columns: 1fr 0fr 0fr;
   grid-template-rows: 0fr 1fr 0fr 0.25fr;
   grid-template-areas:
-    "controls controls"
-    "editor registers"
-    "message message"
-    "output output";
+    "controls controls controls"
+    "editor registers memory"
+    "message message message"
+    "output output output";
 }
 
 .App-logo {

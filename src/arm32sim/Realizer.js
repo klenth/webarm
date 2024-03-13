@@ -28,6 +28,7 @@ export function realize(ast) {
         symbols[symbol] = address;
     }
 
+    /*
     function addPadding(bytes) {
         const data = {
             data: (_, mem, addr) => {},
@@ -35,6 +36,7 @@ export function realize(ast) {
         };
         dataMaps.push(data);
     }
+     */
 
     ast.lines.forEach(line => {
         try {
@@ -45,12 +47,12 @@ export function realize(ast) {
 
             if (line.item instanceof AST.Directive) {
                 const data = realizeDirective(line.item);
-                address += data.size;
+                address += data.size(address);
                 addressLineMap[address] = line.lineNumber;
                 dataMaps = [...dataMaps, data];
             } else if (line.item instanceof AST.Instruction) {
-                if (address % 4 !== 0)
-                    addPadding(4 - address % 4);
+                /*if (address % 4 !== 0)
+                    addPadding(4 - address % 4);*/
 
                 addressLineMap[address] = line.lineNumber;
                 const realizers = realizeInstruction(line.item);
@@ -58,10 +60,10 @@ export function realize(ast) {
                     data: (mapper, mem, addr) => {
                         realizers.forEach((realizer, i) => mem.writeWord(addr + 4 * i, realizer(mapper).encode()));
                     },
-                    size: 4 * realizers.length // instructions are always 4 bytes
+                    size: () => 4 * realizers.length // instructions are always 4 bytes
                 };
                 dataMaps = [...dataMaps, data];
-                address += data.size;
+                address += data.size(address);
             } else if (line.item !== null)
                 console.error("Line that is neither a directive nor an instruction in AST: " + line);
         } catch (ex) {
@@ -85,7 +87,7 @@ export function realize(ast) {
     const mem = new SimulatorMemory();
     dataMaps.forEach(dataMap => {
         dataMap.data(symbolAddressMapper, mem, address);
-        address += dataMap.size;
+        address += dataMap.size(address);
     });
 
     return {
@@ -103,6 +105,8 @@ function realizeDirective(d) {
         return handleEquate(d);
     else if (d instanceof AST.FillDirective)
         return handleFill(d);
+    else if (d instanceof AST.AlignDirective)
+        return handleAlign(d);
     else
         console.assert(false, 'Unhandled directive: ' + d);
 }
@@ -117,7 +121,7 @@ function handleDCD(d) {
                 else
                     mem.writeWord(addr + 4 * index, word)
             }),
-        size: 4 * words.length
+        size: () => 4 * words.length
     };
 }
 
@@ -126,7 +130,7 @@ function handleDCB(d) {
     return {
         data: (mapper, mem, addr) =>
             bytes.forEach((byte, index) => mem.writeByte(addr + index, byte)),
-        size: bytes.length
+        size: () => bytes.length
     };
 }
 
@@ -138,7 +142,19 @@ function handleFill(d) {
     const bytes = d.bytes;
     return {
         data: () => {},
-        size: bytes,
+        size: () => bytes,
+    };
+}
+
+function handleAlign(d) {
+    const alignment = (d.bytes === null) ? 4 : d.bytes;
+    return {
+        data: () => [],
+        size: addr => {
+            if (addr % alignment === 0)
+                return 0;
+            return alignment - addr % alignment;
+        }
     };
 }
 

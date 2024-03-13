@@ -236,6 +236,7 @@ class App extends React.Component {
                         <RamDisplay
                             memory={this.state.simulatorState.memory}
                             highlightWord={this.state.state === 'debugging/paused' ? this.state.simulatorState.PC : null}
+                            style={{gridArea: 'memory'}}
                         />
                     ) : null}
                 <MessageDisplay>{this.state.message || ' '}</MessageDisplay>

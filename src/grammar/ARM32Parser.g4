@@ -198,6 +198,9 @@ returns [Directive d]
     | FILL value=INT {
         $d = new AST.FillDirective($value.text);;
     }
+    | ALIGN (value=INT)? {
+        $d = new AST.AlignDirective($value.text);;
+    }
     ;
 
 dcd_value
