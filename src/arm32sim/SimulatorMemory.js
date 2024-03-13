@@ -4,12 +4,14 @@ class UnalignedAccess extends Error {
 }
 
 export default class SimulatorMemory {
-    constructor(overrides) {
+
+    constructor(overrides, writtenAddresses) {
         this.overrides = { ...overrides };
+        this.writtenAddresses = new Set(writtenAddresses);
     }
 
     clone() {
-        return new SimulatorMemory(this.overrides);
+        return new SimulatorMemory(this.overrides, this.writtenAddresses);
     }
 
     checkWordAlignment(address) {
@@ -33,20 +35,27 @@ export default class SimulatorMemory {
     writeWord(address, value) {
         this.checkWordAlignment(address);
         this.overrides[address >>> 2] = (value & 0xffff_ffff);
+        this.writtenAddresses.add((address & 0xffff_fffc) >>> 0);
+        console.debug(`Added 0x${((address & 0xffff_fffc) >>> 0).toString(16)} to writtenAddresses`);
     }
 
     writeByte(address, value) {
         const word = this.overrides[address >>> 2] || 0;
         const byte = address & 0x3;
         this.overrides[address >>> 2] = new Bitfield(8, (3 - byte) << 3).set(word, value);
+        this.writtenAddresses.add((address & 0xffff_fffc) >>> 0);
+    }
+
+    resetWrittenAddressesRecord() {
+        this.writtenAddresses = new Set();
     }
 
     static reconstruct(o) {
-        return new SimulatorMemory(o.overrides);
+        return new SimulatorMemory(o.overrides, o.writtenAddresses);
     }
 
     diff(o) {
-        const addrs = {};
+        /*const addrs = {};
         for (const [thisAddr, thisValue] of Object.entries(this.overrides)) {
             if (o.overrides[thisAddr] !== thisValue)
                 addrs[thisAddr] = true;
@@ -55,8 +64,15 @@ export default class SimulatorMemory {
         for (const [otherAddr, otherValue] of Object.entries(o.overrides)) {
             if (otherValue !== this.overrides[otherAddr])
                 addrs[otherAddr] = true;
-        }
+        }*/
+        /*const addrs = new Set();
+        this.writtenAddresses.forEach(addr => {
+            if (this.readWord(addr) !== o.readWord(addr))
+                addrs.add(addr);
+        });
 
-        return addrs;
+        return addrs;*/
+
+        return this.writtenAddresses;
     }
 }

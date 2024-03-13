@@ -10,6 +10,7 @@ const Pane = styled.div`
     position: relative;
     padding-top: 1.5em;
     height: fit-content;
+    --color-for-updated: var(--color-copper);
 `;
 
 const Title = styled.div`
@@ -50,14 +51,19 @@ const AddressDisplay = styled.span`
 
 const WordDisplay = styled.span`
     margin-left: 1.5ex;
+    border-radius: 4px;
   
     &.highlighted {
-      background-color: var(--color-for-current-highlight);
+        background-color: var(--color-for-current-highlight);
     }
   
-  &:hover {
-    outline: 3px solid var(--color-for-current-highlight);
-  }
+    &.updated.highlighted, &.updated {
+        background-color: #9D581F70;
+    }
+  
+    &:hover {
+        outline: 3px solid var(--color-for-current-highlight);
+    }
 `;
 
 const ByteDisplay = styled.span`
@@ -111,6 +117,7 @@ export default class RamDisplay extends React.Component {
                 offset={offset + wordsPerLine * 4 * i}
                 key={`line_${i}`}
                 highlightWord={this.props.highlightWord}
+                updatedAddresses={this.props.updatedAddresses}
                 handleWordPointerEnter={(address, x, y) => this.handleWordPointerEnter(address, x, y)}
                 handleWordPointerExit={address => this.handleWordPointerExit(address)}
             />
@@ -227,25 +234,33 @@ class Line extends React.Component {
         if (offset > 0xffff_ffff)
             return <></>;
 
-        const wordDisplays = [...Array(numWords).fill(0)].map((_, i) => (
-            <WordDisplay
-                key={`line_${lineNumber}_word_${i}`}
-                className={(this.props.highlightWord === offset + 4 * i) ? 'highlighted' : ''}
-                //title={formatWordTitle(offset + 4 * i, mem.readWord(offset + 4 * i))}
-                data-address={offset + 4 * i}
-                onPointerEnter={e => {
-                    let x = e.target.offsetLeft, y = e.target.offsetTop;
-                    x -= (i / (numWords - 1)) * e.target.offsetWidth;
-                    y += 3 * e.target.offsetHeight;
-                    this.props.handleWordPointerEnter(offset + 4 * i, x, y);
-                }}
-                onPointerLeave={e => this.props.handleWordPointerExit(offset + 4 * i)}
-            >{[...Array(4).fill(0)].map((_, b) => (
-                <ByteDisplay
-                    key={`line_${lineNumber}_word_${i}_${b}`}
-                >{formatByte(mem.readByte(offset + 4 * i + b))}</ByteDisplay>
-            ))}</WordDisplay>
-        ));
+        const wordDisplays = [...Array(numWords).fill(0)].map((_, i) => {
+            const addr = offset + 4 * i;
+            let className = '';
+            if (this.props.highlightWord === addr)
+                className += 'highlighted ';
+            if (this.props.updatedAddresses && this.props.updatedAddresses.has(addr))
+                className += 'updated ';
+            return (
+                <WordDisplay
+                    key={`line_${lineNumber}_word_${i}`}
+                    className={className}
+                    //title={formatWordTitle(offset + 4 * i, mem.readWord(offset + 4 * i))}
+                    data-address={offset + 4 * i}
+                    onPointerEnter={e => {
+                        let x = e.target.offsetLeft, y = e.target.offsetTop;
+                        x -= (i / (numWords - 1)) * e.target.offsetWidth;
+                        y += 3 * e.target.offsetHeight;
+                        this.props.handleWordPointerEnter(offset + 4 * i, x, y);
+                    }}
+                    onPointerLeave={_ => this.props.handleWordPointerExit(offset + 4 * i)}
+                >{[...Array(4).fill(0)].map((_, b) => (
+                    <ByteDisplay
+                        key={`line_${lineNumber}_word_${i}_${b}`}
+                    >{formatByte(mem.readByte(offset + 4 * i + b))}</ByteDisplay>
+                ))}</WordDisplay>
+            )
+        });
 
         return (
             <LineDisplay>

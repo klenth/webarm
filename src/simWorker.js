@@ -151,6 +151,8 @@ class ParseError extends Error {
         let state;
         if (options.resume) {
             state = debugStateStack.peek().clone();
+            if (options.resetWrittenAddressRecord)
+                state.memory.resetWrittenAddressesRecord();
             state.continue();
             if (!state) {
                 return {
@@ -165,6 +167,7 @@ class ParseError extends Error {
             debugLineMap = realized.addressLineMap;
             state = new SimulatorState();
             state.memory = realized.code;
+            state.memory.resetWrittenAddressesRecord();
             debugStateStack.push(state);
         }
 

@@ -135,7 +135,7 @@ export class SimulatorState {
         );
     }
 
-    diff(o) {
+    diff(o, includeMemory = true) {
         const registers = [];
         const nzcv = this.nzcv ^ o.nzcv;
         const mem = this.memory.diff(o.memory);

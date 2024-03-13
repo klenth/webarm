@@ -198,6 +198,8 @@ class App extends React.Component {
 
         const readOnly = (this.state.state !== '');
 
+        console.debug(this.state.memory?.writtenAddresses);
+
         return (
             <div className="App">
                 <OpenFileDialog
@@ -367,6 +369,7 @@ class App extends React.Component {
             window.clearTimeout(workerTimeout);
 
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
+            console.debug('Returned memory written addresses =', state.memory.writtenAddresses);
             if (msg.result === 'error') {
                 this.updateState({
                     simulatorState: state,
@@ -451,7 +454,7 @@ class App extends React.Component {
                 this.updateState({
                     simulatorState: state,
                     previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    simulatorStateDiff: state.diff(this.state.simulatorState, false),
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                 });
@@ -524,6 +527,7 @@ class App extends React.Component {
                     stopOnBreak: true,
                     stopOnInterrupt: true,
                     direction: direction,
+                    resetWrittenAddressRecord: true,
                 },
             },
         });
