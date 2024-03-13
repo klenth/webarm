@@ -12,18 +12,20 @@ const DisplayMode = {
 
 const displayHeight = '24px';
 //const chromeColor = '#00b5e2';
-const chromeColor = '#8252C7';
+const chromeColor = 'var(--color-thistle)';
+const updatedChromeColor = 'var(--color-copper)';
 const foreColor = 'white';
 const textColor = 'black';
 
 const Display = styled.div`
+  --display-height: ${displayHeight};
+  --chrome-color: ${props => props.updated ? updatedChromeColor : chromeColor};
   position: relative;
-  border: 3px solid ${chromeColor};
+  border: 3px solid var(--chrome-color);
   border-radius: 8px;
   color: #00b5e2;
   background-color: white;
   padding: 0;
-  --display-height: ${displayHeight};
   height: var(--display-height);
   font-size: 0.8rem;
   margin: 2px;
@@ -42,7 +44,7 @@ const Label = styled.div`
   width: 32px;
   text-align: center;
   color: ${foreColor};
-  background-color: ${chromeColor};
+  background-color: var(--chrome-color);
 `;
 
 const Value = styled.div`
@@ -63,8 +65,8 @@ const Modes = styled.span`
 `;
 
 const Mode = styled.span`
-  color: ${({ selected }) => selected ? foreColor : chromeColor};
-  background-color: ${({ selected }) => selected ? chromeColor : foreColor};
+  color: ${({ selected }) => selected ? foreColor : 'var(--chrome-color)'};
+  background-color: ${({ selected }) => selected ? 'var(--chrome-color)' : foreColor};
   border-radius: 4px;
   padding: 2px 2px;
   cursor: pointer;
@@ -177,7 +179,9 @@ export default class RegisterDisplay extends React.Component {
             ));
 
         return (
-            <Display>
+            <Display
+                updated={this.props.updated}
+            >
                 <Label>{this.props.label}</Label>
                 <Value>&nbsp;{valueText(this.props.value, this.state.displayMode)}&nbsp;</Value>
                 <CopyButton

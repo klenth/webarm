@@ -5,11 +5,7 @@ class UnalignedAccess extends Error {
 
 export default class SimulatorMemory {
     constructor(overrides) {
-        this.overrides = {};
-        if (overrides)
-            Object.assign(this.overrides, overrides);
-        else
-            this.overrides = {};
+        this.overrides = { ...overrides };
     }
 
     clone() {
@@ -47,5 +43,20 @@ export default class SimulatorMemory {
 
     static reconstruct(o) {
         return new SimulatorMemory(o.overrides);
+    }
+
+    diff(o) {
+        const addrs = {};
+        for (const [thisAddr, thisValue] of Object.entries(this.overrides)) {
+            if (o.overrides[thisAddr] !== thisValue)
+                addrs[thisAddr] = true;
+        }
+
+        for (const [otherAddr, otherValue] of Object.entries(o.overrides)) {
+            if (otherValue !== this.overrides[otherAddr])
+                addrs[otherAddr] = true;
+        }
+
+        return addrs;
     }
 }

@@ -134,4 +134,19 @@ export class SimulatorState {
             IOBuffer.reconstruct(o.stdout)
         );
     }
+
+    diff(o) {
+        const registers = [];
+        const nzcv = this.nzcv ^ o.nzcv;
+        const mem = this.memory.diff(o.memory);
+
+        for (let i = 0; i < 16; ++i)
+            registers[i] = (this.registers.get(i) !== o.registers.get(i));
+
+        return {
+            registers: registers,
+            nzcv: { N: Nbf.get(nzcv), Z: Zbf.get(nzcv), C: Cbf.get(nzcv), V: Vbf.get(nzcv) },
+            memory: mem,
+        };
+    }
 }

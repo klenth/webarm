@@ -88,6 +88,8 @@ class App extends React.Component {
         this.state = {
             code: '',
             simulatorState: new SimulatorState(),
+            previousSimulatorState: null,
+            simulatorStateDiff: null,
             message: '',
             state: '',
             debugCurrentLine: null,
@@ -102,11 +104,13 @@ class App extends React.Component {
     render() {
         const stateRegisters = this.state.simulatorState.registers || new RegisterBank();
         const simulatorOutputText = this.makeSimulatorOutputText(this.state.simulatorState.stdout);
+        const diff = this.state.simulatorStateDiff;
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
                 label={(i === 13) ? 'SP' : (i === 14) ? 'LR' : (i === 15) ? 'PC' : 'R' + i}
                 value={stateRegisters.get(i)}
+                updated={diff?.registers[i]}
             />
         ));
 
@@ -230,6 +234,10 @@ class App extends React.Component {
                             Z={this.state.simulatorState.Z}
                             C={this.state.simulatorState.C}
                             V={this.state.simulatorState.V}
+                            updatedN={diff?.nzcv.N}
+                            updatedZ={diff?.nzcv.Z}
+                            updatedC={diff?.nzcv.C}
+                            updatedV={diff?.nzcv.V}
                         />
                     </Registers>
                     {(this.state.showingMemory) ? (
@@ -237,6 +245,7 @@ class App extends React.Component {
                             memory={this.state.simulatorState.memory}
                             highlightWord={this.state.state === 'debugging/paused' ? this.state.simulatorState.PC : null}
                             style={{gridArea: 'memory'}}
+                            updatedAddresses={diff?.memory}
                         />
                     ) : null}
                 <MessageDisplay>{this.state.message || ' '}</MessageDisplay>
@@ -290,7 +299,9 @@ class App extends React.Component {
     handleOpenFile(code) {
         this.updateState({
             code: code,
-            simulatorState: new SimulatorState()
+            simulatorState: new SimulatorState(),
+            previousSimulatorState: null,
+            simulatorStateDiff: null,
         });
     }
 
@@ -338,6 +349,8 @@ class App extends React.Component {
             state: 'running',
             message: '',
             simulatorState: new SimulatorState(),
+            previousSimulatorState: null,
+            simulatorStateDiff: null,
             debugCurrentLine: null,
         });
         ++this.seq;
@@ -357,6 +370,8 @@ class App extends React.Component {
             if (msg.result === 'error') {
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                 });
@@ -364,6 +379,8 @@ class App extends React.Component {
             } else if (state.broken) {
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: 'debugging/paused',
                 });
             } else if (state.interrupted)
@@ -371,6 +388,8 @@ class App extends React.Component {
             else if (state.stopped) {
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: null,
                 });
@@ -398,6 +417,8 @@ class App extends React.Component {
             state: 'debugging/running',
             message: '',
             simulatorState: new SimulatorState(),
+            previousSimulatorState: null,
+            simulatorStateDiff: null,
             debugCurrentLine: null,
         });
 
@@ -409,6 +430,8 @@ class App extends React.Component {
             if (msg.result === 'error') {
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                 });
@@ -418,6 +441,8 @@ class App extends React.Component {
             else if (state.stopped) {
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: null,
                 });
@@ -425,6 +450,8 @@ class App extends React.Component {
             } else
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                 });
@@ -459,6 +486,8 @@ class App extends React.Component {
             if (msg.result === 'error') {
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                 });
@@ -468,6 +497,8 @@ class App extends React.Component {
             else if (state.stopped) {
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: null,
                 });
@@ -475,6 +506,8 @@ class App extends React.Component {
             } else
                 this.updateState({
                     simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                 });
@@ -507,29 +540,7 @@ class App extends React.Component {
 
     handleSoftwareInterrupt(simulatorState) {
         console.warn('handleSoftwareInterrupt() needs to be redone!');
-        const functionCode = simulatorState.registers.get(7);
-        const returnMessage = {
-            command: this.state.state === 'running' ? 'run/continue'
-                : this.state.state === 'debugging/paused' ? 'debug/step'
-                : this.state.state === 'debugging/running' ? 'debug/continue'
-                : '???',
-            params: {
-                state: simulatorState
-            },
-        };
-        console.debug(`Return message command: ${returnMessage.command}`);
-        switch (functionCode >>> 0) {
-            case 0x8000_0010: // putchar
-                const char = String.fromCharCode(simulatorState.registers.get(0) & 0xff);
-                this.printMessage(char);
-                simulatorState.registers.set(0, (simulatorState.registers.get(0) & 0xffffff00) | 1);
-                this.getWorker().postMessage(returnMessage);
-                break;
-            default:
-                this.updateState({
-                    message: `Invalid software interrupt code: ${functionCode.toString(16)}`
-                });
-        }
+
     }
 
     clearMessages() {

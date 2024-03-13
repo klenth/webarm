@@ -5,6 +5,7 @@ import './style.css';
 const displayHeight = '24px';
 //const chromeColor = '#00b5e2';
 const chromeColor = '#8252C7';
+const updatedChromeColor = 'var(--color-copper)';
 const foreColor = 'white';
 const textColor = 'black';
 
@@ -35,7 +36,7 @@ const Label = styled.div`
   width: 1em;
   text-align: center;
   color: ${foreColor};
-  background-color: ${chromeColor};
+  background-color: ${props => props.updated ? updatedChromeColor : chromeColor};
 `;
 
 const Value = styled.div`
@@ -65,13 +66,13 @@ export default class NzcvDisplay extends React.Component {
     render() {
         return (
             <Display>
-                <Label>N</Label>
+                <Label updated={this.props.updatedN}>N</Label>
                 <Value>{this.props.N}</Value>
-                <Label>Z</Label>
+                <Label updated={this.props.updatedZ}>Z</Label>
                 <Value>{this.props.Z}</Value>
-                <Label>C</Label>
+                <Label updated={this.props.updatedC}>C</Label>
                 <Value>{this.props.C}</Value>
-                <Label>V</Label>
+                <Label updated={this.props.updatedV}>V</Label>
                 <Value>{this.props.V}</Value>
             </Display>
         );
