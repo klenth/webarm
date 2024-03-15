@@ -28,44 +28,34 @@ export function realize(ast) {
         symbols[symbol] = address;
     }
 
-    /*
-    function addPadding(bytes) {
-        const data = {
-            data: (_, mem, addr) => {},
-            size: bytes
-        };
-        dataMaps.push(data);
-    }
-     */
-
     ast.lines.forEach(line => {
         try {
+            let padding = 0, dataSize = 0;
+
+            if (line.item instanceof AST.Directive) {
+                const data = realizeDirective(line.item);
+                dataSize = data.size(address);
+                padding = data.padding ? data.padding(address) : 0;
+                dataMaps = [...dataMaps, data];
+            } else if (line.item instanceof AST.Instruction) {
+                const realizers = realizeInstruction(line.item);
+                const data = {
+                    data: (mapper, mem, addr) => {
+                        realizers.forEach((realizer, i) => mem.writeWordUnaligned(addr + 4 * i, realizer(mapper).encode()));
+                    },
+                    size: () => 4 * realizers.length // instructions are always 4 bytes
+                };
+                dataSize = data.size(address);
+                dataMaps = [...dataMaps, data];
+            } else if (line.item !== null)
+                console.error("Line that is neither a directive nor an instruction in AST: " + line);
+
+            address += padding;
             if (line.label)
                 registerSymbol(line.label);
             if (!(address in addressLineMap))
                 addressLineMap[address] = line.lineNumber;
-
-            if (line.item instanceof AST.Directive) {
-                const data = realizeDirective(line.item);
-                address += data.size(address);
-                addressLineMap[address] = line.lineNumber;
-                dataMaps = [...dataMaps, data];
-            } else if (line.item instanceof AST.Instruction) {
-                /*if (address % 4 !== 0)
-                    addPadding(4 - address % 4);*/
-
-                addressLineMap[address] = line.lineNumber;
-                const realizers = realizeInstruction(line.item);
-                const data = {
-                    data: (mapper, mem, addr) => {
-                        realizers.forEach((realizer, i) => mem.writeWord(addr + 4 * i, realizer(mapper).encode()));
-                    },
-                    size: () => 4 * realizers.length // instructions are always 4 bytes
-                };
-                dataMaps = [...dataMaps, data];
-                address += data.size(address);
-            } else if (line.item !== null)
-                console.error("Line that is neither a directive nor an instruction in AST: " + line);
+            address += dataSize;
         } catch (ex) {
             if (ex instanceof AssemblyError) {
                 ex.node = line;
@@ -86,6 +76,8 @@ export function realize(ast) {
 
     const mem = new SimulatorMemory();
     dataMaps.forEach(dataMap => {
+        const padding = dataMap.padding ? dataMap.padding(address) : 0;
+        address += padding;
         dataMap.data(symbolAddressMapper, mem, address);
         address += dataMap.size(address);
     });
@@ -114,14 +106,16 @@ function realizeDirective(d) {
 function handleDCD(d) {
     const words = d.words;
     return {
-        data: (mapper, mem, addr) =>
+        data: (mapper, mem, addr) => {
             words.forEach((word, index) => {
-                if (typeof(word) === 'string')
+                if (typeof (word) === 'string')
                     mem.writeWord(addr + 4 * index, mapper(word));
                 else
                     mem.writeWord(addr + 4 * index, word)
-            }),
-        size: () => 4 * words.length
+            });
+        },
+        size: _ => 4 * words.length,
+        padding: addr => (4 - addr % 4) % 4,
     };
 }
 

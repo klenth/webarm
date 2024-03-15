@@ -11,6 +11,28 @@
             font-family: Iosevka Kathy Web, monospace;
             font-stretch: expanded;
         }
+
+        .instruction-table tbody td:first-child, .instruction-table tbody td:nth-child(2) {
+            font-family: Iosevka Kathy Web, monospace;
+            font-stretch: expanded;
+        }
+
+        .instruction-table tbody tr > *, .condition-code-table tbody tr > * {
+            padding-top: 4px;
+            padding-bottom: 4px;
+        }
+
+        .instruction-table tbody tr:nth-child(2n) > *, .condition-code-table tbody tr:nth-child(2n) {
+            background-color: #00b5e220;
+        }
+
+        .instruction-table tbody tr > :first-child {
+            min-width: max-content;
+        }
+
+        .condition-code-table tr > :nth-child(3) {
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -47,27 +69,27 @@
                     Some examples:
                 </p>
                 <pre class="indented highlight" data-language="arm32">
-    ; A symbol on a line by itself (will refer to the *next* nonempty line)
-    .top
-    ; A single instruction
-            ADD     R0, R0, R2
-    ; (So the symbol ".top" refers to the ADD instruction)
+        ; A symbol on a line by itself (will refer to the *next* nonempty line)
+.top
+        ; A single instruction
+        ADD     R0, R0, R2
+        ; (So the symbol ".top" refers to the ADD instruction)
 
-    ; Another instruction
-            B       .main
+        ; Another instruction
+        B       .main
 
-    ; The next line defines a symbol (.msg) and uses the DCB directive to include
-    ; some data (in this case, text) directly within the program. The ", 0" at the
-    ; end includes a zero byte (NUL terminator) to mark the end of the string.
-    .msg    DCB     'Hello, world!', 0
+        ; The next line defines a symbol (.msg) and uses the DCB directive to include
+        ; some data (in this case, text) directly within the program. The ", 0" at the
+        ; end includes a zero byte (NUL terminator) to mark the end of the string.
+.msg    DCB     'Hello, world!', 0
 
-    ; A directive: ALIGN inserts any zero padding necessary to ensure that the next
-    ; stuff will start at a multiple of 4 bytes within the file (necessary for
-    ; instructions).
-            ALIGN
+        ; A directive: ALIGN inserts any zero padding necessary to ensure that the next
+        ; stuff will start at a multiple of 4 bytes within the file (necessary for
+        ; instructions).
+        ALIGN
 
-    ; A symbol (.main) referring to a LDR instruction
-    .main   LDR     R1, =123_456
+        ; A symbol (.main) referring to a LDR instruction
+.main   LDR     R1, =123_456
                 </pre>
 
                 <h3>Comments</h3>
@@ -134,26 +156,986 @@
             <div class="problem">
                 <div class="title">Condition codes</div>
 
+                <p>
+                    Nearly all ARM instructions can take a condition code suffix: a two-letter abbreviation specifying that the instruction should only be performed if some condition is met. These conditions are tested on the basis of the NZCV (Negative, Zero, Carry, oVerflow) bits, which can be set by various instructions. The condition codes are as follows:
+                </p>
+                <table class="condition-code-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Code</th>
+                        <th scope="col">Meaning</th>
+                        <th scope="col">Condition</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><code>EQ</code></td>
+                        <td>Equal (or zero)</td>
+                        <td><code>Z=1</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>NE</code></td>
+                        <td>Not equal (or nonzero)</td>
+                        <td><code>Z=0</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>CS</code></td>
+                        <td>Carry set (unsigned &ge;; unsigned overflow)</td>
+                        <td><code>C=1</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>CC</code></td>
+                        <td>Carry clear (unsigned &lt;; no unsigned overflow)</td>
+                        <td><code>C=0</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>MI</code></td>
+                        <td>Negative</td>
+                        <td><code>N=1</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>PL</code></td>
+                        <td>Positive or zero</td>
+                        <td><code>N=0</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>VS</code></td>
+                        <td>oVerflow set (signed overflow)</td>
+                        <td><code>V=1</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>VC</code></td>
+                        <td>oVerflow clear (no signed overflow)</td>
+                        <td><code>V=0</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>HI</code></td>
+                        <td>Unsigned &gt;</td>
+                        <td><code>C=1</code> and <code>Z=0</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>LS</code></td>
+                        <td>Unsigned &le;</td>
+                        <td><code>C=0</code> and <code>Z=1</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>GE</code></td>
+                        <td>Signed &ge;</td>
+                        <td><code>N=V</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>LT</code></td>
+                        <td>Signed &lt;</td>
+                        <td><code>N&ne;V</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>GT</code></td>
+                        <td>Signed &gt;</td>
+                        <td><code>Z=0</code> and <code>N=V</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>LE</code></td>
+                        <td>Signed &le;</td>
+                        <td><code>Z=1</code> or <code>N&ne;V</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>AL</code></td>
+                        <td>Always</td>
+                        <td>(none)</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p>
+                    When no code is specified, it is the same as using <code>AL</code> (always).
+                </p>
+
+                <h3>The <code>S</code> suffix</h3>
+                <p>
+                    Many instructions (specifically <a href="#Data_processing_instructions">data processing</a> and <a href="#Multiplication_instructions">multiplication</a>) have an optional <code>S</code> suffix; when <code>S</code> is included, then the instruction sets the NZCV bits according to the result. For most instructions, this means the following:
+                </p>
+                <ul>
+                    <li><code>N</code> is set if the result is negative when interpreted as a signed integer, i.e., if the top bit is 1.</li>
+                    <li><code>Z</code> is set if the result is zero, that is, if all bits of the result are zero.</li>
+                    <li><code>C</code> is set if there was a carry out from the last digit; for addition and subtraction, this happens when there was an overflow when the numbers are interpreted as unsigned.</li>
+                    <li><code>V</code> is set if there was overflow when the numbers are interpreted as signed.</li>
+                </ul>
+                <p>
+                    An instruction can have both a condition code and the <code>S</code> suffix; in that case, they can be in either order (<code class="highlight">ADDSEQ</code> and <code class="highlight">ADDEQS</code> mean the same). Some instructions (<code class="highlight">CMP</code>, <code class="highlight">CMN</code>, <code class="highlight">TST</code>, <code class="highlight">TEQ</code>) exist only to set NZCV, so they do not require the <code>S</code> suffix.
+                </p>
+
+                <h3>Examples</h3>
+                <pre class="highlight">
+        ; Subtract the values in R4 and R5 and set NZCV according to the result
+        SUBS    R0, R4, R5
+
+        ; Add, but only if Z=0 (that is, if R4 != R5)
+        ADDNE   R0, R1, R1
+
+        ; Add, but only when N=0; set the bits of NZCV according to the result
+        ADDSPL  R2, R1, R1
+        ; This is the same:
+        ADDPLS  R2, R1, R1
+                </pre>
             </div>
 
             <div class="problem">
-                <div class="title">Instructions: data processing</div>
+                <div class="title">Data processing instructions</div>
+
+                <p>
+                    These are the instructions used to do most calculations.
+                </p>
+
+                <h3>The <code>S</code> form</h3>
+                <p>
+                    Most of these instructions can be suffixed with <code>S</code> — for example, <code class="highlight" data-language="arm32">ADD</code> becomes <code class="highlight" data-language="arm32">ADDS</code> — which instructs them to set the NZCV bits according to the result. (See <a href="#Condition_codes">condition codes</a> for more information.) This is notated in the table below by <code>[S]</code> after instructions that accept it.
+                </p>
+                <p>
+                    The only instructions in this section that don’t have an <code>S</code> form are the ones that exist specifically to set NZCV, and thus writing <code>S</code> would be redundant: <code class="highlight" data-language="arm32">CMP</code>, <code class="highlight" data-language="arm32">CMN</code>, <code class="highlight" data-language="arm32">TST</code>, and <code class="highlight" data-language="arm32">TEQ</code>.
+                </p>
+
+                <h3>Condition codes</h3>
+                <p>
+                    Like nearly all ARM instructions, all of these instructions can be suffixed with a condition code to execute them conditionally. Not including a condition code is the same as specifying <code>AL</code> (“always”). These can be combined with <code>S</code> in either order.
+                </p>
+
+                <h3>Forms of <em>operand2</em></h3>
+                <p>
+                    All of these instructions have an <em>operand2</em> that can take various forms:
+                </p>
+                <ul>
+                    <li><p><em>imm</em>: an immediate value, for example <code class="highlight" data-language="arm32">#123</code></p>
+                        <p>Note that most numbers will not fit in the immediate field of one of these instructions: specifically, only those that can be obtained by rotating a sign-extended 8-bit value by an even number of bits within a 32-bit field. This includes powers of two and many common numbers, but most numbers do not work. For these numbers, you will need to load or compute it into a register first and then use that register as an operand. </p>
+                    </li>
+                    <li><p></p><em>sym</em>: a symbol (like <code class="highlight" data-language="arm32">.loop_top</code>), or an expression involving symbols (like <code class="highlight" data-language="arm32">2*(.loop_top - .)</code>)</p>
+                        <p>Symbolic operands are subject to the same limitations as immediates mentioned above.</p>
+                    </li>
+                    <li><em>reg</em>: a register</em></li>
+                    <li><em>reg, shift imm</em>: the value of a register, shifted by some immediate amount. <em>shift</em> can be any of <code class="highlight" data-language="arm32">LSR</code>, <code class="highlight" data-language="arm32">ASR</code>, <code class="highlight" data-language="arm32">LSL</code>, <code class="highlight" data-language="arm32">ASL</code> (a synonym for <code class="highlight" data-language="arm32">LSL</code>), or <code class="highlight" data-language="arm32">ROR</code>. For example, <code class="highlight" data-language="arm32">R4, LSL #1</code> means to take the value in <code class="highlight" data-language="arm32">R4</code> and shift it left by one bit.</li>
+                    <li><em>reg, shift reg</em>: the value of a register, shifted by an amount in another register; <em>shift</em> has the same options as above. For example, <code class="highlight" data-language="arm32">R4, LSL R5</code> means to take the value in <code class="highlight" data-language="arm32">R4</code> and shift it left by a number of bits in <code class="highlight" data-language="arm32">R5</code>.</li>
+                </ul>
+
+                <h3>Instructions</h3>
+                <p>
+                    In the table below, Rd is the destination register (where the result will go), Rm is an operand register (one of the inputs to the operation), and <em>operand2</em> is as described above.
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Instruction syntax</th>
+                            <th scope="col">Operation</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="highlight">AND[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm AND <em>operand2</em></td>
+                            <td>Same as the <code>&amp;</code> operation in C</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">EOR[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm XOR <em>operand2</em></td>
+                            <td>Same as the <code>^</code> operation in C</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">SUB[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm - <em>operand2</em></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">RSB[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← <em>operand2</em> - Rm</td>
+                            <td>“RSB” is short for “Reverse SuBtract”</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">ADD[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm + <em>operand2</em></td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">ADC[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm + <em>operand2</em> + C</td>
+                            <td>Includes the value of the <code>C</code> bit (from NZCV) in the addition</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">SBC[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm - <em>operand2</em> + C - 1</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">RSC[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← <em>operand2</em> - Rm + C - 1</td>
+                            <td></td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">TST Rm, <em>operand2</em></td>
+                            <td><em>(nothing)</em> ← Rm AND <em>operand2</em></td>
+                            <td>Sets the bits of NZCV</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">TEQ Rm, <em>operand2</em></td>
+                            <td><em>(nothing)</em> ← Rm XOR <em>operand2</em></td>
+                            <td>Sets the bits of NZCV</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">CMP Rm, <em>operand2</em></td>
+                            <td><em>(nothing)</em> ← Rm - <em>operand2</em></td>
+                            <td>Sets the bits of NZCV</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">CMN Rm, <em>operand2</em></td>
+                            <td><em>(nothing)</em> ← Rm + <em>operand2</em></td>
+                            <td>Sets the bits of NZCV</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">ORR[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm OR <em>operand2</em></td>
+                            <td>Same as the <code>|</code> operator in C</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">MOV[S] Rd, <em>operand2</em></td>
+                            <td>Rd ← <em>operand2</em></td>
+                            <td>Copies a value into a register</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">BIC[S] Rd, Rm, <em>operand2</em></td>
+                            <td>Rd ← Rm AND NOT <em>operand2</em></td>
+                            <td>“BIC” is short for “BIt Clear”</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">MVN[S] Rd, <em>operand2</em></td>
+                            <td>Rd ← NOT <em>operand2</em></td>
+                            <td>Same as the <code>~</code> operator in C</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples</h3>
+                <pre class="highlight">
+        ; Add the values in registers R4 and R12, putting the result back in R4 (R4 += R12)
+        ADD     R4, R4, R12
+
+        ; Decrease the value of R10 by 1, setting the bits of NZCV
+        SUBS    R10, R10, #1
+
+        ; If the result was negative, set R10 back to zero
+        MOVLT   R10, #0
+
+        ; Test whether the value in R0 has bit 8 set
+        TST     R0, #0x100
+
+        ; If it was, then OR it with the value in R5, shifted right by 8 bits; set the bits
+        ; of NZCV according to the result
+        ORRSNE  R0, R0, R5, ASR #8
+                </pre>
+
+                <h2>Shift “instructions”: <code class="highlight">LSL</code>, <code class="highlight">ASL</code>, <code class="highlight">LSR</code>, <code class="highlight">ASR</code>, <code class="highlight">ROR</code></h2>
+                <p>
+                    ARM does not have separate instructions for shifts; these are merely aliases for <code class="highlight">MOV</code> instructions with an appropriately shifted <em>operand2</em> (for example, <code class="highlight">LSL R0, R1, #2</code> translates to <code class="highlight">MOV R0, R1, LSL #2</code>). Consequently they cannot take a shifted operand, since the shifter is already in use. However, <code>S</code> and condition codes can still be used.
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Instruction syntax</th>
+                        <th scope="col">Operation</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="highlight">
+                            LSL[S] Rd, Rm, <em>imm</em>
+                            <br>
+                            ASL[S] Rd, Rm, <em>imm</em>
+                            <br>
+                            LSL[S] Rd, Rm, Rn
+                            <br>
+                            ASL[S] Rd, Rm, Rn
+                        </td>
+                        <td>
+                            Rd ← Rm LSL <em>imm</em>
+                            <br>
+                            Rd ← Rm LSL Rn
+                        </td>
+                        <td>Logical left shift (same as <code>&lt;&lt;</code> in C). (<code class="highlight">ASL</code> is a synonym for <code class="highlight">LSL</code>).</td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            LSR[S] Rd, Rm, <em>imm</em>
+                            <br>
+                            LSR[S] Rd, Rm, Rn
+                        </td>
+                        <td>
+                            Rd ← Rm LSR <em>imm</em>
+                            <br>
+                            Rd ← Rm LSR Rn
+                        </td>
+                        <td>Logical right shift (same as <code>&gt;&gt;</code> of an <code>unsigned int</code> in C).</td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            ASR[S] Rd, Rm, <em>imm</em>
+                            <br>
+                            ASR[S] Rd, Rm, Rn
+                        </td>
+                        <td>
+                            Rd ← Rm ASR <em>imm</em>
+                            <br>
+                            Rd ← Rm ASR Rn
+                        </td>
+                        <td>Arithmetic right shift (same as <code>&gt;&gt;</code> of a <code>signed int</code> in C).</td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            ROR[S] Rd, Rm, <em>imm</em>
+                            <br>
+                            ROR[S] Rd, Rm, Rn
+                        </td>
+                        <td>
+                            Rd ← Rm ROR <em>imm</em>
+                            <br>
+                            Rd ← Rm ROR Rn
+                        </td>
+                        <td>Right rotate (like <code class="highlight">LSR</code>, but the bits shifted off the right end appear on the left)</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
 
             <div class="problem">
-                <div class="title">Instructions: multiplication</div>
+                <div class="title">Multiplication instructions</div>
+
+                <p>
+                    ARM32 has two multiplication instructions that perform multiplication. In general the product of two 32-bit numbers would be a <em>64-bit</em> number; these instructions keep only the bottom 32 bits of the result, so that they function similarly to the integer multiplication operator in C.
+                </p>
+
+                <h3>The <code>S</code> form</h3>
+                <p>
+                    These instructions can be suffixed with <code>S</code> — for example, <code class="highlight" data-language="arm32">MUL</code> becomes <code class="highlight" data-language="arm32">MULS</code> — which instructs them to set the NZCV bits according to the result. (See <a href="#Condition_codes">condition codes</a> for more information.) This is notated in the table below by <code>[S]</code> after instructions that accept it.
+                </p>
+                <p>
+                    When used with <code>S</code>, multiply instructions set the <code>N</code> and <code>Z</code> bits but leave <code>C</code> and <code>V</code> unchanged.
+                </p>
+
+                <h3>Condition codes</h3>
+                <p>
+                    Like nearly all ARM instructions, all of these instructions can be suffixed with a condition code to execute them conditionally. Not including a condition code is the same as specifying <code>AL</code> (“always”). These can be combined with <code>S</code> in either order.
+                </p>
+
+                <h3>Operands</h3>
+                <p>
+                    Unlike the data processing instructions, multiplication instructions do not support flexible operands (immediates, symbols, and shifted registers). Operands to multiplication instructions can only be registers.
+                </p>
+
+                <h3>Instructions</h3>
+                <p>
+                    In the table below, Rd is the destination register (where the result will go), and Rm, Rn, and Ro are operand registers (the inputs to the operation).
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Instruction syntax</th>
+                        <th scope="col">Operation</th>
+                        <th scope="col">Notes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="highlight">MUL[S] Rd, Rm, Rn</td>
+                            <td>Rd ← Rm × Rn</td>
+                            <td>Same as integer multiplication in C</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">MLA[S] Rd, Rm, Rn, Ro</td>
+                            <td>Rd ← Rm × Rn + Ro</td>
+                            <td>“MLA” is short for “multiply and accumulate”</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples</h3>
+                <pre class="highlight">
+        ; Calculate R4² and put the result in R5
+        MUL     R5, R4, R4
+
+        ; Calculate R2×R3 + R4 and put the result in R1, setting N and Z according to
+        ; the result, but only if the last comparison had the result “less than”
+        MLALTS  R1, R2, R3, R4
+                </pre>
             </div>
 
             <div class="problem">
-                <div class="title">Instructions: branching</div>
+                <div class="title">Branching instructions</div>
+
+                <p>
+                    Branch instructions transfer control to another location in the program; in other words, they change the value of <code class="highlight">R15</code> (also known as <code class="highlight">PC</code>). In most cases the argument to a branch instruction will be a symbol (meaning “go execute the instruction there next”) rather than an immediate.
+                </p>
+
+                <h3>Condition codes</h3>
+                <p>
+                    Like nearly all ARM instructions, all of these instructions can be suffixed with a condition code to execute them conditionally. Not including a condition code is the same as specifying <code>AL</code> (“always”).
+                </p>
+
+                <h3>Branch with link</h3>
+                <p>
+                    The <code class="highlight">B</code> and <code class="highlight">BX</code> instructions merely branch; the <code class="highlight">BL</code> instruction additionally saves the current <code class="highlight">PC</code> in the register <code class="highlight">LR</code> (Link Register, a.k.a. <code class="highlight">R14</code>) before branching. This saved address can be used to return to the point that was branched from, so normally <code class="highlight">BL</code> is used for function calls while <code class="highlight">B</code> is used for flow control within a function (if statements, loops, etc.).
+                </p>
+                <p>
+                    <code class="highlight">B</code> is frequently combined with a condition code (<code class="highlight">BEQ</code>, <code class="highlight">BLT</code>, etc.).
+                </p>
+
+                <h3>Instructions</h3>
+                <p>
+                    In the table below, <em>imm</em> is an immediate value (a number, such as <code class="highlight">#123</code>), <em>sym</em> is a symbol or symbolic expression (such as <code class="highlight">.loop_top</code> or <code class="highlight">4 * (.loop_top - .)</code>), and <em>reg</em> is a register.
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">Instruction syntax</th>
+                            <th scope="col">Operation</th>
+                            <th scope="col">Notes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="highlight">B <em>imm</em></td>
+                            <td style="font-family: initial;">Branch to address <em>imm</em> bytes from <code class="highlight">PC</code></td>
+                            <td>Relative branch: jumps forward or backward from current instruction</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">B <em>sym</em></td>
+                            <td style="font-family: initial;">Branch to address <em>sym</em></td>
+                            <td>Absolute branch: jumps to the address of the symbol</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">BL <em>imm</em></td>
+                            <td style="font-family: initial;">Save current value of <code class="highlight">PC</code> in <code class="highlight">LR</code>, then branch to address <em>imm</em> bytes from <code class="highlight">PC</code></td>
+                            <td>Relative branch with link: jumps forward or backward from current instruction and allows for return</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">BL <em>sym</em></td>
+                            <td style="font-family: initial;">Save current value of <code class="highlight">PC</code> in <code class="highlight">LR</code>, then branch to address <em>sym</em></td>
+                            <td>Absolute branch with link: jumps to the address of the symbol and allows for return</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight">BX <em>reg</em></td>
+                            <td style="font-family: initial;">Branch to the address in register <em>reg</em></td>
+                            <td>Absolute branch (there is no “with link” version available)</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>Examples</h3>
+                <pre class="highlight">
+        ; Branch to a symbol (unconditionally)
+        B       .loop_top
+
+        ; Skip the next instruction (branch to PC+4)
+        B       #4
+
+        ; Compare the values in registers R0 and R1 and branch if R0 < R1
+        CMP     R0, R1
+        BLT     .end
+
+        ; Call a function (using BL to save the return address in LR)
+        BL      .shuffle
+                </pre>
             </div>
 
             <div class="problem">
-                <div class="title">Instructions: memory</div>
+                <div class="title">Memory instructions</div>
+
+                <p>
+                    Memory access is vital to any nontrivial program. Loads (instructions that read values from memory) and stores (instructions that write values to memory) are complex and consequently the syntax is also complex.
+                </p>
+
+                <h2>Single data transfer (<code class="highlight">LDR</code>, <code class="highlight">STR</code>)</h2>
+                <p>
+                    <code class="highlight">LDR</code> and <code class="highlight">STR</code> load and store (respectively) a single value, either a word (4 bytes / 32 bits) or a byte, into or from a register. In the table below, placeholders have the following meanings:
+                </p>
+                <ul>
+                    <li><em>num</em>: a number (such as <code>123</code> or <code>0xff</code>);</li>
+                    <li><em>imm</em>: an immediate (such as <code class="highlight">#123</code>);</li>
+                    <li><em>sym</em>: a symbol or symbolic expression (like <code class="highlight">.array</code> or <code class="highlight">.array + 4</code>);</li>
+                    <li><em>reg</em>: a register;</li>
+                    <li><em>±reg</em>: a register with an optional + or – in front of it;</li>
+                    <li><em>shift</em>: a shift operation (<code class="highlight">LSL</code>, <code class="highlight">ASL</code>, <code class="highlight">LSR</code>, <code class="highlight">LSR</code>, or <code class="highlight">ROR</code>).</li>
+                </ul>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Instruction syntax</th>
+                        <th scope="col">Operation/notes</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="highlight">LDR <em>reg</em>, =<em>num</em></td>
+                        <td style="font-family: initial;">Loads the given 32-bit number into <em>reg</em>. (Differs from <code class="highlight">MOV <em>reg</em>, <em>imm</em></code> in that <em>num</em> can be <em>any</em> value that fits in 32 bits.)</td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            LDR  &nbsp;<em>reg1</em>, [<em>reg2</em>]
+                            <br>
+                            LDRB <em>reg1</em>, [<em>reg2</em>]
+                        </td>
+                        <td style="font-family: initial;">Loads one word (<code class="highlight">LDR</code>) or one byte (<code class="highlight">LDRB</code>) from memory address <em>reg2</em> into register <em>reg1</em>. (For <code class="highlight">LDRB</code>, the bottom byte of <em>reg1</em> gets the loaded value; the other three bytes are set to zero.)</td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            STR  &nbsp;<em>reg1</em>, [<em>reg2</em>]
+                            <br>
+                            STRB <em>reg1</em>, [<em>reg2</em>]
+                        </td>
+                        <td style="font-family: initial;">Stores one word (<code class="highlight">STR</code>) or one byte (<code class="highlight">STRB</code>) from register <em>reg1</em> into memory at address <em>reg2</em>. (For <code class="highlight">STRB</code>, the bottom byte of <em>reg1</em> is stored; the other three bytes are ignored.)</td>
+                    </tr>
+
+                    <tr>
+                        <td class="highlight">
+                            LDR  &nbsp;<em>reg1</em>, [<em>reg2</em>, <em>imm</em>]
+                            <br>
+                            LDRB <em>reg1</em>, [<em>reg2</em>, <em>imm</em>]
+                            <br>
+                            STR  &nbsp;<em>reg1</em>, [<em>reg2</em>, <em>imm</em>]
+                            <br>
+                            STRB <em>reg1</em>, [<em>reg2</em>, <em>imm</em>]
+                        </td>
+                        <td style="font-family: initial;">
+                            Loads/stores from/to memory address <em>reg2</em>+<em>imm</em> into/from register <em>reg1</em>. This (and other <code class="highlight">LDR</code>/<code class="highlight">STR</code> variants with <code class="highlight">[<em>reg</em>, <em>something</em>]</code>) are referred to as <em>preindexed addressing</em>.
+                            <br>
+                            If a <code>!</code> is placed at the end, also updates <em>reg2 ← reg2 + imm</em>. This is useful when iterating over arrays.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            LDR  &nbsp;<em>reg1</em>, [<em>reg2</em>, <em>±reg3</em>]
+                            <br>
+                            LDRB <em>reg1</em>, [<em>reg2</em>, <em>±reg3</em>]
+                            <br>
+                            STR  &nbsp;<em>reg1</em>, [<em>reg2</em>, <em>±reg3</em>]
+                            <br>
+                            STRB <em>reg1</em>, [<em>reg2</em>, <em>±reg3</em>]
+                        </td>
+                        <td style="font-family: initial;">
+                            Loads/stores from/to memory address <em>reg2 ± reg3</em> into/from register <em>reg1</em>.
+                            <br>
+                            If a <code>!</code> is placed at the end, also updates <em>reg2 ← reg2 ± reg3</em>. This is useful when iterating over arrays.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            LDR  &nbsp;<em>reg1</em>, [<em>reg2</em>, <em>±reg3, shift imm</em>]
+                            <br>
+                            LDRB <em>reg1</em>, [<em>reg2</em>, <em>±reg3, shift imm</em>]
+                            <br>
+                            STR  &nbsp;<em>reg1</em>, [<em>reg2</em>, <em>±reg3, shift imm</em>]
+                            <br>
+                            STRB <em>reg1</em>, [<em>reg2</em>, <em>±reg3, shift imm</em>]
+                        </td>
+                        <td style="font-family: initial;">
+                            Loads/stores from/to memory address <em>reg2 ± (reg3 shift imm)</em> into/from register <em>reg1</em>.
+                            <br>
+                            If a <code>!</code> is placed at the end, also updates <em>reg2 ← reg2 ± (reg3 shift imm)</em>. This is useful when iterating over arrays.
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td class="highlight">
+                            LDR  &nbsp;<em>reg1</em>, [<em>reg2</em>], <em>imm</em>
+                            <br>
+                            LDRB <em>reg1</em>, [<em>reg2</em>], <em>imm</em>
+                            <br>
+                            STR  &nbsp;<em>reg1</em>, [<em>reg2</em>], <em>imm</em>
+                            <br>
+                            STRB <em>reg1</em>, [<em>reg2</em>], <em>imm</em>
+                        </td>
+                        <td style="font-family: initial;">
+                            Loads/stores from/to memory address <em>reg2</em> into/from register <em>reg1</em>, then updates <em>reg2 ← reg2 + imm</em>. This (and other <code class="highlight">LDR</code>/<code class="highlight">STR</code> variants with <code class="highlight">[<em>reg</em>], <em>something</em></code>) are referred to as <em>postindexed addressing</em>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            LDR  &nbsp;<em>reg1</em>, [<em>reg2</em>], <em>±reg3</em>
+                            <br>
+                            LDRB <em>reg1</em>, [<em>reg2</em>], <em>±reg3</em>
+                            <br>
+                            STR  &nbsp;<em>reg1</em>, [<em>reg2</em>], <em>±reg3</em>
+                            <br>
+                            STRB <em>reg1</em>, [<em>reg2</em>], <em>±reg3</em>
+                        </td>
+                        <td style="font-family: initial;">
+                            Loads/stores from/to memory address <em>reg2</em> into/from register <em>reg1</em>, then updates <em>reg2 ← reg2 ± reg3</em>.
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">
+                            LDR  &nbsp;<em>reg1</em>, [<em>reg2</em>], <em>±reg3, shift imm</em>
+                            <br>
+                            LDRB <em>reg1</em>, [<em>reg2</em>], <em>±reg3, shift imm</em>
+                            <br>
+                            STR  &nbsp;<em>reg1</em>, [<em>reg2</em>], <em>±reg3, shift imm</em>
+                            <br>
+                            STRB <em>reg1</em>, [<em>reg2</em>], <em>±reg3, shift imm</em>
+                        </td>
+                        <td style="font-family: initial;">
+                            Loads/stores from/to memory address <em>reg2</em> into/from register <em>reg1</em>, then updates <em>reg2 ← reg2 ± (reg3 shift imm)</em>.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h3>Preindexed and postindexed addressing</h3>
+                <p>
+                    Most of the complexity of <code class="highlight">LDR</code>/<code class="highlight">STR</code> instructions comes from <em>preindexed</em> (e.g. <code class="highlight">LDR R1, [R2, #4]</code>, possibly followed by <code>!</code>) versus <em>postindexed</em> (<code class="highlight">LDR R1, [R2], #4</code>) addressing. It is never <em>necessary</em> to use these — you can always accomplish the same task without pre/postindexing by adding or subtracting before or after. Using pre/postindexing allows you to access an array element and also move to the next (or previous) index in the same instruction.
+                </p>
+                <div class="indented">
+                    <table class="instruction-table">
+                        <thead>
+                        <tr>
+                            <th scope="col">Pre/postindex instruction</th>
+                            <th scope="col">Equivalent without pre/postindexing</th>
+                            <th scope="col">Analog in C</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr>
+                            <td><code class="highlight">LDR R1, [R0, #4]</code></td>
+                            <td><code class="highlight">ADD R12, R0, #4 <br>
+                            LDR R1, [R12]</code><sup><em>&dagger;</em></sup></td>
+                            <td><code>array[i + 1]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="highlight">LDR R1, [R0, #4]!</code></td>
+                            <td><code class="highlight">ADD R0, R0, #4 <br>
+                                LDR R1, [R0]</code></td>
+                            <td><code>array[++i]</code></td>
+                        </tr>
+                        <tr>
+                            <td><code class="highlight">LDR R1, [R0], #4</code></td>
+                            <td><code class="highlight">LDR R1, [R0] <br>
+                                ADD R0, R0, #4</code></td>
+                            <td><code>array[i++]</code></td>
+                        </tr>
+                        </tbody>
+                    </table>
+                    <p>
+                        <em><sup>&dagger;</sup><code class="highlight">R12</code> here just means any register that is otherwise unused (to act as a temporary for <code class="highlight">R0+4</code>).</em>
+                    </p>
+                </div>
+
+                <h3>Examples</h3>
+                <pre class="highlight">
+        ; Load the address .data into R0
+        LDR     R0, =.data
+
+        ; Load the value at that address (data[0]) into R5
+        LDR     R5, [R0]
+
+        ; Load the next value (data[1]) into R6
+        LDR     R6, [R0, #4]
+
+        ; Load the first value (data[0]) into R7, and after that move R0 to index 3
+        LDR     R7, [R0], #12
+
+        ; Save the value in R2 into the next element (data[4]), also moving R0 to point at it
+        STR     R2, [R0, #4]!
+
+        ; Set R0 back to the beginning of the array
+        LDR     R0, =.data
+
+        ; Load the number 150 into R1
+        LDR     R1, =150
+
+        ; Load the value of data[150] into R8
+        LDR     R8, [R0, R1, LSL #2]
+
+        ; Set R0 to index 100 of the array
+        LDR     R0, =.data + 4*100
+
+        ; Store the value in R11 to index 100-R4 in the array; update R0 to point at it
+        STR     R11, [R0, -R4, LSL #2]!
+
+                </pre>
+
+                <h2>Block data transfer (<code class="highlight">LDM</code>, <code class="highlight">STM</code>)</h2>
+                <p>
+                    ARM also provides instructions for loading/storing to/from multiple registers simultaneously, allowing the programmer to transfer large amounts of data between registers and memory all at once. This can be used to copy data quickly from one place to another (e.g. copy 12 words at a time from memory into <code class="highlight">R0...R11</code>, then copy those registers’ values back into memory somewhere else) but is more frequently used for pushing onto and popping off of the stack (whose address is usually kept in <code class="highlight">SP</code>, also known as <code class="highlight">R13</code>).
+                </p>
+
+                <p>
+                    The operands to both <code class="highlight">LDM</code> and <code class="highlight">STM</code> are
+                </p>
+                <ul>
+                    <li><em>baseReg</em>: the base register for the load/store, holding the address in memory where values will be loaded/stored. Putting <code>!</code> after the register writes the final address back into <em>baseReg</em> at the end.</li>
+                    <li><em>dir</em>: a two-letter code specifying what direction in memory the registers will be stored in (see below).</li>
+                    <li><em>registers</em>: any combination of the 16 registers. They can be specified individually (<code class="highlight">{R1,R2,R3,R4}</code>), with a range (<code class="highlight">{R1-R4}</code>), or mixed (<code class="highlight">{R1-R4,R6-R9,R12}</code>). These are the registers that will be loaded into or stored from.</li>
+                </ul>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th colspan="2" scope="col">Instruction syntax</th>
+                        <th colspan="5" scope="col">Operation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td colspan="2" class="highlight">LDM<em>dir</em> <em>baseReg</em>, <em>registers</em></td>
+                        <td colspan="5" style="font-family: inherit;">Load values for <em>registers</em> from memory starting at address <em>baseReg</em></td>
+                    </tr>
+                    <tr>
+                        <td colspan="2" class="highlight">STM<em>dir</em> <em>baseReg</em>, <em>registers</em></td>
+                        <td colspan="5" style="font-family: inherit;">Store the values in <em>registers</em> to memory starting at address <em>baseReg</em></td>
+                    </tr>
+                    </tbody>
+                    <tbody>
+                    <tr>
+                        <td colspan="5" style="font-family: inherit; min-width: initial;">The directions are as follows. There are only four options (preincrement, postincrement, predecrement, postdecrement), but each has two names, depending on whether they are being interpreted as stack operations or non-stack and whether it is a load or a store.</td>
+                    </tr>
+                    </tbody>
+                    <thead>
+                    <tr>
+                        <th scope="col">Stack</th>
+                        <th scope="col">Non-stack</th>
+                        <th scope="col">Operation</th>
+                        <th colspan="4" scope="col">Resulting addresses</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="highlight">LDMED, STMFA</td>
+                        <td class="highlight">LDMIB, STMIB</td>
+                        <td style="min-width: max-content;">Preincrement load/store</td>
+                        <td style="min-width: 4em; padding-right: 0;"><code><em>baseReg+4,</em></code></td>
+                        <td style="min-width: 4em; padding-right: 0; padding-left: 2px;"><code><em>baseReg+8,</em></code></td>
+                        <td style="min-width: 4em; padding-right: 0; padding-left: 2px;"><code><em>baseReg+12,</em></code></td>
+                        <td style="min-width: 3em; padding-right: 0; padding-left: 2px;"><code><em>...</em></code></td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">LDMFD, STMEA</td>
+                        <td class="highlight">LDMIA, STMIA</td>
+                        <td style="min-width: max-content;">Postincrement load/store</td>
+                        <td style="padding-right: 0;"><code><em>baseReg,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>baseReg+4,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>baseReg+8,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>...</em></code></td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">LDMEA, STMFD</td>
+                        <td class="highlight">LDMDB, STMDB</td>
+                        <td style="min-width: max-content;">Predecrement load/store</td>
+                        <td style="padding-right: 0;"><code><em>baseReg-4,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>baseReg-8,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>baseReg-12,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>...</em></code></td>
+                    </tr>
+                    <tr>
+                        <td class="highlight">LDMFA, STMED</td>
+                        <td class="highlight">LDMDA, STMDA</td>
+                        <td style="min-width: max-content;">Postdecrement load/store</td>
+                        <td style="padding-right: 0;"><code><em>baseReg,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>baseReg-4,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>baseReg-8,</em></code></td>
+                        <td style="padding-right: 0; padding-left: 2px;"><code><em>...</em></code></td>
+                    </tr>
+
+                    </tbody>
+                </table>
+
+                <h3>Directions</h3>
+                <p>
+                    To interpret these directions, first look at the “Non-stack” column. The two letters at the end specify whether we are incrementing the memory address between each register (<code>I</code>) or decrementing it (<code>D</code>) — that is, whether memory addresses are increasing (<code>I</code>) or decreasing (<code>D</code>) as each register is loaded/stored — and whether that increment/decrement is applied before (<code>B</code>) or after (<code>A</code>) each register is loaded/stored. For example, <code class="highlight">LDMIB</code> means to increment before each register, so the first register’s value will be loaded from <code><em>baseReg</em>+4</code>, the second from <code><em>baseReg</em>+8</code>, and so on; <code class="highlight">LDMIA</code> means the address is incremented <em>after</em> each register, so the first register is loaded from address <code><em>baseReg</em></code>, the second from <code><em>baseReg+4</em></code>, etc. The non-stack directions are the same whether you are doing a load or a store.
+                </p>
+                <p>
+                    In the stack-based directions, the letter <code>E</code>/<code>F</code> is whether the stack is initially “empty” or “full” — that is, whether the address in <em>baseReg</em> does not hold a value on the stack (<code>E</code> ) or does (<code>F</code>); this determines whether in a store we should postincrement/decrement (<code>E</code>, since there is not already a value there, we should store and then increment/decrement) or preincrement/decrement (<code>F</code>, since there is already a value at address <em>baseReg</em>, we should increment/decrement first and then store). The <code>A</code>/<code>D</code> letter denotes whether the stack is “ascending” (grows towards higher memory addresses) or “descending” (grows towards lower memory addresses). The stack-based directions are reversed between loads and stores: <code class="highlight">LDMED</code> is the same as <code class="highlight">LDMIB</code>, but <code class="highlight">STMED</code> is the same as <code class="highlight">STMDA</code>, the opposite direction; this is because undoing a preincrement load requires a postdecrement store, and so on.
+                </p>
+                <p>
+                    Regardless of direction, <em>the lowest register maps to the least (not last!) memory address.</em> <code class="highlight">R0</code> will always correspond to an address less than <code class="highlight">R1</code> if both are included in the register set.
+                </p>
+
+                <h3>Examples</h3>
+                <pre class="highlight">
+        ; Copy the eight values at addresses R10, R10+4, ..., R10+28 into R0, R1, ..., R7
+        LDMIA   R10, {R0-R7}
+
+        ; Store those same eight values back into memory, in the same order, starting at address R11;
+        ; when done, set R11 to the final address (R10+32)
+        STMIA   R11!, {R0-R7}
+
+        ; Push the values of R5, R6, R7, and LR onto the stack. This is a common way to start an
+        ; assembly function (this would allow the function to use R5, R6, R7, which are typically
+        ; callee-save registers, and also preserve LR so that this function can itself call
+        ; another function).
+        STMFD   SP!, {R5-R7,LR}
+
+        ; Pop R5, R6, R7 off the stack and return to the address that used to be in LR (instead of
+        ; popping the fourth value back into LR, we pop it into PC, effectively branching back to
+        ; the return address).
+        LDMFD   SP!, {R5-R7,PC}
+                </pre>
+            </div>
+
+            <div class="problem">
+                <div class="title">Other instructions</div>
+
+                <p>
+                    There are a number of other instructions that stand on their own, not being closely related to others.
+                </p>
+
+                <h3><code class="highlight">STOP</code></h3>
+                <p>
+                    Ends the program. This instruction can be suffixed with a condition code. (This is not a real ARM instruction, but merely a convenience provided by WebARM.)
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Instruction syntax</th>
+                        <th scope="col">Operation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="highlight">STOP</td>
+                        <td style="font-family: inherit;">End the program.</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h3><code class="highlight">BREAK</code></h3>
+                <p>
+                    Breaks the program, if running in debug mode; execution will be paused so that the programmer can inspect values of registers, memory, etc., and step forward or backward from that point. This instruction can be suffixed with a condition code. (This is not a real ARM instruction, but merely a convenience provided by WebARM.)
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Instruction syntax</th>
+                        <th scope="col">Operation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="highlight">BREAK</td>
+                        <td style="font-family: inherit;">Breaks the program, if running in debug mode.</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h3><code class="highlight">SWI</code></h3>
+                <p>
+                    Executes a software interrupt. On a real ARM system this invokes the operating system to execute a system call. On WebARM there is a small collection of syscall functions that can be executed in this fashion (documented elsewhere). This instruction can be suffixed with a condition code.
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Instruction syntax</th>
+                        <th scope="col">Operation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="highlight">SWI</td>
+                        <td style="font-family: inherit;">Executes a software interrupt, invoking a system call.</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h3><code class="highlight">NOP</code></h3>
+                <p>
+                    Does nothing (“no-op”). This instruction can <em>not</em> be suffixed with a condition code.
+                </p>
+                <table class="instruction-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Instruction syntax</th>
+                        <th scope="col">Operation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td class="highlight">NOP</td>
+                        <td style="font-family: inherit;">Does nothing.</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
 
             <div class="problem">
                 <div class="title">Directives</div>
+
+                <p>
+                    Directives instruct the assembler to do something, but do not directly generate executable code. They are mostly useful for including data other than instructions in the executable, for example an array of data or some text.
+                </p>
+
+                <h3><code class="highlight">DCD</code>: Define Constant Data</h3>
+                <p>
+                    <code class="highlight">DCD</code> inserts some words (4-byte/32-bit values) directly into the assembled code. It automatically aligns to a 4-byte boundary (that is, if the current address isn’t a multiple of 4, it will insert zeros for padding). <code class="highlight">DCD</code> is mostly used when there is a collection of data to be included in the program (such as initial values for an array).
+                </p>
+                <p>
+                    The values in a <code class="highlight">DCD</code> can be in decimal, hexadecimal (<code>0x...</code>), or binary (<code>0b...</code>). They can also be symbols or symbolic expressions.
+                </p>
+                <h4>Examples</h4>
+                <pre class="highlight">
+        ; Insert some data for a program
+        ; (Similar to "int data[] = { 1, 2, 3, 0xff, 100 };")
+.data   DCD     1, 2, 3, 0xff, 100
+
+        ; The first word is the address of .data above; the second is
+        ; the address of *this* data, .data2; the third is the difference
+        ; between the two, divided by 4
+.data2  DCD     .data, ., (. - .data)/4
+                </pre>
+
+                <h3><code class="highlight">DCB</code>: Define Constant Bytes</h3>
+                <p>
+                    <code class="highlight">DCB</code> is similar to <code class="highlight">DCD</code> except that the values given are bytes (either signed or unsigned: in the range -127 to +255) rather than words. Alternatively, you can give a string, in which case each character of the string becomes one byte.
+                </p>
+                <h4>Examples</h4>
+                <pre class="highlight">
+        ; A welcome message for a program (with a NUL terminator at the end)
+.msg0   DCB     'Hello!',0
+
+        ; Another way to include the same data (in ASCII, H is 0x48, etc.)
+.msg1   DCB     0x48, 0x65, 0x6c, 0x6c, 0x6f, 0x21, 0x00
+
+        ; Some bytes of data
+.bytes  DCB     0x40, 0b1001_0110, -4, -0x20
+                </pre>
+
+                <h3><code class="highlight">FILL</code></h3>
+                <p>
+                    A <code class="highlight">FILL</code> directive inserts a specified number of zeros (or another byte value) into the code. This is helpful for allocating a large chunk of memory, for example, space for an array. The first argument is the number of bytes to fill (which can be a number or a symbolic expression), and the second argument is an optional byte value to fill.
+                </p>
+                <h4>Examples</h4>
+                <pre class="highlight">
+        ; 24 zeros (if not specified, the fill value is 0)
+        FILL    24
+
+        ; Room for 100 words
+.array  FILL    4*100
+
+        ; 1000 Fs, for a day when you're feeling frustrated
+.effs   FILL    500, 0xff
+                </pre>
+
+                <h3><code class="highlight">ALIGN</code></h3>
+                <p>
+                    An <code class="highlight">ALIGN</code> directive ensures that the next data (whether it be an instruction or another directive) begins at an address that is a multiple of some value (4 by default) by adding zero bytes if necessary. This is necessary in some cases as ARM cannot make unaligned memory addresses (for example, it cannot load bytes 3–6 as a single word since 3 is not a multiple of 4); since instructions are words, they must always start on a multiple of 4 as well, but directives like <code class="highlight">DCB</code> and <code class="highlight">FILL</code> can cause addresses to become unaligned.
+                </p>
+                <pre class="highlight">
+        ; A chunk of memory that will cause unalignment
+        DCB     'Hello!',0   ; 7 bytes
+
+        ; If we put an instruction here, it would not work since it would
+        ; start at address 7, which is not a multiple of 4
+
+        ALIGN
+        ; Now it's OK to have an instruction, as ALIGN will bump us to address 8
+        ADD     R1, R0, R0
+
+        ; Align to a multiple of 256 (so the next address will be a multiple of
+        ; 256 / 0x100)
+        ALIGN   256
+        DCD     1, 2, 3, 4
+                </pre>
             </div>
         </div>
     </main>

@@ -38,6 +38,23 @@ export default class SimulatorMemory {
         this.writtenAddresses.add((address & 0xffff_fffc) >>> 0);
     }
 
+    writeWordUnaligned(address, value) {
+        if ((address & 0x3) === 0)
+            // It's aligned anyway
+            this.writeWord(address, value);
+        const index0 = address >>> 2, index1 = index0 + 1;
+        const index1Bits = 8 * (address & 0x3);  // how many bits in the second word
+        let word0 = this.overrides[index0] || 0,
+            word1 = this.overrides[index1] || 0;
+        const word0Bits = value >>> index1Bits,
+            word1Bits = value & ((1 << index1Bits) - 1);
+        word0 = new Bitfield(32 - index1Bits, 0).set(word0, word0Bits);
+        word1 = new Bitfield(index1Bits, 32 - index1Bits).set(word1, word1Bits);
+
+        this.overrides[index0] = word0;
+        this.overrides[index1] = word1;
+    }
+
     writeByte(address, value) {
         const word = this.overrides[address >>> 2] || 0;
         const byte = address & 0x3;

@@ -36,6 +36,10 @@ HYPHEN
     : '-'
     ;
 
+PLUS
+    : '+'
+    ;
+
 DOUBLE_QUOTE
     : '"' -> more, mode(M_DOUBLE_STRING)
     ;

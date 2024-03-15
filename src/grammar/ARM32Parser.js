@@ -4,7 +4,7 @@ import antlr4 from 'antlr4';
 
 import * as AST from './arm32Ast';
 
-const serializedATN = [4,1,25,326,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
+const serializedATN = [4,1,26,327,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,
 2,13,7,13,2,14,7,14,2,15,7,15,1,0,5,0,34,8,0,10,0,12,0,37,9,0,1,0,5,0,40,
 8,0,10,0,12,0,43,9,0,1,0,1,0,1,0,1,1,3,1,49,8,1,1,1,4,1,52,8,1,11,1,12,1,
@@ -24,89 +24,90 @@ const serializedATN = [4,1,25,326,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 1,12,1,12,1,12,1,12,1,12,3,12,269,8,12,1,12,1,12,3,12,273,8,12,1,13,1,13,
 1,13,1,13,5,13,279,8,13,10,13,12,13,282,9,13,1,13,1,13,1,13,1,13,1,13,1,
 13,5,13,290,8,13,10,13,12,13,293,9,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,
-1,13,3,13,303,8,13,1,13,1,13,1,13,3,13,308,8,13,1,13,3,13,311,8,13,1,14,
-1,14,1,14,1,14,1,14,3,14,318,8,14,1,15,1,15,1,15,1,15,3,15,324,8,15,1,15,
-0,0,16,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,0,0,361,0,35,1,0,0,0,2,
-78,1,0,0,0,4,80,1,0,0,0,6,82,1,0,0,0,8,209,1,0,0,0,10,211,1,0,0,0,12,214,
-1,0,0,0,14,225,1,0,0,0,16,238,1,0,0,0,18,240,1,0,0,0,20,251,1,0,0,0,22,253,
-1,0,0,0,24,272,1,0,0,0,26,310,1,0,0,0,28,317,1,0,0,0,30,323,1,0,0,0,32,34,
-5,20,0,0,33,32,1,0,0,0,34,37,1,0,0,0,35,33,1,0,0,0,35,36,1,0,0,0,36,41,1,
-0,0,0,37,35,1,0,0,0,38,40,3,2,1,0,39,38,1,0,0,0,40,43,1,0,0,0,41,39,1,0,
-0,0,41,42,1,0,0,0,42,44,1,0,0,0,43,41,1,0,0,0,44,45,5,0,0,1,45,46,6,0,-1,
-0,46,1,1,0,0,0,47,49,3,4,2,0,48,47,1,0,0,0,48,49,1,0,0,0,49,51,1,0,0,0,50,
-52,5,20,0,0,51,50,1,0,0,0,52,53,1,0,0,0,53,51,1,0,0,0,53,54,1,0,0,0,54,55,
-1,0,0,0,55,79,6,1,-1,0,56,58,3,4,2,0,57,56,1,0,0,0,57,58,1,0,0,0,58,59,1,
-0,0,0,59,61,3,6,3,0,60,62,5,20,0,0,61,60,1,0,0,0,62,63,1,0,0,0,63,61,1,0,
-0,0,63,64,1,0,0,0,64,65,1,0,0,0,65,66,6,1,-1,0,66,79,1,0,0,0,67,69,3,4,2,
-0,68,67,1,0,0,0,68,69,1,0,0,0,69,70,1,0,0,0,70,72,3,26,13,0,71,73,5,20,0,
-0,72,71,1,0,0,0,73,74,1,0,0,0,74,72,1,0,0,0,74,75,1,0,0,0,75,76,1,0,0,0,
-76,77,6,1,-1,0,77,79,1,0,0,0,78,48,1,0,0,0,78,57,1,0,0,0,78,68,1,0,0,0,79,
-3,1,0,0,0,80,81,5,19,0,0,81,5,1,0,0,0,82,91,5,9,0,0,83,88,3,8,4,0,84,85,
-5,2,0,0,85,87,3,8,4,0,86,84,1,0,0,0,87,90,1,0,0,0,88,86,1,0,0,0,88,89,1,
-0,0,0,89,92,1,0,0,0,90,88,1,0,0,0,91,83,1,0,0,0,91,92,1,0,0,0,92,93,1,0,
-0,0,93,94,6,3,-1,0,94,7,1,0,0,0,95,96,5,3,0,0,96,97,3,10,5,0,97,98,5,4,0,
-0,98,99,5,2,0,0,99,100,3,18,9,0,100,101,6,4,-1,0,101,210,1,0,0,0,102,103,
-5,3,0,0,103,104,3,10,5,0,104,105,5,4,0,0,105,106,5,2,0,0,106,107,3,22,11,
-0,107,108,6,4,-1,0,108,210,1,0,0,0,109,110,5,3,0,0,110,111,3,10,5,0,111,
-112,5,4,0,0,112,114,5,2,0,0,113,115,5,8,0,0,114,113,1,0,0,0,114,115,1,0,
-0,0,115,116,1,0,0,0,116,117,3,10,5,0,117,118,6,4,-1,0,118,210,1,0,0,0,119,
-120,5,3,0,0,120,121,3,10,5,0,121,122,5,4,0,0,122,124,5,2,0,0,123,125,5,8,
-0,0,124,123,1,0,0,0,124,125,1,0,0,0,125,126,1,0,0,0,126,127,3,10,5,0,127,
-128,5,2,0,0,128,129,3,14,7,0,129,130,6,4,-1,0,130,210,1,0,0,0,131,132,3,
-10,5,0,132,133,5,2,0,0,133,134,3,14,7,0,134,135,6,4,-1,0,135,210,1,0,0,0,
-136,137,3,12,6,0,137,138,6,4,-1,0,138,210,1,0,0,0,139,140,3,10,5,0,140,141,
-6,4,-1,0,141,210,1,0,0,0,142,143,5,3,0,0,143,144,3,10,5,0,144,145,5,4,0,
-0,145,146,6,4,-1,0,146,210,1,0,0,0,147,148,5,3,0,0,148,149,3,10,5,0,149,
-150,5,2,0,0,150,151,3,18,9,0,151,153,5,4,0,0,152,154,5,7,0,0,153,152,1,0,
-0,0,153,154,1,0,0,0,154,155,1,0,0,0,155,156,6,4,-1,0,156,210,1,0,0,0,157,
-158,5,3,0,0,158,159,3,10,5,0,159,160,5,2,0,0,160,161,3,22,11,0,161,163,5,
-4,0,0,162,164,5,7,0,0,163,162,1,0,0,0,163,164,1,0,0,0,164,165,1,0,0,0,165,
-166,6,4,-1,0,166,210,1,0,0,0,167,168,5,3,0,0,168,169,3,10,5,0,169,171,5,
-2,0,0,170,172,5,8,0,0,171,170,1,0,0,0,171,172,1,0,0,0,172,173,1,0,0,0,173,
-174,3,10,5,0,174,176,5,4,0,0,175,177,5,7,0,0,176,175,1,0,0,0,176,177,1,0,
-0,0,177,178,1,0,0,0,178,179,6,4,-1,0,179,210,1,0,0,0,180,181,5,3,0,0,181,
-182,3,10,5,0,182,184,5,2,0,0,183,185,5,8,0,0,184,183,1,0,0,0,184,185,1,0,
-0,0,185,186,1,0,0,0,186,187,3,10,5,0,187,188,5,2,0,0,188,189,3,14,7,0,189,
-191,5,4,0,0,190,192,5,7,0,0,191,190,1,0,0,0,191,192,1,0,0,0,192,193,1,0,
-0,0,193,194,6,4,-1,0,194,210,1,0,0,0,195,196,3,18,9,0,196,197,6,4,-1,0,197,
-210,1,0,0,0,198,199,3,20,10,0,199,200,6,4,-1,0,200,210,1,0,0,0,201,202,3,
-22,11,0,202,203,6,4,-1,0,203,210,1,0,0,0,204,205,5,5,0,0,205,206,3,24,12,
-0,206,207,5,6,0,0,207,208,6,4,-1,0,208,210,1,0,0,0,209,95,1,0,0,0,209,102,
-1,0,0,0,209,109,1,0,0,0,209,119,1,0,0,0,209,131,1,0,0,0,209,136,1,0,0,0,
-209,139,1,0,0,0,209,142,1,0,0,0,209,147,1,0,0,0,209,157,1,0,0,0,209,167,
-1,0,0,0,209,180,1,0,0,0,209,195,1,0,0,0,209,198,1,0,0,0,209,201,1,0,0,0,
-209,204,1,0,0,0,210,9,1,0,0,0,211,212,5,10,0,0,212,213,6,5,-1,0,213,11,1,
-0,0,0,214,215,5,10,0,0,215,216,5,7,0,0,216,217,6,6,-1,0,217,13,1,0,0,0,218,
-219,5,9,0,0,219,220,4,7,0,1,220,221,5,11,0,0,221,226,5,13,0,0,222,223,5,
-9,0,0,223,224,4,7,1,1,224,226,3,10,5,0,225,218,1,0,0,0,225,222,1,0,0,0,226,
-15,1,0,0,0,227,228,3,10,5,0,228,229,6,8,-1,0,229,239,1,0,0,0,230,231,3,10,
-5,0,231,232,5,2,0,0,232,233,3,14,7,0,233,234,6,8,-1,0,234,239,1,0,0,0,235,
-236,3,18,9,0,236,237,6,8,-1,0,237,239,1,0,0,0,238,227,1,0,0,0,238,230,1,
-0,0,0,238,235,1,0,0,0,239,17,1,0,0,0,240,241,5,11,0,0,241,242,5,13,0,0,242,
-243,6,9,-1,0,243,19,1,0,0,0,244,245,5,12,0,0,245,246,5,13,0,0,246,252,6,
-10,-1,0,247,248,5,12,0,0,248,249,3,22,11,0,249,250,6,10,-1,0,250,252,1,0,
-0,0,251,244,1,0,0,0,251,247,1,0,0,0,252,21,1,0,0,0,253,254,5,19,0,0,254,
-255,6,11,-1,0,255,23,1,0,0,0,256,257,3,10,5,0,257,258,5,8,0,0,258,261,3,
-10,5,0,259,260,5,2,0,0,260,262,3,24,12,0,261,259,1,0,0,0,261,262,1,0,0,0,
-262,263,1,0,0,0,263,264,6,12,-1,0,264,273,1,0,0,0,265,268,3,10,5,0,266,267,
-5,2,0,0,267,269,3,24,12,0,268,266,1,0,0,0,268,269,1,0,0,0,269,270,1,0,0,
-0,270,271,6,12,-1,0,271,273,1,0,0,0,272,256,1,0,0,0,272,265,1,0,0,0,273,
-25,1,0,0,0,274,275,5,14,0,0,275,280,3,28,14,0,276,277,5,2,0,0,277,279,3,
-28,14,0,278,276,1,0,0,0,279,282,1,0,0,0,280,278,1,0,0,0,280,281,1,0,0,0,
-281,283,1,0,0,0,282,280,1,0,0,0,283,284,6,13,-1,0,284,311,1,0,0,0,285,286,
-5,15,0,0,286,291,3,30,15,0,287,288,5,2,0,0,288,290,3,30,15,0,289,287,1,0,
-0,0,290,293,1,0,0,0,291,289,1,0,0,0,291,292,1,0,0,0,292,294,1,0,0,0,293,
-291,1,0,0,0,294,295,6,13,-1,0,295,311,1,0,0,0,296,297,5,16,0,0,297,298,5,
-13,0,0,298,311,6,13,-1,0,299,300,5,17,0,0,300,302,5,13,0,0,301,303,5,13,
-0,0,302,301,1,0,0,0,302,303,1,0,0,0,303,304,1,0,0,0,304,311,6,13,-1,0,305,
-307,5,18,0,0,306,308,5,13,0,0,307,306,1,0,0,0,307,308,1,0,0,0,308,309,1,
-0,0,0,309,311,6,13,-1,0,310,274,1,0,0,0,310,285,1,0,0,0,310,296,1,0,0,0,
-310,299,1,0,0,0,310,305,1,0,0,0,311,27,1,0,0,0,312,313,5,13,0,0,313,318,
-6,14,-1,0,314,315,3,22,11,0,315,316,6,14,-1,0,316,318,1,0,0,0,317,312,1,
-0,0,0,317,314,1,0,0,0,318,29,1,0,0,0,319,320,5,13,0,0,320,324,6,15,-1,0,
-321,322,5,24,0,0,322,324,6,15,-1,0,323,319,1,0,0,0,323,321,1,0,0,0,324,31,
-1,0,0,0,33,35,41,48,53,57,63,68,74,78,88,91,114,124,153,163,171,176,184,
-191,209,225,238,251,261,268,272,280,291,302,307,310,317,323];
+1,13,1,13,3,13,304,8,13,1,13,1,13,1,13,3,13,309,8,13,1,13,3,13,312,8,13,
+1,14,1,14,1,14,1,14,1,14,3,14,319,8,14,1,15,1,15,1,15,1,15,3,15,325,8,15,
+1,15,0,0,16,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,0,1,1,0,8,9,362,0,
+35,1,0,0,0,2,78,1,0,0,0,4,80,1,0,0,0,6,82,1,0,0,0,8,209,1,0,0,0,10,211,1,
+0,0,0,12,214,1,0,0,0,14,225,1,0,0,0,16,238,1,0,0,0,18,240,1,0,0,0,20,251,
+1,0,0,0,22,253,1,0,0,0,24,272,1,0,0,0,26,311,1,0,0,0,28,318,1,0,0,0,30,324,
+1,0,0,0,32,34,5,21,0,0,33,32,1,0,0,0,34,37,1,0,0,0,35,33,1,0,0,0,35,36,1,
+0,0,0,36,41,1,0,0,0,37,35,1,0,0,0,38,40,3,2,1,0,39,38,1,0,0,0,40,43,1,0,
+0,0,41,39,1,0,0,0,41,42,1,0,0,0,42,44,1,0,0,0,43,41,1,0,0,0,44,45,5,0,0,
+1,45,46,6,0,-1,0,46,1,1,0,0,0,47,49,3,4,2,0,48,47,1,0,0,0,48,49,1,0,0,0,
+49,51,1,0,0,0,50,52,5,21,0,0,51,50,1,0,0,0,52,53,1,0,0,0,53,51,1,0,0,0,53,
+54,1,0,0,0,54,55,1,0,0,0,55,79,6,1,-1,0,56,58,3,4,2,0,57,56,1,0,0,0,57,58,
+1,0,0,0,58,59,1,0,0,0,59,61,3,6,3,0,60,62,5,21,0,0,61,60,1,0,0,0,62,63,1,
+0,0,0,63,61,1,0,0,0,63,64,1,0,0,0,64,65,1,0,0,0,65,66,6,1,-1,0,66,79,1,0,
+0,0,67,69,3,4,2,0,68,67,1,0,0,0,68,69,1,0,0,0,69,70,1,0,0,0,70,72,3,26,13,
+0,71,73,5,21,0,0,72,71,1,0,0,0,73,74,1,0,0,0,74,72,1,0,0,0,74,75,1,0,0,0,
+75,76,1,0,0,0,76,77,6,1,-1,0,77,79,1,0,0,0,78,48,1,0,0,0,78,57,1,0,0,0,78,
+68,1,0,0,0,79,3,1,0,0,0,80,81,5,20,0,0,81,5,1,0,0,0,82,91,5,10,0,0,83,88,
+3,8,4,0,84,85,5,2,0,0,85,87,3,8,4,0,86,84,1,0,0,0,87,90,1,0,0,0,88,86,1,
+0,0,0,88,89,1,0,0,0,89,92,1,0,0,0,90,88,1,0,0,0,91,83,1,0,0,0,91,92,1,0,
+0,0,92,93,1,0,0,0,93,94,6,3,-1,0,94,7,1,0,0,0,95,96,5,3,0,0,96,97,3,10,5,
+0,97,98,5,4,0,0,98,99,5,2,0,0,99,100,3,18,9,0,100,101,6,4,-1,0,101,210,1,
+0,0,0,102,103,5,3,0,0,103,104,3,10,5,0,104,105,5,4,0,0,105,106,5,2,0,0,106,
+107,3,22,11,0,107,108,6,4,-1,0,108,210,1,0,0,0,109,110,5,3,0,0,110,111,3,
+10,5,0,111,112,5,4,0,0,112,114,5,2,0,0,113,115,7,0,0,0,114,113,1,0,0,0,114,
+115,1,0,0,0,115,116,1,0,0,0,116,117,3,10,5,0,117,118,6,4,-1,0,118,210,1,
+0,0,0,119,120,5,3,0,0,120,121,3,10,5,0,121,122,5,4,0,0,122,124,5,2,0,0,123,
+125,7,0,0,0,124,123,1,0,0,0,124,125,1,0,0,0,125,126,1,0,0,0,126,127,3,10,
+5,0,127,128,5,2,0,0,128,129,3,14,7,0,129,130,6,4,-1,0,130,210,1,0,0,0,131,
+132,3,10,5,0,132,133,5,2,0,0,133,134,3,14,7,0,134,135,6,4,-1,0,135,210,1,
+0,0,0,136,137,3,12,6,0,137,138,6,4,-1,0,138,210,1,0,0,0,139,140,3,10,5,0,
+140,141,6,4,-1,0,141,210,1,0,0,0,142,143,5,3,0,0,143,144,3,10,5,0,144,145,
+5,4,0,0,145,146,6,4,-1,0,146,210,1,0,0,0,147,148,5,3,0,0,148,149,3,10,5,
+0,149,150,5,2,0,0,150,151,3,18,9,0,151,153,5,4,0,0,152,154,5,7,0,0,153,152,
+1,0,0,0,153,154,1,0,0,0,154,155,1,0,0,0,155,156,6,4,-1,0,156,210,1,0,0,0,
+157,158,5,3,0,0,158,159,3,10,5,0,159,160,5,2,0,0,160,161,3,22,11,0,161,163,
+5,4,0,0,162,164,5,7,0,0,163,162,1,0,0,0,163,164,1,0,0,0,164,165,1,0,0,0,
+165,166,6,4,-1,0,166,210,1,0,0,0,167,168,5,3,0,0,168,169,3,10,5,0,169,171,
+5,2,0,0,170,172,7,0,0,0,171,170,1,0,0,0,171,172,1,0,0,0,172,173,1,0,0,0,
+173,174,3,10,5,0,174,176,5,4,0,0,175,177,5,7,0,0,176,175,1,0,0,0,176,177,
+1,0,0,0,177,178,1,0,0,0,178,179,6,4,-1,0,179,210,1,0,0,0,180,181,5,3,0,0,
+181,182,3,10,5,0,182,184,5,2,0,0,183,185,7,0,0,0,184,183,1,0,0,0,184,185,
+1,0,0,0,185,186,1,0,0,0,186,187,3,10,5,0,187,188,5,2,0,0,188,189,3,14,7,
+0,189,191,5,4,0,0,190,192,5,7,0,0,191,190,1,0,0,0,191,192,1,0,0,0,192,193,
+1,0,0,0,193,194,6,4,-1,0,194,210,1,0,0,0,195,196,3,18,9,0,196,197,6,4,-1,
+0,197,210,1,0,0,0,198,199,3,20,10,0,199,200,6,4,-1,0,200,210,1,0,0,0,201,
+202,3,22,11,0,202,203,6,4,-1,0,203,210,1,0,0,0,204,205,5,5,0,0,205,206,3,
+24,12,0,206,207,5,6,0,0,207,208,6,4,-1,0,208,210,1,0,0,0,209,95,1,0,0,0,
+209,102,1,0,0,0,209,109,1,0,0,0,209,119,1,0,0,0,209,131,1,0,0,0,209,136,
+1,0,0,0,209,139,1,0,0,0,209,142,1,0,0,0,209,147,1,0,0,0,209,157,1,0,0,0,
+209,167,1,0,0,0,209,180,1,0,0,0,209,195,1,0,0,0,209,198,1,0,0,0,209,201,
+1,0,0,0,209,204,1,0,0,0,210,9,1,0,0,0,211,212,5,11,0,0,212,213,6,5,-1,0,
+213,11,1,0,0,0,214,215,5,11,0,0,215,216,5,7,0,0,216,217,6,6,-1,0,217,13,
+1,0,0,0,218,219,5,10,0,0,219,220,4,7,0,1,220,221,5,12,0,0,221,226,5,14,0,
+0,222,223,5,10,0,0,223,224,4,7,1,1,224,226,3,10,5,0,225,218,1,0,0,0,225,
+222,1,0,0,0,226,15,1,0,0,0,227,228,3,10,5,0,228,229,6,8,-1,0,229,239,1,0,
+0,0,230,231,3,10,5,0,231,232,5,2,0,0,232,233,3,14,7,0,233,234,6,8,-1,0,234,
+239,1,0,0,0,235,236,3,18,9,0,236,237,6,8,-1,0,237,239,1,0,0,0,238,227,1,
+0,0,0,238,230,1,0,0,0,238,235,1,0,0,0,239,17,1,0,0,0,240,241,5,12,0,0,241,
+242,5,14,0,0,242,243,6,9,-1,0,243,19,1,0,0,0,244,245,5,13,0,0,245,246,5,
+14,0,0,246,252,6,10,-1,0,247,248,5,13,0,0,248,249,3,22,11,0,249,250,6,10,
+-1,0,250,252,1,0,0,0,251,244,1,0,0,0,251,247,1,0,0,0,252,21,1,0,0,0,253,
+254,5,20,0,0,254,255,6,11,-1,0,255,23,1,0,0,0,256,257,3,10,5,0,257,258,5,
+8,0,0,258,261,3,10,5,0,259,260,5,2,0,0,260,262,3,24,12,0,261,259,1,0,0,0,
+261,262,1,0,0,0,262,263,1,0,0,0,263,264,6,12,-1,0,264,273,1,0,0,0,265,268,
+3,10,5,0,266,267,5,2,0,0,267,269,3,24,12,0,268,266,1,0,0,0,268,269,1,0,0,
+0,269,270,1,0,0,0,270,271,6,12,-1,0,271,273,1,0,0,0,272,256,1,0,0,0,272,
+265,1,0,0,0,273,25,1,0,0,0,274,275,5,15,0,0,275,280,3,28,14,0,276,277,5,
+2,0,0,277,279,3,28,14,0,278,276,1,0,0,0,279,282,1,0,0,0,280,278,1,0,0,0,
+280,281,1,0,0,0,281,283,1,0,0,0,282,280,1,0,0,0,283,284,6,13,-1,0,284,312,
+1,0,0,0,285,286,5,16,0,0,286,291,3,30,15,0,287,288,5,2,0,0,288,290,3,30,
+15,0,289,287,1,0,0,0,290,293,1,0,0,0,291,289,1,0,0,0,291,292,1,0,0,0,292,
+294,1,0,0,0,293,291,1,0,0,0,294,295,6,13,-1,0,295,312,1,0,0,0,296,297,5,
+17,0,0,297,298,5,14,0,0,298,312,6,13,-1,0,299,300,5,18,0,0,300,303,5,14,
+0,0,301,302,5,2,0,0,302,304,5,14,0,0,303,301,1,0,0,0,303,304,1,0,0,0,304,
+305,1,0,0,0,305,312,6,13,-1,0,306,308,5,19,0,0,307,309,5,14,0,0,308,307,
+1,0,0,0,308,309,1,0,0,0,309,310,1,0,0,0,310,312,6,13,-1,0,311,274,1,0,0,
+0,311,285,1,0,0,0,311,296,1,0,0,0,311,299,1,0,0,0,311,306,1,0,0,0,312,27,
+1,0,0,0,313,314,5,14,0,0,314,319,6,14,-1,0,315,316,3,22,11,0,316,317,6,14,
+-1,0,317,319,1,0,0,0,318,313,1,0,0,0,318,315,1,0,0,0,319,29,1,0,0,0,320,
+321,5,14,0,0,321,325,6,15,-1,0,322,323,5,25,0,0,323,325,6,15,-1,0,324,320,
+1,0,0,0,324,322,1,0,0,0,325,31,1,0,0,0,33,35,41,48,53,57,63,68,74,78,88,
+91,114,124,153,163,171,176,184,191,209,225,238,251,261,268,272,280,291,303,
+308,311,318,324];
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -119,14 +120,14 @@ export default class ARM32Parser extends antlr4.Parser {
 
     static grammarFileName = "ARM32Parser.g4";
     static literalNames = [ null, "';'", "','", "'['", "']'", "'{'", "'}'", 
-                            "'!'", "'-'", null, null, "'#'", "'='", null, 
-                            "'DCD'", "'DCB'", "'EQU'", "'FILL'", "'ALIGN'" ];
+                            "'!'", "'-'", "'+'", null, null, "'#'", "'='", 
+                            null, "'DCD'", "'DCB'", "'EQU'", "'FILL'", "'ALIGN'" ];
     static symbolicNames = [ null, "COMMENT", "COMMA", "LBRACK", "RBRACK", 
-                             "LBRACE", "RBRACE", "BANG", "HYPHEN", "OPCODE", 
-                             "REGISTER", "POUND", "EQUALS", "INT", "DCD", 
-                             "DCB", "EQU", "FILL", "ALIGN", "ID", "NEWLINE", 
-                             "WS", "INVALID", "COMMENT_TEXT", "STRING", 
-                             "DOUBLE_QUOTE" ];
+                             "LBRACE", "RBRACE", "BANG", "HYPHEN", "PLUS", 
+                             "OPCODE", "REGISTER", "POUND", "EQUALS", "INT", 
+                             "DCD", "DCB", "EQU", "FILL", "ALIGN", "ID", 
+                             "NEWLINE", "WS", "INVALID", "COMMENT_TEXT", 
+                             "STRING", "DOUBLE_QUOTE" ];
     static ruleNames = [ "program", "line", "label", "instruction", "operand", 
                          "register", "writebackRegister", "flexOperandSpec", 
                          "offset", "immediate", "pseudoImmediate", "symbol", 
@@ -185,7 +186,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 41;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) === 0 && ((1 << _la) & 2081280) !== 0)) {
+	        while((((_la) & ~0x1f) === 0 && ((1 << _la) & 4162560) !== 0)) {
 	            this.state = 38;
 	            localctx._line = this.line();
 	            localctx.lines.push(localctx._line);
@@ -228,7 +229,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 48;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===19) {
+	            if(_la===20) {
 	                this.state = 47;
 	                localctx.lab = this.label();
 	            }
@@ -259,7 +260,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 57;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===19) {
+	            if(_la===20) {
 	                this.state = 56;
 	                localctx.lab = this.label();
 	            }
@@ -292,7 +293,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 68;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===19) {
+	            if(_la===20) {
 	                this.state = 67;
 	                localctx.lab = this.label();
 	            }
@@ -371,7 +372,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 91;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if((((_la) & ~0x1f) === 0 && ((1 << _la) & 531496) !== 0)) {
+	        if((((_la) & ~0x1f) === 0 && ((1 << _la) & 1062952) !== 0)) {
 	            this.state = 83;
 	            localctx._operand = this.operand();
 	            localctx.operands.push(localctx._operand);
@@ -465,15 +466,23 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 114;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===8) {
+	            if(_la===8 || _la===9) {
 	                this.state = 113;
-	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
+	                localctx.sign = this._input.LT(1);
+	                _la = this._input.LA(1);
+	                if(!(_la===8 || _la===9)) {
+	                    localctx.sign = this._errHandler.recoverInline(this);
+	                }
+	                else {
+	                	this._errHandler.reportMatch(this);
+	                    this.consume();
+	                }
 	            }
 
 	            this.state = 116;
 	            localctx.roff = this.register();
 
-	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, new AST.SignedRegister((localctx._HYPHEN == null ? null : localctx._HYPHEN.text), localctx.roff.reg.name));
+	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, new AST.SignedRegister((localctx.sign == null ? null : localctx.sign.text), localctx.roff.reg.name));
 	                
 	            break;
 
@@ -490,9 +499,17 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 124;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===8) {
+	            if(_la===8 || _la===9) {
 	                this.state = 123;
-	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
+	                localctx.sign = this._input.LT(1);
+	                _la = this._input.LA(1);
+	                if(!(_la===8 || _la===9)) {
+	                    localctx.sign = this._errHandler.recoverInline(this);
+	                }
+	                else {
+	                	this._errHandler.reportMatch(this);
+	                    this.consume();
+	                }
 	            }
 
 	            this.state = 126;
@@ -505,7 +522,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.op =  new AST.PostindexedOperand(
 	                        localctx.r.reg,
 	                        new AST.FlexOperand(
-	                            new AST.SignedRegister((localctx._HYPHEN == null ? null : localctx._HYPHEN.text), localctx.roff.reg.name),
+	                            new AST.SignedRegister((localctx.sign == null ? null : localctx.sign.text), localctx.roff.reg.name),
 	                            localctx.f.op.text,
 	                            localctx.f.amount !== null ? localctx.f.amount.text : null,
 	                            localctx.f.register() !== null ? localctx.f.register().reg : null
@@ -619,9 +636,17 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 171;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===8) {
+	            if(_la===8 || _la===9) {
 	                this.state = 170;
-	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
+	                localctx.sign = this._input.LT(1);
+	                _la = this._input.LA(1);
+	                if(!(_la===8 || _la===9)) {
+	                    localctx.sign = this._errHandler.recoverInline(this);
+	                }
+	                else {
+	                	this._errHandler.reportMatch(this);
+	                    this.consume();
+	                }
 	            }
 
 	            this.state = 173;
@@ -637,7 +662,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            }
 
 
-	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, new AST.SignedRegister((localctx._HYPHEN == null ? null : localctx._HYPHEN.text), localctx.roff.reg.name), !!(localctx._BANG == null ? null : localctx._BANG.text));
+	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, new AST.SignedRegister((localctx.sign == null ? null : localctx.sign.text), localctx.roff.reg.name), !!(localctx._BANG == null ? null : localctx._BANG.text));
 	                
 	            break;
 
@@ -652,9 +677,17 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 184;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===8) {
+	            if(_la===8 || _la===9) {
 	                this.state = 183;
-	                localctx._HYPHEN = this.match(ARM32Parser.HYPHEN);
+	                localctx.sign = this._input.LT(1);
+	                _la = this._input.LA(1);
+	                if(!(_la===8 || _la===9)) {
+	                    localctx.sign = this._errHandler.recoverInline(this);
+	                }
+	                else {
+	                	this._errHandler.reportMatch(this);
+	                    this.consume();
+	                }
 	            }
 
 	            this.state = 186;
@@ -677,7 +710,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.op =  new AST.PreindexedOperand(
 	                        localctx.r.reg,
 	                        new AST.FlexOperand(
-	                            new AST.SignedRegister((localctx._HYPHEN == null ? null : localctx._HYPHEN.text), localctx.roff.reg.name),
+	                            new AST.SignedRegister((localctx.sign == null ? null : localctx.sign.text), localctx.roff.reg.name),
 	                            localctx.f.op.text,
 	                            localctx.f.amount !== null ? localctx.f.amount.text : null,
 	                            localctx.f.register() !== null ? localctx.f.register().reg : null
@@ -1079,10 +1112,10 @@ export default class ARM32Parser extends antlr4.Parser {
 	    this.enterRule(localctx, 26, ARM32Parser.RULE_directive);
 	    var _la = 0;
 	    try {
-	        this.state = 310;
+	        this.state = 311;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 14:
+	        case 15:
 	            this.enterOuterAlt(localctx, 1);
 	            this.state = 274;
 	            this.match(ARM32Parser.DCD);
@@ -1107,7 +1140,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.DCD(localctx.dcd_values.map(node => node.n));
 	                
 	            break;
-	        case 15:
+	        case 16:
 	            this.enterOuterAlt(localctx, 2);
 	            this.state = 285;
 	            this.match(ARM32Parser.DCB);
@@ -1132,7 +1165,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.DCB(localctx.dcb_values.map(node => node.n));
 	                
 	            break;
-	        case 16:
+	        case 17:
 	            this.enterOuterAlt(localctx, 3);
 	            this.state = 296;
 	            this.match(ARM32Parser.EQU);
@@ -1142,17 +1175,19 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.EquateDirective((localctx.value == null ? null : localctx.value.text));
 	                
 	            break;
-	        case 17:
+	        case 18:
 	            this.enterOuterAlt(localctx, 4);
 	            this.state = 299;
 	            this.match(ARM32Parser.FILL);
 	            this.state = 300;
 	            localctx.bytes = this.match(ARM32Parser.INT);
-	            this.state = 302;
+	            this.state = 303;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===13) {
+	            if(_la===2) {
 	                this.state = 301;
+	                this.match(ARM32Parser.COMMA);
+	                this.state = 302;
 	                localctx.value = this.match(ARM32Parser.INT);
 	            }
 
@@ -1160,15 +1195,15 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.FillDirective((localctx.bytes == null ? null : localctx.bytes.text), (localctx.value == null ? null : localctx.value.text));
 	                
 	            break;
-	        case 18:
+	        case 19:
 	            this.enterOuterAlt(localctx, 5);
-	            this.state = 305;
+	            this.state = 306;
 	            this.match(ARM32Parser.ALIGN);
-	            this.state = 307;
+	            this.state = 308;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===13) {
-	                this.state = 306;
+	            if(_la===14) {
+	                this.state = 307;
 	                localctx.value = this.match(ARM32Parser.INT);
 	            }
 
@@ -1199,20 +1234,20 @@ export default class ARM32Parser extends antlr4.Parser {
 	    let localctx = new Dcd_valueContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 28, ARM32Parser.RULE_dcd_value);
 	    try {
-	        this.state = 317;
+	        this.state = 318;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 13:
+	        case 14:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 312;
+	            this.state = 313;
 	            localctx._INT = this.match(ARM32Parser.INT);
 
 	                    localctx.n =  (localctx._INT == null ? null : localctx._INT.text);
 	                
 	            break;
-	        case 19:
+	        case 20:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 314;
+	            this.state = 315;
 	            localctx._symbol = this.symbol();
 
 	                    localctx.n =  localctx._symbol.text;
@@ -1241,20 +1276,20 @@ export default class ARM32Parser extends antlr4.Parser {
 	    let localctx = new Dcb_valueContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 30, ARM32Parser.RULE_dcb_value);
 	    try {
-	        this.state = 323;
+	        this.state = 324;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 13:
+	        case 14:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 319;
+	            this.state = 320;
 	            localctx._INT = this.match(ARM32Parser.INT);
 
 	                    localctx.n =  (localctx._INT == null ? null : localctx._INT.text);
 	                
 	            break;
-	        case 24:
+	        case 25:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 321;
+	            this.state = 322;
 	            localctx._STRING = this.match(ARM32Parser.STRING);
 
 	                    localctx.n =  (localctx._STRING == null ? null : localctx._STRING.text);
@@ -1289,23 +1324,24 @@ ARM32Parser.LBRACE = 5;
 ARM32Parser.RBRACE = 6;
 ARM32Parser.BANG = 7;
 ARM32Parser.HYPHEN = 8;
-ARM32Parser.OPCODE = 9;
-ARM32Parser.REGISTER = 10;
-ARM32Parser.POUND = 11;
-ARM32Parser.EQUALS = 12;
-ARM32Parser.INT = 13;
-ARM32Parser.DCD = 14;
-ARM32Parser.DCB = 15;
-ARM32Parser.EQU = 16;
-ARM32Parser.FILL = 17;
-ARM32Parser.ALIGN = 18;
-ARM32Parser.ID = 19;
-ARM32Parser.NEWLINE = 20;
-ARM32Parser.WS = 21;
-ARM32Parser.INVALID = 22;
-ARM32Parser.COMMENT_TEXT = 23;
-ARM32Parser.STRING = 24;
-ARM32Parser.DOUBLE_QUOTE = 25;
+ARM32Parser.PLUS = 9;
+ARM32Parser.OPCODE = 10;
+ARM32Parser.REGISTER = 11;
+ARM32Parser.POUND = 12;
+ARM32Parser.EQUALS = 13;
+ARM32Parser.INT = 14;
+ARM32Parser.DCD = 15;
+ARM32Parser.DCB = 16;
+ARM32Parser.EQU = 17;
+ARM32Parser.FILL = 18;
+ARM32Parser.ALIGN = 19;
+ARM32Parser.ID = 20;
+ARM32Parser.NEWLINE = 21;
+ARM32Parser.WS = 22;
+ARM32Parser.INVALID = 23;
+ARM32Parser.COMMENT_TEXT = 24;
+ARM32Parser.STRING = 25;
+ARM32Parser.DOUBLE_QUOTE = 26;
 
 ARM32Parser.RULE_program = 0;
 ARM32Parser.RULE_line = 1;
@@ -1509,7 +1545,7 @@ class OperandContext extends antlr4.ParserRuleContext {
         this.r = null;
         this.i = null;
         this.s = null;
-        this._HYPHEN = null;
+        this.sign = null;
         this.roff = null;
         this.f = null;
         this.wr = null;
@@ -1555,6 +1591,10 @@ class OperandContext extends antlr4.ParserRuleContext {
 
 	symbol() {
 	    return this.getTypedRuleContext(SymbolContext,0);
+	};
+
+	PLUS() {
+	    return this.getToken(ARM32Parser.PLUS, 0);
 	};
 
 	HYPHEN() {

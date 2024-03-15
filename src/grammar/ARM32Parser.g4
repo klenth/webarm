@@ -47,14 +47,14 @@ returns [AstNode op]
     | LBRACK r=register RBRACK COMMA s=symbol {
         $op = new AST.PostindexedOperand($r.reg, $s.text);;
     }
-    | LBRACK r=register RBRACK COMMA HYPHEN? roff=register {
-        $op = new AST.PostindexedOperand($r.reg, new AST.SignedRegister($HYPHEN.text, $roff.reg.name));;
+    | LBRACK r=register RBRACK COMMA sign=(PLUS | HYPHEN)? roff=register {
+        $op = new AST.PostindexedOperand($r.reg, new AST.SignedRegister($sign.text, $roff.reg.name));;
     }
-    | LBRACK r=register RBRACK COMMA HYPHEN? roff=register COMMA f=flexOperandSpec {
+    | LBRACK r=register RBRACK COMMA sign=(PLUS | HYPHEN)? roff=register COMMA f=flexOperandSpec {
         $op = new AST.PostindexedOperand(
             $r.reg,
             new AST.FlexOperand(
-                new AST.SignedRegister($HYPHEN.text, $roff.reg.name),
+                new AST.SignedRegister($sign.text, $roff.reg.name),
                 $f.ctx.op.text,
                 $f.ctx.amount !== null ? $f.ctx.amount.text : null,
                 $f.ctx.register() !== null ? $f.ctx.register().reg : null
@@ -70,16 +70,6 @@ returns [AstNode op]
     | r=register {
         $op = $r.reg;;
     }
-    /*
-    | LBRACK r=register COMMA o=offset? RBRACK BANG {
-        $op = new AST.PreindexedOperand($r.reg, parseInt($o.off));;
-    }
-    | LBRACK r=register RBRACK COMMA o=offset {
-        $op = new AST.PostindexedOperand($r.reg, parseInt($o.off));;
-    }
-    | LBRACK r=register (COMMA o=offset)? RBRACK {
-        $op = new AST.OffsetOperand($r.reg, $o.off);;
-    }*/
     | LBRACK r=register RBRACK {
         $op = new AST.PreindexedOperand($r.reg, null, null);;
     }
@@ -89,14 +79,14 @@ returns [AstNode op]
     | LBRACK r=register COMMA s=symbol RBRACK BANG? {
         $op = new AST.PreindexedOperand($r.reg, $s.text, !!$BANG.text);;
     }
-    | LBRACK r=register COMMA HYPHEN? roff=register RBRACK BANG? {
-        $op = new AST.PreindexedOperand($r.reg, new AST.SignedRegister($HYPHEN.text, $roff.reg.name), !!$BANG.text);;
+    | LBRACK r=register COMMA sign=(PLUS | HYPHEN)? roff=register RBRACK BANG? {
+        $op = new AST.PreindexedOperand($r.reg, new AST.SignedRegister($sign.text, $roff.reg.name), !!$BANG.text);;
     }
-    | LBRACK r=register COMMA HYPHEN? roff=register COMMA f=flexOperandSpec RBRACK BANG? {
+    | LBRACK r=register COMMA sign=(PLUS | HYPHEN)? roff=register COMMA f=flexOperandSpec RBRACK BANG? {
         $op = new AST.PreindexedOperand(
             $r.reg,
             new AST.FlexOperand(
-                new AST.SignedRegister($HYPHEN.text, $roff.reg.name),
+                new AST.SignedRegister($sign.text, $roff.reg.name),
                 $f.ctx.op.text,
                 $f.ctx.amount !== null ? $f.ctx.amount.text : null,
                 $f.ctx.register() !== null ? $f.ctx.register().reg : null
@@ -195,7 +185,7 @@ returns [Directive d]
     | EQU value=INT {
         $d = new AST.EquateDirective($value.text);;
     }
-    | FILL bytes=INT value=INT? {
+    | FILL bytes=INT (COMMA value=INT)? {
         $d = new AST.FillDirective($bytes.text, $value.text);;
     }
     | ALIGN (value=INT)? {

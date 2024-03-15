@@ -278,7 +278,6 @@ class App extends React.Component {
     componentDidMount() {
         const customMode = new AssemblyARM32Mode();
         this.editorRef.editor.getSession().setMode(customMode);
-        console.debug(`Editor theme: ${this.editorRef.editor.getTheme()}`);
     }
 
     updateState(changedProperties) {
@@ -385,7 +384,6 @@ class App extends React.Component {
             window.clearTimeout(workerTimeout);
 
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
-            console.debug('Returned memory written addresses =', state.memory.writtenAddresses);
             if (msg.result === 'error') {
                 this.updateState({
                     simulatorState: state,

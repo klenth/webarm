@@ -40,7 +40,7 @@
 
         "arm32": {
             "line-comment": /;.*[\r\n$]/g,
-            keyword: /\b(?:nop|(?:add|adc|sub|sbc|rsb|rsc|mov|mvn|and|eor|orr|bic|asl|lsl|asr|lsr|ror|mul|mla)s?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|(tst|teq|cmp|cmn|b|bl|bx|stop|break|mov|swi)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|ldrb?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?b?|strb?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|(?:ldm|stm)(?:ia|ib|da|db|fd|ed|fa|ea)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?)\b/gi,
+            keyword: /\b(?:nop|(?:add|adc|sub|sbc|rsb|rsc|mov|mvn|and|eor|orr|bic|asl|lsl|asr|lsr|ror|mul|mla)(s?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?s?)|(tst|teq|cmp|cmn|b|bl|bx|stop|break|mov|swi)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|ldrb?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?b?|strb?(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?|(?:ldm|stm)(?:ia|ib|da|db|fd|ed|fa|ea)(?:eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le|al)?)\b/gi,
             register: /\b(?:r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15|sp|lr|pc)\b/gi,
             number: /[#=]-?0x[A-F0-9_]+|[#=]-?0b[01_]+|[#=]-?[0-9_]+/gi,
             string: /'([^']|\.)*'|"([^"]|\.)*"/g,
@@ -76,11 +76,7 @@
     };
     
     function highlight(region) {
-        let lang = region.dataset.language;
-        if (!lang) {
-            console.warn("Assuming highlighting language 'java' (use data-language attribute to override)");
-            lang = "java";
-        }
+        let lang = region.dataset.language || "arm32";
         if (lang in highlightRegexes) {
             let regexes = highlightRegexes[lang];
             Object.keys(regexes).forEach(function(clazz) {
