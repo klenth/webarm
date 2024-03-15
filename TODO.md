@@ -10,7 +10,7 @@
   - [DONE] SWI
   - [DONE] MUL/MLA?
   - [DONE] BX/BLX
-- Directives
+- [DONE] Directives
   - [DONE] DCB, DCD
   - [DONE] FILL (make this do the right thing - fill with given value, not just zero)
     - FILL nbytes value (default value is zero)
@@ -20,7 +20,7 @@
 - Assembler module
 - [DONE] Error messages on parse/assembly error
 - [DONE] Syntax highlighting (Ace mode)
-- Instruction reference
+- [DONE] Instruction reference
 - Keyboard shortcuts (at least for run/debug)
 - Syscalls:
   - putchar
@@ -61,5 +61,5 @@
   - Syscalls: open file, close file, fputchar, fgetchar
   - Ability to "upload" files into app, "download" from
 - [DONE] >>> Fix inability to lex BLT correctly
-- Scroll editor to executing instruction on a step/continue
-- 
+- [DONE] Scroll editor to executing instruction on a step/continue
+- Rename "Parse" button to "Assemble"
