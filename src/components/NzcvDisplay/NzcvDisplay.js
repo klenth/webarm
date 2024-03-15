@@ -13,7 +13,7 @@ const Display = styled.div`
   border: 3px solid ${chromeColor};
   border-radius: 8px;
   color: #00b5e2;
-  background-color: white;
+  background-color: ${chromeColor};
   padding: 0;
   --display-height: ${displayHeight};
   height: var(--display-height);
@@ -49,6 +49,9 @@ const Value = styled.div`
   white-space: nowrap;
   height: var(--display-height);
   line-height: var(--display-height);
+  background-color: white;
+  border-radius: 4px;
+  padding: 0 8px;
 
   justify-self: center;
 `;

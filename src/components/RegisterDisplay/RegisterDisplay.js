@@ -24,7 +24,7 @@ const Display = styled.div`
   border: 3px solid var(--chrome-color);
   border-radius: 8px;
   color: #00b5e2;
-  background-color: white;
+  background-color: var(--chrome-color);
   padding: 0;
   height: var(--display-height);
   font-size: 0.8rem;
@@ -45,6 +45,12 @@ const Label = styled.div`
   text-align: center;
   color: ${foreColor};
   background-color: var(--chrome-color);
+`;
+
+const Interior = styled.div`
+  display: inline-block;
+  background-color: white;
+  border-radius: 4px;
 `;
 
 const Value = styled.div`
@@ -183,14 +189,16 @@ export default class RegisterDisplay extends React.Component {
                 updated={this.props.updated}
             >
                 <Label>{this.props.label}</Label>
-                <Value>&nbsp;{valueText(this.props.value, this.state.displayMode)}&nbsp;</Value>
-                <CopyButton
-                    title={'Copy'}
-                    onClick={_ => this.copyText(valueText(this.props.value, this.state.displayMode))}
-                />
-                <Modes>
-                    {modeSelectors}
-                </Modes>
+                <Interior>
+                    <Value>&nbsp;{valueText(this.props.value, this.state.displayMode)}&nbsp;</Value>
+                    <CopyButton
+                        title={'Copy'}
+                        onClick={_ => this.copyText(valueText(this.props.value, this.state.displayMode))}
+                    />
+                    <Modes>
+                        {modeSelectors}
+                    </Modes>
+                </Interior>
             </Display>
         );
     }
