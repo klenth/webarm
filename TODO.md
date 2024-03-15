@@ -43,8 +43,8 @@
   - Instead, editor shows current line, even when it corresponds to multiple
     instrs (relevant instruction is shown in memory view)
 - [DONE] Validation of immediate values (e.g. rotation of immediate in data processing instructions)
-- Expressions for symbols
-- Symbol/expression for operand 2 in data processing instructions
+- [DONE] Expressions for symbols
+- [DONE] Symbol/expression for operand 2 in data processing instructions
 - [DONE] Correct handling of R15 (cannot participate in some instructions)
 - Support RRX?
   - Seems like a lot of effort for something that will likely never be used.
@@ -56,7 +56,7 @@
   - Max instruction, max time for run
   - Stop when executing zero
   - Others?
-- Show updated registers/memory with each step
+- [DONE] Show updated registers/memory with each step
 - File I/O?
   - Syscalls: open file, close file, fputchar, fgetchar
   - Ability to "upload" files into app, "download" from
