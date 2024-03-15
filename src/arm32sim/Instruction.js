@@ -355,6 +355,44 @@ export class BlockDataTransferInstruction extends Instruction {
         return this.get('L') ? 'LDM' : 'STM';
     }
 
+    toString() {
+        const { Cond, P, U, W, L, Rn, RegisterList } = this.fieldValues;
+        const dirBits = (L << 2) | (P << 1) | U;
+        const mnemonic = ['STMED', 'STMEA', 'STMFD', 'STMFA', 'LDMFA', 'LDMFD', 'LDMEA', 'LDMED'][dirBits];
+        const reg = registerToString(Rn) + (W ? '!' : '');
+        let currentRange = null;
+        const regRanges = [];
+
+        for (let i = 0; i < 16; ++i) {
+            if (((RegisterList >>> i) & 1) === 0)
+                continue;
+            if (currentRange && currentRange[1] + 1 === i)
+                currentRange[1] = i;
+            else {
+                if (currentRange)
+                    regRanges.push(currentRange);
+                currentRange = [i, i];
+            }
+        }
+
+        if (currentRange)
+            regRanges.push(currentRange);
+
+        const regRangeStrings = [];
+        for (let range of regRanges) {
+            if (range[0] === range[1])
+                regRangeStrings.push(registerToString(range[0]));
+            else if (range[0] + 1 === range[1]) {
+                regRangeStrings.push(registerToString(range[0]));
+                regRangeStrings.push(registerToString(range[1]));
+            } else
+                regRangeStrings.push(`${registerToString(range[0])}-${registerToString(range[1])}`);
+        }
+        const regList = regRangeStrings.join(',');
+
+        return `${mnemonic}${condToString(Cond)} ${reg}, {${regList}}`;
+    }
+
     static fromCode(word) {
         const fieldValues = decodeFieldValues(word, BlockDataTransferInstruction._format);
         return new BlockDataTransferInstruction(fieldValues);
@@ -376,6 +414,11 @@ export class StopInstruction extends Instruction {
 
     mnemonic() {
         return 'STOP';
+    }
+
+    toString() {
+        const { Cond } = this.fieldValues;
+        return `${this.mnemonic()}${condToString(Cond)}`;
     }
 
     static fromCode(word) {
@@ -401,6 +444,11 @@ export class BreakInstruction extends Instruction {
         return 'BREAK';
     }
 
+    toString() {
+        const { Cond } = this.fieldValues;
+        return `${this.mnemonic()}${condToString(Cond)}`;
+    }
+
     static fromCode(word) {
         const fieldValues = decodeFieldValues(word, BreakInstruction._format);
         return new BreakInstruction(fieldValues);
@@ -420,6 +468,11 @@ export class SoftwareInterruptInstruction extends Instruction {
 
     mnemonic() {
         return 'SWI';
+    }
+
+    toString() {
+        const { Cond } = this.fieldValues;
+        return `${this.mnemonic()}${condToString(Cond)}`;
     }
 
     static fromCode(word) {

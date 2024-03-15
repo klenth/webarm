@@ -63,5 +63,5 @@
 - [DONE] >>> Fix inability to lex BLT correctly
 - [DONE] Scroll editor to executing instruction on a step/continue
 - [DONE] Rename "Parse" button to "Assemble"
-- Finish implementing toString() for all instruction types
+- [DONE] Finish implementing toString() for all instruction types
 - 
