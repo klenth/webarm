@@ -46,7 +46,8 @@ const LineDisplay = styled.div`
 `;
 
 const AddressDisplay = styled.span`
-
+    padding-right: 8px;
+    color: var(--color-thistle);
 `;
 
 const WordDisplay = styled.span`
@@ -78,7 +79,7 @@ function formatByte(value) {
 
 function formatAddress(addr) {
     const s = (addr >>> 0).toString(16).toUpperCase();
-    return '0'.repeat(Math.max(0, 8 - s.length)) + s;
+    return '\u00a0'.repeat(Math.max(0, 8 - s.length)) + s;
 }
 
 function formatWordTitle(addr, value) {
