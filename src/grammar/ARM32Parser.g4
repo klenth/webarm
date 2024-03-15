@@ -44,8 +44,8 @@ returns [AstNode op]
     : LBRACK r=register RBRACK COMMA i=immediate {
         $op = new AST.PostindexedOperand($r.reg, $i.value);;
     }
-    | LBRACK r=register RBRACK COMMA s=symbol {
-        $op = new AST.PostindexedOperand($r.reg, $s.text);;
+    | LBRACK r=register RBRACK COMMA s=symbolic {
+        $op = new AST.PostindexedOperand($r.reg, $s.e);;
     }
     | LBRACK r=register RBRACK COMMA sign=(PLUS | HYPHEN)? roff=register {
         $op = new AST.PostindexedOperand($r.reg, new AST.SignedRegister($sign.text, $roff.reg.name));;
@@ -76,8 +76,8 @@ returns [AstNode op]
     | LBRACK r=register COMMA i=immediate RBRACK BANG? {
         $op = new AST.PreindexedOperand($r.reg, $i.value, !!$BANG.text);;
     }
-    | LBRACK r=register COMMA s=symbol RBRACK BANG? {
-        $op = new AST.PreindexedOperand($r.reg, $s.text, !!$BANG.text);;
+    | LBRACK r=register COMMA s=symbolic RBRACK BANG? {
+        $op = new AST.PreindexedOperand($r.reg, $s.e, !!$BANG.text);;
     }
     | LBRACK r=register COMMA sign=(PLUS | HYPHEN)? roff=register RBRACK BANG? {
         $op = new AST.PreindexedOperand($r.reg, new AST.SignedRegister($sign.text, $roff.reg.name), !!$BANG.text);;
@@ -100,8 +100,8 @@ returns [AstNode op]
     | pi=pseudoImmediate {
         $op = $pi.value;;
     }
-    | s=symbol {
-        $op = $s.text;;
+    | s=symbolic {
+        $op = $s.e;;
     }
     | LBRACE rs=registerSet RBRACE {
         $op = $rs.registers;;
@@ -152,15 +152,33 @@ returns [PseudoImmediate value]
     : EQUALS v=INT {
         $value = new AST.PseudoImmediate($v.text);;
     }
-    | EQUALS s=symbol {
-        $value = new AST.PseudoImmediate($s.text);;
+    | EQUALS s=symbolic {
+        $value = new AST.PseudoImmediate($s.e);;
     }
     ;
 
-symbol
-returns [String text]
-    : t=ID {
-        $text = $t.text;;
+symbolic
+returns [SymbolicExpression e]
+    : LPAREN expr=symbolic RPAREN {
+        $e = $expr.e;;
+    }
+    | HYPHEN expr=symbolic {
+        $e = new AST.BinaryOp('-', new AST.NumberExpression('0'), $expr.e);;
+    }
+    | l=symbolic op=(ASTERISK | SLASH | PERCENT) r=symbolic {
+        $e = new AST.BinaryOp($op.text, $l.e, $r.e);;
+    }
+    | l=symbolic op=(PLUS | HYPHEN) r=symbolic {
+        $e = new AST.BinaryOp($op.text, $l.e, $r.e);;
+    }
+    | DOT {
+        $e = new AST.CurrentAddressExpression();;
+    }
+    | ID {
+        $e = new AST.SymbolExpression($ID.text);
+    }
+    | INT {
+        $e = new AST.NumberExpression($INT.text);
     }
     ;
 
@@ -198,8 +216,8 @@ returns [AstNode n]
     : INT {
         $n = $INT.text;;
     }
-    | symbol {
-        $n = $symbol.text;;
+    | symbolic {
+        $n = $symbolic.e;;
     }
     ;
 

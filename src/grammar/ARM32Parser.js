@@ -4,7 +4,7 @@ import antlr4 from 'antlr4';
 
 import * as AST from './arm32Ast';
 
-const serializedATN = [4,1,26,327,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
+const serializedATN = [4,1,32,357,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 4,2,5,7,5,2,6,7,6,2,7,7,7,2,8,7,8,2,9,7,9,2,10,7,10,2,11,7,11,2,12,7,12,
 2,13,7,13,2,14,7,14,2,15,7,15,1,0,5,0,34,8,0,10,0,12,0,37,9,0,1,0,5,0,40,
 8,0,10,0,12,0,43,9,0,1,0,1,0,1,0,1,1,3,1,49,8,1,1,1,4,1,52,8,1,11,1,12,1,
@@ -20,94 +20,105 @@ const serializedATN = [4,1,26,327,2,0,7,0,2,1,7,1,2,2,7,2,2,3,7,3,2,4,7,
 1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,1,4,3,4,210,8,4,1,5,1,5,1,5,1,6,1,6,1,6,
 1,6,1,7,1,7,1,7,1,7,1,7,1,7,1,7,3,7,226,8,7,1,8,1,8,1,8,1,8,1,8,1,8,1,8,
 1,8,1,8,1,8,1,8,3,8,239,8,8,1,9,1,9,1,9,1,9,1,10,1,10,1,10,1,10,1,10,1,10,
-1,10,3,10,252,8,10,1,11,1,11,1,11,1,12,1,12,1,12,1,12,1,12,3,12,262,8,12,
-1,12,1,12,1,12,1,12,1,12,3,12,269,8,12,1,12,1,12,3,12,273,8,12,1,13,1,13,
-1,13,1,13,5,13,279,8,13,10,13,12,13,282,9,13,1,13,1,13,1,13,1,13,1,13,1,
-13,5,13,290,8,13,10,13,12,13,293,9,13,1,13,1,13,1,13,1,13,1,13,1,13,1,13,
-1,13,1,13,3,13,304,8,13,1,13,1,13,1,13,3,13,309,8,13,1,13,3,13,312,8,13,
-1,14,1,14,1,14,1,14,1,14,3,14,319,8,14,1,15,1,15,1,15,1,15,3,15,325,8,15,
-1,15,0,0,16,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,0,1,1,0,8,9,362,0,
-35,1,0,0,0,2,78,1,0,0,0,4,80,1,0,0,0,6,82,1,0,0,0,8,209,1,0,0,0,10,211,1,
-0,0,0,12,214,1,0,0,0,14,225,1,0,0,0,16,238,1,0,0,0,18,240,1,0,0,0,20,251,
-1,0,0,0,22,253,1,0,0,0,24,272,1,0,0,0,26,311,1,0,0,0,28,318,1,0,0,0,30,324,
-1,0,0,0,32,34,5,21,0,0,33,32,1,0,0,0,34,37,1,0,0,0,35,33,1,0,0,0,35,36,1,
-0,0,0,36,41,1,0,0,0,37,35,1,0,0,0,38,40,3,2,1,0,39,38,1,0,0,0,40,43,1,0,
-0,0,41,39,1,0,0,0,41,42,1,0,0,0,42,44,1,0,0,0,43,41,1,0,0,0,44,45,5,0,0,
-1,45,46,6,0,-1,0,46,1,1,0,0,0,47,49,3,4,2,0,48,47,1,0,0,0,48,49,1,0,0,0,
-49,51,1,0,0,0,50,52,5,21,0,0,51,50,1,0,0,0,52,53,1,0,0,0,53,51,1,0,0,0,53,
-54,1,0,0,0,54,55,1,0,0,0,55,79,6,1,-1,0,56,58,3,4,2,0,57,56,1,0,0,0,57,58,
-1,0,0,0,58,59,1,0,0,0,59,61,3,6,3,0,60,62,5,21,0,0,61,60,1,0,0,0,62,63,1,
-0,0,0,63,61,1,0,0,0,63,64,1,0,0,0,64,65,1,0,0,0,65,66,6,1,-1,0,66,79,1,0,
-0,0,67,69,3,4,2,0,68,67,1,0,0,0,68,69,1,0,0,0,69,70,1,0,0,0,70,72,3,26,13,
-0,71,73,5,21,0,0,72,71,1,0,0,0,73,74,1,0,0,0,74,72,1,0,0,0,74,75,1,0,0,0,
-75,76,1,0,0,0,76,77,6,1,-1,0,77,79,1,0,0,0,78,48,1,0,0,0,78,57,1,0,0,0,78,
-68,1,0,0,0,79,3,1,0,0,0,80,81,5,20,0,0,81,5,1,0,0,0,82,91,5,10,0,0,83,88,
-3,8,4,0,84,85,5,2,0,0,85,87,3,8,4,0,86,84,1,0,0,0,87,90,1,0,0,0,88,86,1,
-0,0,0,88,89,1,0,0,0,89,92,1,0,0,0,90,88,1,0,0,0,91,83,1,0,0,0,91,92,1,0,
-0,0,92,93,1,0,0,0,93,94,6,3,-1,0,94,7,1,0,0,0,95,96,5,3,0,0,96,97,3,10,5,
-0,97,98,5,4,0,0,98,99,5,2,0,0,99,100,3,18,9,0,100,101,6,4,-1,0,101,210,1,
-0,0,0,102,103,5,3,0,0,103,104,3,10,5,0,104,105,5,4,0,0,105,106,5,2,0,0,106,
-107,3,22,11,0,107,108,6,4,-1,0,108,210,1,0,0,0,109,110,5,3,0,0,110,111,3,
-10,5,0,111,112,5,4,0,0,112,114,5,2,0,0,113,115,7,0,0,0,114,113,1,0,0,0,114,
-115,1,0,0,0,115,116,1,0,0,0,116,117,3,10,5,0,117,118,6,4,-1,0,118,210,1,
-0,0,0,119,120,5,3,0,0,120,121,3,10,5,0,121,122,5,4,0,0,122,124,5,2,0,0,123,
-125,7,0,0,0,124,123,1,0,0,0,124,125,1,0,0,0,125,126,1,0,0,0,126,127,3,10,
-5,0,127,128,5,2,0,0,128,129,3,14,7,0,129,130,6,4,-1,0,130,210,1,0,0,0,131,
-132,3,10,5,0,132,133,5,2,0,0,133,134,3,14,7,0,134,135,6,4,-1,0,135,210,1,
-0,0,0,136,137,3,12,6,0,137,138,6,4,-1,0,138,210,1,0,0,0,139,140,3,10,5,0,
-140,141,6,4,-1,0,141,210,1,0,0,0,142,143,5,3,0,0,143,144,3,10,5,0,144,145,
-5,4,0,0,145,146,6,4,-1,0,146,210,1,0,0,0,147,148,5,3,0,0,148,149,3,10,5,
-0,149,150,5,2,0,0,150,151,3,18,9,0,151,153,5,4,0,0,152,154,5,7,0,0,153,152,
-1,0,0,0,153,154,1,0,0,0,154,155,1,0,0,0,155,156,6,4,-1,0,156,210,1,0,0,0,
-157,158,5,3,0,0,158,159,3,10,5,0,159,160,5,2,0,0,160,161,3,22,11,0,161,163,
-5,4,0,0,162,164,5,7,0,0,163,162,1,0,0,0,163,164,1,0,0,0,164,165,1,0,0,0,
-165,166,6,4,-1,0,166,210,1,0,0,0,167,168,5,3,0,0,168,169,3,10,5,0,169,171,
-5,2,0,0,170,172,7,0,0,0,171,170,1,0,0,0,171,172,1,0,0,0,172,173,1,0,0,0,
-173,174,3,10,5,0,174,176,5,4,0,0,175,177,5,7,0,0,176,175,1,0,0,0,176,177,
-1,0,0,0,177,178,1,0,0,0,178,179,6,4,-1,0,179,210,1,0,0,0,180,181,5,3,0,0,
-181,182,3,10,5,0,182,184,5,2,0,0,183,185,7,0,0,0,184,183,1,0,0,0,184,185,
-1,0,0,0,185,186,1,0,0,0,186,187,3,10,5,0,187,188,5,2,0,0,188,189,3,14,7,
-0,189,191,5,4,0,0,190,192,5,7,0,0,191,190,1,0,0,0,191,192,1,0,0,0,192,193,
-1,0,0,0,193,194,6,4,-1,0,194,210,1,0,0,0,195,196,3,18,9,0,196,197,6,4,-1,
-0,197,210,1,0,0,0,198,199,3,20,10,0,199,200,6,4,-1,0,200,210,1,0,0,0,201,
-202,3,22,11,0,202,203,6,4,-1,0,203,210,1,0,0,0,204,205,5,5,0,0,205,206,3,
-24,12,0,206,207,5,6,0,0,207,208,6,4,-1,0,208,210,1,0,0,0,209,95,1,0,0,0,
-209,102,1,0,0,0,209,109,1,0,0,0,209,119,1,0,0,0,209,131,1,0,0,0,209,136,
-1,0,0,0,209,139,1,0,0,0,209,142,1,0,0,0,209,147,1,0,0,0,209,157,1,0,0,0,
-209,167,1,0,0,0,209,180,1,0,0,0,209,195,1,0,0,0,209,198,1,0,0,0,209,201,
-1,0,0,0,209,204,1,0,0,0,210,9,1,0,0,0,211,212,5,11,0,0,212,213,6,5,-1,0,
-213,11,1,0,0,0,214,215,5,11,0,0,215,216,5,7,0,0,216,217,6,6,-1,0,217,13,
-1,0,0,0,218,219,5,10,0,0,219,220,4,7,0,1,220,221,5,12,0,0,221,226,5,14,0,
-0,222,223,5,10,0,0,223,224,4,7,1,1,224,226,3,10,5,0,225,218,1,0,0,0,225,
-222,1,0,0,0,226,15,1,0,0,0,227,228,3,10,5,0,228,229,6,8,-1,0,229,239,1,0,
-0,0,230,231,3,10,5,0,231,232,5,2,0,0,232,233,3,14,7,0,233,234,6,8,-1,0,234,
-239,1,0,0,0,235,236,3,18,9,0,236,237,6,8,-1,0,237,239,1,0,0,0,238,227,1,
-0,0,0,238,230,1,0,0,0,238,235,1,0,0,0,239,17,1,0,0,0,240,241,5,12,0,0,241,
-242,5,14,0,0,242,243,6,9,-1,0,243,19,1,0,0,0,244,245,5,13,0,0,245,246,5,
-14,0,0,246,252,6,10,-1,0,247,248,5,13,0,0,248,249,3,22,11,0,249,250,6,10,
--1,0,250,252,1,0,0,0,251,244,1,0,0,0,251,247,1,0,0,0,252,21,1,0,0,0,253,
-254,5,20,0,0,254,255,6,11,-1,0,255,23,1,0,0,0,256,257,3,10,5,0,257,258,5,
-8,0,0,258,261,3,10,5,0,259,260,5,2,0,0,260,262,3,24,12,0,261,259,1,0,0,0,
-261,262,1,0,0,0,262,263,1,0,0,0,263,264,6,12,-1,0,264,273,1,0,0,0,265,268,
-3,10,5,0,266,267,5,2,0,0,267,269,3,24,12,0,268,266,1,0,0,0,268,269,1,0,0,
-0,269,270,1,0,0,0,270,271,6,12,-1,0,271,273,1,0,0,0,272,256,1,0,0,0,272,
-265,1,0,0,0,273,25,1,0,0,0,274,275,5,15,0,0,275,280,3,28,14,0,276,277,5,
-2,0,0,277,279,3,28,14,0,278,276,1,0,0,0,279,282,1,0,0,0,280,278,1,0,0,0,
-280,281,1,0,0,0,281,283,1,0,0,0,282,280,1,0,0,0,283,284,6,13,-1,0,284,312,
-1,0,0,0,285,286,5,16,0,0,286,291,3,30,15,0,287,288,5,2,0,0,288,290,3,30,
-15,0,289,287,1,0,0,0,290,293,1,0,0,0,291,289,1,0,0,0,291,292,1,0,0,0,292,
-294,1,0,0,0,293,291,1,0,0,0,294,295,6,13,-1,0,295,312,1,0,0,0,296,297,5,
-17,0,0,297,298,5,14,0,0,298,312,6,13,-1,0,299,300,5,18,0,0,300,303,5,14,
-0,0,301,302,5,2,0,0,302,304,5,14,0,0,303,301,1,0,0,0,303,304,1,0,0,0,304,
-305,1,0,0,0,305,312,6,13,-1,0,306,308,5,19,0,0,307,309,5,14,0,0,308,307,
-1,0,0,0,308,309,1,0,0,0,309,310,1,0,0,0,310,312,6,13,-1,0,311,274,1,0,0,
-0,311,285,1,0,0,0,311,296,1,0,0,0,311,299,1,0,0,0,311,306,1,0,0,0,312,27,
-1,0,0,0,313,314,5,14,0,0,314,319,6,14,-1,0,315,316,3,22,11,0,316,317,6,14,
--1,0,317,319,1,0,0,0,318,313,1,0,0,0,318,315,1,0,0,0,319,29,1,0,0,0,320,
-321,5,14,0,0,321,325,6,15,-1,0,322,323,5,25,0,0,323,325,6,15,-1,0,324,320,
-1,0,0,0,324,322,1,0,0,0,325,31,1,0,0,0,33,35,41,48,53,57,63,68,74,78,88,
-91,114,124,153,163,171,176,184,191,209,225,238,251,261,268,272,280,291,303,
-308,311,318,324];
+1,10,3,10,252,8,10,1,11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,
+1,11,1,11,1,11,1,11,1,11,3,11,270,8,11,1,11,1,11,1,11,1,11,1,11,1,11,1,11,
+1,11,1,11,1,11,5,11,282,8,11,10,11,12,11,285,9,11,1,12,1,12,1,12,1,12,1,
+12,3,12,292,8,12,1,12,1,12,1,12,1,12,1,12,3,12,299,8,12,1,12,1,12,3,12,303,
+8,12,1,13,1,13,1,13,1,13,5,13,309,8,13,10,13,12,13,312,9,13,1,13,1,13,1,
+13,1,13,1,13,1,13,5,13,320,8,13,10,13,12,13,323,9,13,1,13,1,13,1,13,1,13,
+1,13,1,13,1,13,1,13,1,13,3,13,334,8,13,1,13,1,13,1,13,3,13,339,8,13,1,13,
+3,13,342,8,13,1,14,1,14,1,14,1,14,1,14,3,14,349,8,14,1,15,1,15,1,15,1,15,
+3,15,355,8,15,1,15,0,1,22,16,0,2,4,6,8,10,12,14,16,18,20,22,24,26,28,30,
+0,2,1,0,8,9,1,0,10,12,398,0,35,1,0,0,0,2,78,1,0,0,0,4,80,1,0,0,0,6,82,1,
+0,0,0,8,209,1,0,0,0,10,211,1,0,0,0,12,214,1,0,0,0,14,225,1,0,0,0,16,238,
+1,0,0,0,18,240,1,0,0,0,20,251,1,0,0,0,22,269,1,0,0,0,24,302,1,0,0,0,26,341,
+1,0,0,0,28,348,1,0,0,0,30,354,1,0,0,0,32,34,5,27,0,0,33,32,1,0,0,0,34,37,
+1,0,0,0,35,33,1,0,0,0,35,36,1,0,0,0,36,41,1,0,0,0,37,35,1,0,0,0,38,40,3,
+2,1,0,39,38,1,0,0,0,40,43,1,0,0,0,41,39,1,0,0,0,41,42,1,0,0,0,42,44,1,0,
+0,0,43,41,1,0,0,0,44,45,5,0,0,1,45,46,6,0,-1,0,46,1,1,0,0,0,47,49,3,4,2,
+0,48,47,1,0,0,0,48,49,1,0,0,0,49,51,1,0,0,0,50,52,5,27,0,0,51,50,1,0,0,0,
+52,53,1,0,0,0,53,51,1,0,0,0,53,54,1,0,0,0,54,55,1,0,0,0,55,79,6,1,-1,0,56,
+58,3,4,2,0,57,56,1,0,0,0,57,58,1,0,0,0,58,59,1,0,0,0,59,61,3,6,3,0,60,62,
+5,27,0,0,61,60,1,0,0,0,62,63,1,0,0,0,63,61,1,0,0,0,63,64,1,0,0,0,64,65,1,
+0,0,0,65,66,6,1,-1,0,66,79,1,0,0,0,67,69,3,4,2,0,68,67,1,0,0,0,68,69,1,0,
+0,0,69,70,1,0,0,0,70,72,3,26,13,0,71,73,5,27,0,0,72,71,1,0,0,0,73,74,1,0,
+0,0,74,72,1,0,0,0,74,75,1,0,0,0,75,76,1,0,0,0,76,77,6,1,-1,0,77,79,1,0,0,
+0,78,48,1,0,0,0,78,57,1,0,0,0,78,68,1,0,0,0,79,3,1,0,0,0,80,81,5,26,0,0,
+81,5,1,0,0,0,82,91,5,16,0,0,83,88,3,8,4,0,84,85,5,2,0,0,85,87,3,8,4,0,86,
+84,1,0,0,0,87,90,1,0,0,0,88,86,1,0,0,0,88,89,1,0,0,0,89,92,1,0,0,0,90,88,
+1,0,0,0,91,83,1,0,0,0,91,92,1,0,0,0,92,93,1,0,0,0,93,94,6,3,-1,0,94,7,1,
+0,0,0,95,96,5,3,0,0,96,97,3,10,5,0,97,98,5,4,0,0,98,99,5,2,0,0,99,100,3,
+18,9,0,100,101,6,4,-1,0,101,210,1,0,0,0,102,103,5,3,0,0,103,104,3,10,5,0,
+104,105,5,4,0,0,105,106,5,2,0,0,106,107,3,22,11,0,107,108,6,4,-1,0,108,210,
+1,0,0,0,109,110,5,3,0,0,110,111,3,10,5,0,111,112,5,4,0,0,112,114,5,2,0,0,
+113,115,7,0,0,0,114,113,1,0,0,0,114,115,1,0,0,0,115,116,1,0,0,0,116,117,
+3,10,5,0,117,118,6,4,-1,0,118,210,1,0,0,0,119,120,5,3,0,0,120,121,3,10,5,
+0,121,122,5,4,0,0,122,124,5,2,0,0,123,125,7,0,0,0,124,123,1,0,0,0,124,125,
+1,0,0,0,125,126,1,0,0,0,126,127,3,10,5,0,127,128,5,2,0,0,128,129,3,14,7,
+0,129,130,6,4,-1,0,130,210,1,0,0,0,131,132,3,10,5,0,132,133,5,2,0,0,133,
+134,3,14,7,0,134,135,6,4,-1,0,135,210,1,0,0,0,136,137,3,12,6,0,137,138,6,
+4,-1,0,138,210,1,0,0,0,139,140,3,10,5,0,140,141,6,4,-1,0,141,210,1,0,0,0,
+142,143,5,3,0,0,143,144,3,10,5,0,144,145,5,4,0,0,145,146,6,4,-1,0,146,210,
+1,0,0,0,147,148,5,3,0,0,148,149,3,10,5,0,149,150,5,2,0,0,150,151,3,18,9,
+0,151,153,5,4,0,0,152,154,5,7,0,0,153,152,1,0,0,0,153,154,1,0,0,0,154,155,
+1,0,0,0,155,156,6,4,-1,0,156,210,1,0,0,0,157,158,5,3,0,0,158,159,3,10,5,
+0,159,160,5,2,0,0,160,161,3,22,11,0,161,163,5,4,0,0,162,164,5,7,0,0,163,
+162,1,0,0,0,163,164,1,0,0,0,164,165,1,0,0,0,165,166,6,4,-1,0,166,210,1,0,
+0,0,167,168,5,3,0,0,168,169,3,10,5,0,169,171,5,2,0,0,170,172,7,0,0,0,171,
+170,1,0,0,0,171,172,1,0,0,0,172,173,1,0,0,0,173,174,3,10,5,0,174,176,5,4,
+0,0,175,177,5,7,0,0,176,175,1,0,0,0,176,177,1,0,0,0,177,178,1,0,0,0,178,
+179,6,4,-1,0,179,210,1,0,0,0,180,181,5,3,0,0,181,182,3,10,5,0,182,184,5,
+2,0,0,183,185,7,0,0,0,184,183,1,0,0,0,184,185,1,0,0,0,185,186,1,0,0,0,186,
+187,3,10,5,0,187,188,5,2,0,0,188,189,3,14,7,0,189,191,5,4,0,0,190,192,5,
+7,0,0,191,190,1,0,0,0,191,192,1,0,0,0,192,193,1,0,0,0,193,194,6,4,-1,0,194,
+210,1,0,0,0,195,196,3,18,9,0,196,197,6,4,-1,0,197,210,1,0,0,0,198,199,3,
+20,10,0,199,200,6,4,-1,0,200,210,1,0,0,0,201,202,3,22,11,0,202,203,6,4,-1,
+0,203,210,1,0,0,0,204,205,5,5,0,0,205,206,3,24,12,0,206,207,5,6,0,0,207,
+208,6,4,-1,0,208,210,1,0,0,0,209,95,1,0,0,0,209,102,1,0,0,0,209,109,1,0,
+0,0,209,119,1,0,0,0,209,131,1,0,0,0,209,136,1,0,0,0,209,139,1,0,0,0,209,
+142,1,0,0,0,209,147,1,0,0,0,209,157,1,0,0,0,209,167,1,0,0,0,209,180,1,0,
+0,0,209,195,1,0,0,0,209,198,1,0,0,0,209,201,1,0,0,0,209,204,1,0,0,0,210,
+9,1,0,0,0,211,212,5,17,0,0,212,213,6,5,-1,0,213,11,1,0,0,0,214,215,5,17,
+0,0,215,216,5,7,0,0,216,217,6,6,-1,0,217,13,1,0,0,0,218,219,5,16,0,0,219,
+220,4,7,0,1,220,221,5,18,0,0,221,226,5,20,0,0,222,223,5,16,0,0,223,224,4,
+7,1,1,224,226,3,10,5,0,225,218,1,0,0,0,225,222,1,0,0,0,226,15,1,0,0,0,227,
+228,3,10,5,0,228,229,6,8,-1,0,229,239,1,0,0,0,230,231,3,10,5,0,231,232,5,
+2,0,0,232,233,3,14,7,0,233,234,6,8,-1,0,234,239,1,0,0,0,235,236,3,18,9,0,
+236,237,6,8,-1,0,237,239,1,0,0,0,238,227,1,0,0,0,238,230,1,0,0,0,238,235,
+1,0,0,0,239,17,1,0,0,0,240,241,5,18,0,0,241,242,5,20,0,0,242,243,6,9,-1,
+0,243,19,1,0,0,0,244,245,5,19,0,0,245,246,5,20,0,0,246,252,6,10,-1,0,247,
+248,5,19,0,0,248,249,3,22,11,0,249,250,6,10,-1,0,250,252,1,0,0,0,251,244,
+1,0,0,0,251,247,1,0,0,0,252,21,1,0,0,0,253,254,6,11,-1,0,254,255,5,13,0,
+0,255,256,3,22,11,0,256,257,5,14,0,0,257,258,6,11,-1,0,258,270,1,0,0,0,259,
+260,5,8,0,0,260,261,3,22,11,6,261,262,6,11,-1,0,262,270,1,0,0,0,263,264,
+5,15,0,0,264,270,6,11,-1,0,265,266,5,26,0,0,266,270,6,11,-1,0,267,268,5,
+20,0,0,268,270,6,11,-1,0,269,253,1,0,0,0,269,259,1,0,0,0,269,263,1,0,0,0,
+269,265,1,0,0,0,269,267,1,0,0,0,270,283,1,0,0,0,271,272,10,5,0,0,272,273,
+7,1,0,0,273,274,3,22,11,6,274,275,6,11,-1,0,275,282,1,0,0,0,276,277,10,4,
+0,0,277,278,7,0,0,0,278,279,3,22,11,5,279,280,6,11,-1,0,280,282,1,0,0,0,
+281,271,1,0,0,0,281,276,1,0,0,0,282,285,1,0,0,0,283,281,1,0,0,0,283,284,
+1,0,0,0,284,23,1,0,0,0,285,283,1,0,0,0,286,287,3,10,5,0,287,288,5,8,0,0,
+288,291,3,10,5,0,289,290,5,2,0,0,290,292,3,24,12,0,291,289,1,0,0,0,291,292,
+1,0,0,0,292,293,1,0,0,0,293,294,6,12,-1,0,294,303,1,0,0,0,295,298,3,10,5,
+0,296,297,5,2,0,0,297,299,3,24,12,0,298,296,1,0,0,0,298,299,1,0,0,0,299,
+300,1,0,0,0,300,301,6,12,-1,0,301,303,1,0,0,0,302,286,1,0,0,0,302,295,1,
+0,0,0,303,25,1,0,0,0,304,305,5,21,0,0,305,310,3,28,14,0,306,307,5,2,0,0,
+307,309,3,28,14,0,308,306,1,0,0,0,309,312,1,0,0,0,310,308,1,0,0,0,310,311,
+1,0,0,0,311,313,1,0,0,0,312,310,1,0,0,0,313,314,6,13,-1,0,314,342,1,0,0,
+0,315,316,5,22,0,0,316,321,3,30,15,0,317,318,5,2,0,0,318,320,3,30,15,0,319,
+317,1,0,0,0,320,323,1,0,0,0,321,319,1,0,0,0,321,322,1,0,0,0,322,324,1,0,
+0,0,323,321,1,0,0,0,324,325,6,13,-1,0,325,342,1,0,0,0,326,327,5,23,0,0,327,
+328,5,20,0,0,328,342,6,13,-1,0,329,330,5,24,0,0,330,333,5,20,0,0,331,332,
+5,2,0,0,332,334,5,20,0,0,333,331,1,0,0,0,333,334,1,0,0,0,334,335,1,0,0,0,
+335,342,6,13,-1,0,336,338,5,25,0,0,337,339,5,20,0,0,338,337,1,0,0,0,338,
+339,1,0,0,0,339,340,1,0,0,0,340,342,6,13,-1,0,341,304,1,0,0,0,341,315,1,
+0,0,0,341,326,1,0,0,0,341,329,1,0,0,0,341,336,1,0,0,0,342,27,1,0,0,0,343,
+344,5,20,0,0,344,349,6,14,-1,0,345,346,3,22,11,0,346,347,6,14,-1,0,347,349,
+1,0,0,0,348,343,1,0,0,0,348,345,1,0,0,0,349,29,1,0,0,0,350,351,5,20,0,0,
+351,355,6,15,-1,0,352,353,5,31,0,0,353,355,6,15,-1,0,354,350,1,0,0,0,354,
+352,1,0,0,0,355,31,1,0,0,0,36,35,41,48,53,57,63,68,74,78,88,91,114,124,153,
+163,171,176,184,191,209,225,238,251,269,281,283,291,298,302,310,321,333,
+338,341,348,354];
 
 
 const atn = new antlr4.atn.ATNDeserializer().deserialize(serializedATN);
@@ -120,17 +131,19 @@ export default class ARM32Parser extends antlr4.Parser {
 
     static grammarFileName = "ARM32Parser.g4";
     static literalNames = [ null, "';'", "','", "'['", "']'", "'{'", "'}'", 
-                            "'!'", "'-'", "'+'", null, null, "'#'", "'='", 
-                            null, "'DCD'", "'DCB'", "'EQU'", "'FILL'", "'ALIGN'" ];
+                            "'!'", "'-'", "'+'", "'*'", "'/'", "'%'", "'('", 
+                            "')'", "'.'", null, null, "'#'", "'='", null, 
+                            "'DCD'", "'DCB'", "'EQU'", "'FILL'", "'ALIGN'" ];
     static symbolicNames = [ null, "COMMENT", "COMMA", "LBRACK", "RBRACK", 
                              "LBRACE", "RBRACE", "BANG", "HYPHEN", "PLUS", 
-                             "OPCODE", "REGISTER", "POUND", "EQUALS", "INT", 
-                             "DCD", "DCB", "EQU", "FILL", "ALIGN", "ID", 
-                             "NEWLINE", "WS", "INVALID", "COMMENT_TEXT", 
+                             "ASTERISK", "SLASH", "PERCENT", "LPAREN", "RPAREN", 
+                             "DOT", "OPCODE", "REGISTER", "POUND", "EQUALS", 
+                             "INT", "DCD", "DCB", "EQU", "FILL", "ALIGN", 
+                             "ID", "NEWLINE", "WS", "INVALID", "COMMENT_TEXT", 
                              "STRING", "DOUBLE_QUOTE" ];
     static ruleNames = [ "program", "line", "label", "instruction", "operand", 
                          "register", "writebackRegister", "flexOperandSpec", 
-                         "offset", "immediate", "pseudoImmediate", "symbol", 
+                         "offset", "immediate", "pseudoImmediate", "symbolic", 
                          "registerSet", "directive", "dcd_value", "dcb_value" ];
 
     constructor(input) {
@@ -145,6 +158,8 @@ export default class ARM32Parser extends antlr4.Parser {
     	switch(ruleIndex) {
     	case 7:
     	    		return this.flexOperandSpec_sempred(localctx, predIndex);
+    	case 11:
+    	    		return this.symbolic_sempred(localctx, predIndex);
         default:
             throw "No predicate with index:" + ruleIndex;
        }
@@ -156,6 +171,17 @@ export default class ARM32Parser extends antlr4.Parser {
     			return ['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0;
     		case 1:
     			return ['ASL', 'LSL', 'LSR', 'ASR', 'ROR'].indexOf((localctx.op == null ? null : localctx.op.text).toUpperCase()) >= 0;
+    		default:
+    			throw "No predicate with index:" + predIndex;
+    	}
+    };
+
+    symbolic_sempred(localctx, predIndex) {
+    	switch(predIndex) {
+    		case 2:
+    			return this.precpred(this._ctx, 5);
+    		case 3:
+    			return this.precpred(this._ctx, 4);
     		default:
     			throw "No predicate with index:" + predIndex;
     	}
@@ -186,7 +212,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 41;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        while((((_la) & ~0x1f) === 0 && ((1 << _la) & 4162560) !== 0)) {
+	        while((((_la) & ~0x1f) === 0 && ((1 << _la) & 266403840) !== 0)) {
 	            this.state = 38;
 	            localctx._line = this.line();
 	            localctx.lines.push(localctx._line);
@@ -229,7 +255,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 48;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===20) {
+	            if(_la===26) {
 	                this.state = 47;
 	                localctx.lab = this.label();
 	            }
@@ -260,7 +286,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 57;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===20) {
+	            if(_la===26) {
 	                this.state = 56;
 	                localctx.lab = this.label();
 	            }
@@ -293,7 +319,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 68;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===20) {
+	            if(_la===26) {
 	                this.state = 67;
 	                localctx.lab = this.label();
 	            }
@@ -372,7 +398,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	        this.state = 91;
 	        this._errHandler.sync(this);
 	        _la = this._input.LA(1);
-	        if((((_la) & ~0x1f) === 0 && ((1 << _la) & 1062952) !== 0)) {
+	        if((((_la) & ~0x1f) === 0 && ((1 << _la) & 69116200) !== 0)) {
 	            this.state = 83;
 	            localctx._operand = this.operand();
 	            localctx.operands.push(localctx._operand);
@@ -447,9 +473,9 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 105;
 	            this.match(ARM32Parser.COMMA);
 	            this.state = 106;
-	            localctx.s = this.symbol();
+	            localctx.s = this.symbolic(0);
 
-	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, localctx.s.text);
+	                    localctx.op =  new AST.PostindexedOperand(localctx.r.reg, localctx.s.e);
 	                
 	            break;
 
@@ -609,7 +635,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 159;
 	            this.match(ARM32Parser.COMMA);
 	            this.state = 160;
-	            localctx.s = this.symbol();
+	            localctx.s = this.symbolic(0);
 	            this.state = 161;
 	            this.match(ARM32Parser.RBRACK);
 	            this.state = 163;
@@ -621,7 +647,7 @@ export default class ARM32Parser extends antlr4.Parser {
 	            }
 
 
-	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, localctx.s.text, !!(localctx._BANG == null ? null : localctx._BANG.text));
+	                    localctx.op =  new AST.PreindexedOperand(localctx.r.reg, localctx.s.e, !!(localctx._BANG == null ? null : localctx._BANG.text));
 	                
 	            break;
 
@@ -741,9 +767,9 @@ export default class ARM32Parser extends antlr4.Parser {
 	        case 15:
 	            this.enterOuterAlt(localctx, 15);
 	            this.state = 201;
-	            localctx.s = this.symbol();
+	            localctx.s = this.symbolic(0);
 
-	                    localctx.op =  localctx.s.text;
+	                    localctx.op =  localctx.s.e;
 	                
 	            break;
 
@@ -990,9 +1016,9 @@ export default class ARM32Parser extends antlr4.Parser {
 	            this.state = 247;
 	            this.match(ARM32Parser.EQUALS);
 	            this.state = 248;
-	            localctx.s = this.symbol();
+	            localctx.s = this.symbolic(0);
 
-	                    localctx.value =  new AST.PseudoImmediate(localctx.s.text);
+	                    localctx.value =  new AST.PseudoImmediate(localctx.s.e);
 	                
 	            break;
 
@@ -1012,27 +1038,147 @@ export default class ARM32Parser extends antlr4.Parser {
 	}
 
 
-
-	symbol() {
-	    let localctx = new SymbolContext(this, this._ctx, this.state);
-	    this.enterRule(localctx, 22, ARM32Parser.RULE_symbol);
+	symbolic(_p) {
+		if(_p===undefined) {
+		    _p = 0;
+		}
+	    const _parentctx = this._ctx;
+	    const _parentState = this.state;
+	    let localctx = new SymbolicContext(this, this._ctx, _parentState);
+	    let _prevctx = localctx;
+	    const _startState = 22;
+	    this.enterRecursionRule(localctx, 22, ARM32Parser.RULE_symbolic, _p);
+	    var _la = 0;
 	    try {
 	        this.enterOuterAlt(localctx, 1);
-	        this.state = 253;
-	        localctx.t = this.match(ARM32Parser.ID);
+	        this.state = 269;
+	        this._errHandler.sync(this);
+	        switch(this._input.LA(1)) {
+	        case 13:
+	            this.state = 254;
+	            this.match(ARM32Parser.LPAREN);
+	            this.state = 255;
+	            localctx.expr = this.symbolic(0);
+	            this.state = 256;
+	            this.match(ARM32Parser.RPAREN);
 
-	                localctx.text =  (localctx.t == null ? null : localctx.t.text);
-	            
-	    } catch (re) {
-	    	if(re instanceof antlr4.error.RecognitionException) {
-		        localctx.exception = re;
-		        this._errHandler.reportError(this, re);
-		        this._errHandler.recover(this, re);
+	                    localctx.e =  localctx.expr.e;
+	                
+	            break;
+	        case 8:
+	            this.state = 259;
+	            this.match(ARM32Parser.HYPHEN);
+	            this.state = 260;
+	            localctx.expr = this.symbolic(6);
+
+	                    localctx.e =  new AST.BinaryOp('-', new AST.NumberExpression('0'), localctx.expr.e);
+	                
+	            break;
+	        case 15:
+	            this.state = 263;
+	            this.match(ARM32Parser.DOT);
+
+	                    localctx.e =  new AST.CurrentAddressExpression();
+	                
+	            break;
+	        case 26:
+	            this.state = 265;
+	            localctx._ID = this.match(ARM32Parser.ID);
+
+	                    localctx.e =  new AST.SymbolExpression((localctx._ID == null ? null : localctx._ID.text))
+	                
+	            break;
+	        case 20:
+	            this.state = 267;
+	            localctx._INT = this.match(ARM32Parser.INT);
+
+	                    localctx.e =  new AST.NumberExpression((localctx._INT == null ? null : localctx._INT.text))
+	                
+	            break;
+	        default:
+	            throw new antlr4.error.NoViableAltException(this);
+	        }
+	        this._ctx.stop = this._input.LT(-1);
+	        this.state = 283;
+	        this._errHandler.sync(this);
+	        var _alt = this._interp.adaptivePredict(this._input,25,this._ctx)
+	        while(_alt!=2 && _alt!=antlr4.atn.ATN.INVALID_ALT_NUMBER) {
+	            if(_alt===1) {
+	                if(this._parseListeners!==null) {
+	                    this.triggerExitRuleEvent();
+	                }
+	                _prevctx = localctx;
+	                this.state = 281;
+	                this._errHandler.sync(this);
+	                var la_ = this._interp.adaptivePredict(this._input,24,this._ctx);
+	                switch(la_) {
+	                case 1:
+	                    localctx = new SymbolicContext(this, _parentctx, _parentState);
+	                    localctx.l = _prevctx;
+	                    this.pushNewRecursionContext(localctx, _startState, ARM32Parser.RULE_symbolic);
+	                    this.state = 271;
+	                    if (!( this.precpred(this._ctx, 5))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 5)");
+	                    }
+	                    this.state = 272;
+	                    localctx.op = this._input.LT(1);
+	                    _la = this._input.LA(1);
+	                    if(!((((_la) & ~0x1f) === 0 && ((1 << _la) & 7168) !== 0))) {
+	                        localctx.op = this._errHandler.recoverInline(this);
+	                    }
+	                    else {
+	                    	this._errHandler.reportMatch(this);
+	                        this.consume();
+	                    }
+	                    this.state = 273;
+	                    localctx.r = this.symbolic(6);
+
+	                                      localctx.e =  new AST.BinaryOp((localctx.op == null ? null : localctx.op.text), localctx.l.e, localctx.r.e);
+	                                  
+	                    break;
+
+	                case 2:
+	                    localctx = new SymbolicContext(this, _parentctx, _parentState);
+	                    localctx.l = _prevctx;
+	                    this.pushNewRecursionContext(localctx, _startState, ARM32Parser.RULE_symbolic);
+	                    this.state = 276;
+	                    if (!( this.precpred(this._ctx, 4))) {
+	                        throw new antlr4.error.FailedPredicateException(this, "this.precpred(this._ctx, 4)");
+	                    }
+	                    this.state = 277;
+	                    localctx.op = this._input.LT(1);
+	                    _la = this._input.LA(1);
+	                    if(!(_la===8 || _la===9)) {
+	                        localctx.op = this._errHandler.recoverInline(this);
+	                    }
+	                    else {
+	                    	this._errHandler.reportMatch(this);
+	                        this.consume();
+	                    }
+	                    this.state = 278;
+	                    localctx.r = this.symbolic(5);
+
+	                                      localctx.e =  new AST.BinaryOp((localctx.op == null ? null : localctx.op.text), localctx.l.e, localctx.r.e);
+	                                  
+	                    break;
+
+	                } 
+	            }
+	            this.state = 285;
+	            this._errHandler.sync(this);
+	            _alt = this._interp.adaptivePredict(this._input,25,this._ctx);
+	        }
+
+	    } catch( error) {
+	        if(error instanceof antlr4.error.RecognitionException) {
+		        localctx.exception = error;
+		        this._errHandler.reportError(this, error);
+		        this._errHandler.recover(this, error);
 		    } else {
-		    	throw re;
+		    	throw error;
 		    }
 	    } finally {
-	        this.exitRule();
+	        this.unrollRecursionContexts(_parentctx)
 	    }
 	    return localctx;
 	}
@@ -1044,25 +1190,25 @@ export default class ARM32Parser extends antlr4.Parser {
 	    this.enterRule(localctx, 24, ARM32Parser.RULE_registerSet);
 	    var _la = 0;
 	    try {
-	        this.state = 272;
+	        this.state = 302;
 	        this._errHandler.sync(this);
-	        var la_ = this._interp.adaptivePredict(this._input,25,this._ctx);
+	        var la_ = this._interp.adaptivePredict(this._input,28,this._ctx);
 	        switch(la_) {
 	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 256;
+	            this.state = 286;
 	            localctx.r1 = this.register();
-	            this.state = 257;
+	            this.state = 287;
 	            this.match(ARM32Parser.HYPHEN);
-	            this.state = 258;
+	            this.state = 288;
 	            localctx.r2 = this.register();
-	            this.state = 261;
+	            this.state = 291;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===2) {
-	                this.state = 259;
+	                this.state = 289;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 260;
+	                this.state = 290;
 	                localctx.child = this.registerSet();
 	            }
 
@@ -1073,15 +1219,15 @@ export default class ARM32Parser extends antlr4.Parser {
 
 	        case 2:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 265;
+	            this.state = 295;
 	            localctx.r1 = this.register();
-	            this.state = 268;
+	            this.state = 298;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===2) {
-	                this.state = 266;
+	                this.state = 296;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 267;
+	                this.state = 297;
 	                localctx.child = this.registerSet();
 	            }
 
@@ -1112,27 +1258,27 @@ export default class ARM32Parser extends antlr4.Parser {
 	    this.enterRule(localctx, 26, ARM32Parser.RULE_directive);
 	    var _la = 0;
 	    try {
-	        this.state = 311;
+	        this.state = 341;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 15:
+	        case 21:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 274;
+	            this.state = 304;
 	            this.match(ARM32Parser.DCD);
 
-	            this.state = 275;
+	            this.state = 305;
 	            localctx._dcd_value = this.dcd_value();
 	            localctx.dcd_values.push(localctx._dcd_value);
-	            this.state = 280;
+	            this.state = 310;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            while(_la===2) {
-	                this.state = 276;
+	                this.state = 306;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 277;
+	                this.state = 307;
 	                localctx._dcd_value = this.dcd_value();
 	                localctx.dcd_values.push(localctx._dcd_value);
-	                this.state = 282;
+	                this.state = 312;
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
 	            }
@@ -1140,24 +1286,24 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.DCD(localctx.dcd_values.map(node => node.n));
 	                
 	            break;
-	        case 16:
+	        case 22:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 285;
+	            this.state = 315;
 	            this.match(ARM32Parser.DCB);
 
-	            this.state = 286;
+	            this.state = 316;
 	            localctx._dcb_value = this.dcb_value();
 	            localctx.dcb_values.push(localctx._dcb_value);
-	            this.state = 291;
+	            this.state = 321;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            while(_la===2) {
-	                this.state = 287;
+	                this.state = 317;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 288;
+	                this.state = 318;
 	                localctx._dcb_value = this.dcb_value();
 	                localctx.dcb_values.push(localctx._dcb_value);
-	                this.state = 293;
+	                this.state = 323;
 	                this._errHandler.sync(this);
 	                _la = this._input.LA(1);
 	            }
@@ -1165,29 +1311,29 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.DCB(localctx.dcb_values.map(node => node.n));
 	                
 	            break;
-	        case 17:
+	        case 23:
 	            this.enterOuterAlt(localctx, 3);
-	            this.state = 296;
+	            this.state = 326;
 	            this.match(ARM32Parser.EQU);
-	            this.state = 297;
+	            this.state = 327;
 	            localctx.value = this.match(ARM32Parser.INT);
 
 	                    localctx.d =  new AST.EquateDirective((localctx.value == null ? null : localctx.value.text));
 	                
 	            break;
-	        case 18:
+	        case 24:
 	            this.enterOuterAlt(localctx, 4);
-	            this.state = 299;
+	            this.state = 329;
 	            this.match(ARM32Parser.FILL);
-	            this.state = 300;
+	            this.state = 330;
 	            localctx.bytes = this.match(ARM32Parser.INT);
-	            this.state = 303;
+	            this.state = 333;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
 	            if(_la===2) {
-	                this.state = 301;
+	                this.state = 331;
 	                this.match(ARM32Parser.COMMA);
-	                this.state = 302;
+	                this.state = 332;
 	                localctx.value = this.match(ARM32Parser.INT);
 	            }
 
@@ -1195,15 +1341,15 @@ export default class ARM32Parser extends antlr4.Parser {
 	                    localctx.d =  new AST.FillDirective((localctx.bytes == null ? null : localctx.bytes.text), (localctx.value == null ? null : localctx.value.text));
 	                
 	            break;
-	        case 19:
+	        case 25:
 	            this.enterOuterAlt(localctx, 5);
-	            this.state = 306;
+	            this.state = 336;
 	            this.match(ARM32Parser.ALIGN);
-	            this.state = 308;
+	            this.state = 338;
 	            this._errHandler.sync(this);
 	            _la = this._input.LA(1);
-	            if(_la===14) {
-	                this.state = 307;
+	            if(_la===20) {
+	                this.state = 337;
 	                localctx.value = this.match(ARM32Parser.INT);
 	            }
 
@@ -1234,27 +1380,28 @@ export default class ARM32Parser extends antlr4.Parser {
 	    let localctx = new Dcd_valueContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 28, ARM32Parser.RULE_dcd_value);
 	    try {
-	        this.state = 318;
+	        this.state = 348;
 	        this._errHandler.sync(this);
-	        switch(this._input.LA(1)) {
-	        case 14:
+	        var la_ = this._interp.adaptivePredict(this._input,34,this._ctx);
+	        switch(la_) {
+	        case 1:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 313;
+	            this.state = 343;
 	            localctx._INT = this.match(ARM32Parser.INT);
 
 	                    localctx.n =  (localctx._INT == null ? null : localctx._INT.text);
 	                
 	            break;
-	        case 20:
-	            this.enterOuterAlt(localctx, 2);
-	            this.state = 315;
-	            localctx._symbol = this.symbol();
 
-	                    localctx.n =  localctx._symbol.text;
+	        case 2:
+	            this.enterOuterAlt(localctx, 2);
+	            this.state = 345;
+	            localctx._symbolic = this.symbolic(0);
+
+	                    localctx.n =  localctx._symbolic.e;
 	                
 	            break;
-	        default:
-	            throw new antlr4.error.NoViableAltException(this);
+
 	        }
 	    } catch (re) {
 	    	if(re instanceof antlr4.error.RecognitionException) {
@@ -1276,20 +1423,20 @@ export default class ARM32Parser extends antlr4.Parser {
 	    let localctx = new Dcb_valueContext(this, this._ctx, this.state);
 	    this.enterRule(localctx, 30, ARM32Parser.RULE_dcb_value);
 	    try {
-	        this.state = 324;
+	        this.state = 354;
 	        this._errHandler.sync(this);
 	        switch(this._input.LA(1)) {
-	        case 14:
+	        case 20:
 	            this.enterOuterAlt(localctx, 1);
-	            this.state = 320;
+	            this.state = 350;
 	            localctx._INT = this.match(ARM32Parser.INT);
 
 	                    localctx.n =  (localctx._INT == null ? null : localctx._INT.text);
 	                
 	            break;
-	        case 25:
+	        case 31:
 	            this.enterOuterAlt(localctx, 2);
-	            this.state = 322;
+	            this.state = 352;
 	            localctx._STRING = this.match(ARM32Parser.STRING);
 
 	                    localctx.n =  (localctx._STRING == null ? null : localctx._STRING.text);
@@ -1325,23 +1472,29 @@ ARM32Parser.RBRACE = 6;
 ARM32Parser.BANG = 7;
 ARM32Parser.HYPHEN = 8;
 ARM32Parser.PLUS = 9;
-ARM32Parser.OPCODE = 10;
-ARM32Parser.REGISTER = 11;
-ARM32Parser.POUND = 12;
-ARM32Parser.EQUALS = 13;
-ARM32Parser.INT = 14;
-ARM32Parser.DCD = 15;
-ARM32Parser.DCB = 16;
-ARM32Parser.EQU = 17;
-ARM32Parser.FILL = 18;
-ARM32Parser.ALIGN = 19;
-ARM32Parser.ID = 20;
-ARM32Parser.NEWLINE = 21;
-ARM32Parser.WS = 22;
-ARM32Parser.INVALID = 23;
-ARM32Parser.COMMENT_TEXT = 24;
-ARM32Parser.STRING = 25;
-ARM32Parser.DOUBLE_QUOTE = 26;
+ARM32Parser.ASTERISK = 10;
+ARM32Parser.SLASH = 11;
+ARM32Parser.PERCENT = 12;
+ARM32Parser.LPAREN = 13;
+ARM32Parser.RPAREN = 14;
+ARM32Parser.DOT = 15;
+ARM32Parser.OPCODE = 16;
+ARM32Parser.REGISTER = 17;
+ARM32Parser.POUND = 18;
+ARM32Parser.EQUALS = 19;
+ARM32Parser.INT = 20;
+ARM32Parser.DCD = 21;
+ARM32Parser.DCB = 22;
+ARM32Parser.EQU = 23;
+ARM32Parser.FILL = 24;
+ARM32Parser.ALIGN = 25;
+ARM32Parser.ID = 26;
+ARM32Parser.NEWLINE = 27;
+ARM32Parser.WS = 28;
+ARM32Parser.INVALID = 29;
+ARM32Parser.COMMENT_TEXT = 30;
+ARM32Parser.STRING = 31;
+ARM32Parser.DOUBLE_QUOTE = 32;
 
 ARM32Parser.RULE_program = 0;
 ARM32Parser.RULE_line = 1;
@@ -1354,7 +1507,7 @@ ARM32Parser.RULE_flexOperandSpec = 7;
 ARM32Parser.RULE_offset = 8;
 ARM32Parser.RULE_immediate = 9;
 ARM32Parser.RULE_pseudoImmediate = 10;
-ARM32Parser.RULE_symbol = 11;
+ARM32Parser.RULE_symbolic = 11;
 ARM32Parser.RULE_registerSet = 12;
 ARM32Parser.RULE_directive = 13;
 ARM32Parser.RULE_dcd_value = 14;
@@ -1589,8 +1742,8 @@ class OperandContext extends antlr4.ParserRuleContext {
 	    return this.getTypedRuleContext(ImmediateContext,0);
 	};
 
-	symbol() {
-	    return this.getTypedRuleContext(SymbolContext,0);
+	symbolic() {
+	    return this.getTypedRuleContext(SymbolicContext,0);
 	};
 
 	PLUS() {
@@ -1818,8 +1971,8 @@ class PseudoImmediateContext extends antlr4.ParserRuleContext {
 	    return this.getToken(ARM32Parser.INT, 0);
 	};
 
-	symbol() {
-	    return this.getTypedRuleContext(SymbolContext,0);
+	symbolic() {
+	    return this.getTypedRuleContext(SymbolicContext,0);
 	};
 
 
@@ -1827,7 +1980,7 @@ class PseudoImmediateContext extends antlr4.ParserRuleContext {
 
 
 
-class SymbolContext extends antlr4.ParserRuleContext {
+class SymbolicContext extends antlr4.ParserRuleContext {
 
     constructor(parser, parent, invokingState) {
         if(parent===undefined) {
@@ -1838,13 +1991,65 @@ class SymbolContext extends antlr4.ParserRuleContext {
         }
         super(parent, invokingState);
         this.parser = parser;
-        this.ruleIndex = ARM32Parser.RULE_symbol;
-        this.text = null
-        this.t = null;
+        this.ruleIndex = ARM32Parser.RULE_symbolic;
+        this.e = null
+        this.l = null;
+        this.expr = null;
+        this._ID = null;
+        this._INT = null;
+        this.op = null;
+        this.r = null;
     }
+
+	LPAREN() {
+	    return this.getToken(ARM32Parser.LPAREN, 0);
+	};
+
+	RPAREN() {
+	    return this.getToken(ARM32Parser.RPAREN, 0);
+	};
+
+	symbolic = function(i) {
+	    if(i===undefined) {
+	        i = null;
+	    }
+	    if(i===null) {
+	        return this.getTypedRuleContexts(SymbolicContext);
+	    } else {
+	        return this.getTypedRuleContext(SymbolicContext,i);
+	    }
+	};
+
+	HYPHEN() {
+	    return this.getToken(ARM32Parser.HYPHEN, 0);
+	};
+
+	DOT() {
+	    return this.getToken(ARM32Parser.DOT, 0);
+	};
 
 	ID() {
 	    return this.getToken(ARM32Parser.ID, 0);
+	};
+
+	INT() {
+	    return this.getToken(ARM32Parser.INT, 0);
+	};
+
+	ASTERISK() {
+	    return this.getToken(ARM32Parser.ASTERISK, 0);
+	};
+
+	SLASH() {
+	    return this.getToken(ARM32Parser.SLASH, 0);
+	};
+
+	PERCENT() {
+	    return this.getToken(ARM32Parser.PERCENT, 0);
+	};
+
+	PLUS() {
+	    return this.getToken(ARM32Parser.PLUS, 0);
 	};
 
 
@@ -2004,15 +2209,15 @@ class Dcd_valueContext extends antlr4.ParserRuleContext {
         this.ruleIndex = ARM32Parser.RULE_dcd_value;
         this.n = null
         this._INT = null;
-        this._symbol = null;
+        this._symbolic = null;
     }
 
 	INT() {
 	    return this.getToken(ARM32Parser.INT, 0);
 	};
 
-	symbol() {
-	    return this.getTypedRuleContext(SymbolContext,0);
+	symbolic() {
+	    return this.getTypedRuleContext(SymbolicContext,0);
 	};
 
 
@@ -2062,7 +2267,7 @@ ARM32Parser.FlexOperandSpecContext = FlexOperandSpecContext;
 ARM32Parser.OffsetContext = OffsetContext; 
 ARM32Parser.ImmediateContext = ImmediateContext; 
 ARM32Parser.PseudoImmediateContext = PseudoImmediateContext; 
-ARM32Parser.SymbolContext = SymbolContext; 
+ARM32Parser.SymbolicContext = SymbolicContext; 
 ARM32Parser.RegisterSetContext = RegisterSetContext; 
 ARM32Parser.DirectiveContext = DirectiveContext; 
 ARM32Parser.Dcd_valueContext = Dcd_valueContext; 

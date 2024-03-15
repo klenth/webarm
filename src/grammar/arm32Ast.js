@@ -130,7 +130,7 @@ export class DCD extends Directive {
     get words() {
         const words = [];
         for (let value of this.values) {
-            if (value[0] === '.')
+            if (value instanceof SymbolicExpression)
                 words.push(value);  // it's a symbol
             else {
                 const word = parseImmediate(value);
@@ -417,14 +417,91 @@ export class PseudoImmediate extends AstNode {
     }
 
     get value() {
-        if (this.text[0] === '.')
+        if (this.text instanceof SymbolicExpression)
             return this.text;
         else
             return parseImmediate(this.text);
     }
 
+    children() {
+        if (this.text instanceof AstNode)
+            return [this.text];
+        else
+            return [];
+    }
+
     static reconstruct(o) {
         return new PseudoImmediate(o.text);
+    }
+}
+
+export class SymbolicExpression extends AstNode {
+
+    evaluate(mapper) {
+        throw new Error('evaluate() not overridden');
+    }
+}
+
+export class BinaryOp extends SymbolicExpression {
+    _OPS = {
+        '+': (l, r) => l + r,
+        '-': (l, r) => l - r,
+        '*': (l, r) => l * r,
+        '/': (l, r) => l / r,
+        '%': (l, r) => l % r
+    };
+
+    constructor(op, left, right) {
+        super(op);
+        this.op = op;
+        this.left = left;
+        this.right = right;
+    }
+
+    evaluate(mapper) {
+        console.debug('BinaryOp.evaluate()');
+        const l = this.left.evaluate(mapper), r = this.right.evaluate(mapper);
+        console.debug(`BinaryOp: l=${l}, r=${r}`);
+        console.debug(`this._OPS=${this._OPS}, this.op=${this.op}`);
+        return this._OPS[this.op](this.left.evaluate(mapper), this.right.evaluate(mapper));
+    }
+
+    children() {
+        return [this.left, this.right];
+    }
+}
+
+export class CurrentAddressExpression extends SymbolicExpression {
+    constructor() {
+        super('.');
+    }
+
+    evaluate(mapper) {
+        console.debug(`CurrentAddressExpression.evaluate()`);
+        return mapper('.');
+    }
+}
+
+export class SymbolExpression extends SymbolicExpression {
+    constructor(symbol) {
+        super(symbol);
+        this.symbol = symbol;
+    }
+
+    evaluate(mapper) {
+        console.debug(`SymbolExpression.evaluate(): symbol=${this.symbol}`);
+        return mapper(this.symbol);
+    }
+}
+
+export class NumberExpression extends SymbolicExpression {
+    constructor(text) {
+        super(text);
+        this.text = text;
+    }
+
+    evaluate(mapper) {
+        return parseImmediate(this.text);
     }
 }
 
@@ -462,4 +539,9 @@ const exports = {
     'PostindexedOperand': PostindexedOperand,
     'Immediate': Immediate,
     'PseudoImmediate': PseudoImmediate,
+    'SymbolicExpression': SymbolicExpression,
+    'BinaryOp': BinaryOp,
+    'CurrentAddressExpression': CurrentAddressExpression,
+    'SymbolExpression': SymbolExpression,
+    'NumberExpression': NumberExpression,
 };

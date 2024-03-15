@@ -40,6 +40,30 @@ PLUS
     : '+'
     ;
 
+ASTERISK
+    : '*'
+    ;
+
+SLASH
+    : '/'
+    ;
+
+PERCENT
+    : '%'
+    ;
+
+LPAREN
+    : '('
+    ;
+
+RPAREN
+    : ')'
+    ;
+
+DOT
+    : '.'
+    ;
+
 DOUBLE_QUOTE
     : '"' -> more, mode(M_DOUBLE_STRING)
     ;

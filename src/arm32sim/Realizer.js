@@ -108,8 +108,8 @@ function handleDCD(d) {
     return {
         data: (mapper, mem, addr) => {
             words.forEach((word, index) => {
-                if (typeof (word) === 'string')
-                    mem.writeWord(addr + 4 * index, mapper(word));
+                if (word instanceof AST.SymbolicExpression)
+                    mem.writeWord(addr + 4 * index, word.evaluate(mapper));
                 else
                     mem.writeWord(addr + 4 * index, word)
             });
@@ -330,7 +330,7 @@ function handleDataProcessingInstruction(i) {
             S: Sbit,
             Rn: i.operands[1].number(),
             Rd: i.operands[0].number(),
-            Operand2: packRotatedImmediateOperand(mapper(i.operands[2]), i.operands[2])
+            Operand2: packRotatedImmediateOperand(i.operands[2].evaluate(mapper), i.operands[2])
         })];
     } if (spec === 'RRR') {
         return [() => new I.DataProcessingInstruction({
@@ -404,7 +404,7 @@ function handleDataProcessingInstruction(i) {
             S: Sbit,
             Rn: +i.operands[0].number(),
             Rd: 0,
-            Operand2: packRotatedImmediateOperand(mapper(i.operands[1]), i.operands[1])
+            Operand2: packRotatedImmediateOperand(i.operands[1].evaluate(mapper), i.operands[1])
         })];
     } else if (spec === 'RI'
             && ['MOV', 'MVN'].indexOf(OpCode) >= 0) {
@@ -430,7 +430,7 @@ function handleDataProcessingInstruction(i) {
             S: Sbit,
             Rn: 0,
             Rd: +i.operands[0].number(),
-            Operand2: packRotatedImmediateOperand(mapper(i.operands[1]), i.operands[1])
+            Operand2: packRotatedImmediateOperand(i.operands[1].evaluate(mapper), i.operands[1])
         })];
     } else if (spec === 'RRf'
             && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) {
@@ -582,7 +582,7 @@ function handleBranchInstruction(i) {
             Cond: cond,
             '[bits27-25]': 0b101,
             'L': (OpCode === 'BL') ? 0b1 : 0b0,
-            'offset': packOffset(mapper(symbol) - mapper('.'))
+            'offset': packOffset(symbol.evaluate(mapper) - mapper('.'))
         })];
     } else
         throw new InvalidOperandsError(OpCode, spec, i);
@@ -636,7 +636,7 @@ function handleLdrPseudoInstruction(i) {
             offset: 1   // branch one word past PC (just past the value to be LDRed
         }),
         (mapper) => new I.DummyInstruction({
-                bits: (typeof(value) === 'string') ? mapper(value) : value
+                bits: (value instanceof AST.SymbolicExpression) ? value.evaluate(mapper) : value
         })
     ];
 }
@@ -680,7 +680,7 @@ function handleSingleDataTransferInstruction(i) {
         })];
     } else if (spec === 'RS') {
         return [(mapper) => {
-            const diff = mapper(i.operands[1]) - mapper('.') - 4;
+            const diff = i.operands[1].evaluate(mapper) - mapper('.') - 4;
             const {U, Offset} = getOffsetU(diff);
             return new I.SingleDataTransferInstruction({
                 Cond: cond,
@@ -720,7 +720,7 @@ function handleSingleDataTransferInstruction(i) {
         const P = spec.startsWith('RPre') ? 0b1 : 0b0;
         const W = (P && i.operands[1].writeback) ? 0b1 : 0b0;
         return [(mapper) => {
-            const diff = mapper(i.operands[1].offset) - mapper('.');
+            const diff = i.operands[1].offset.evaluate(mapper) - mapper('.');
             const {U, Offset} = getOffsetU(diff);
             if ((!P || W) && i.operands[1].register.number() === 15)
                 throw new AssemblyError(`Writeback not allowed when base register is R15 (PC)`, i);
@@ -916,8 +916,10 @@ function operandSpec(operands) {
             return "Rf";
         else if (op instanceof AST.PseudoImmediate)
             return "Ip";
-        else if (typeof op === 'string')
+        else if (op instanceof AST.SymbolicExpression)
             return "S";
+        else if (typeof(op) === 'string')
+            console.error('Operand of type string!');
         else
             console.assert(false, "Invalid operand type: " + op.prototype.constructor.name);
     }

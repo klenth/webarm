@@ -1,12 +1,11 @@
 import antlr4 from 'antlr4';
 import ARM32Lexer from './grammar/ARM32Lexer';
 import ARM32Parser from './grammar/ARM32Parser';
-import AST from './grammar/arm32Ast';
+import * as AST from './grammar/arm32Ast';
 import counter from './counter';
 import { step } from './arm32sim/Simulator.js';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
-import { Instruction } from './grammar/arm32Ast.js';
 import { AssemblyError, realize } from './arm32sim/Realizer.js';
 
 class ParseError extends Error {
@@ -59,6 +58,7 @@ class ParseError extends Error {
     function doParseAndRealize(code) {
         try {
             const ast = parse(code);
+            AST.logAst(ast);
             if (ast !== null)
                 return doRealize(ast);
         } catch (ex) {
