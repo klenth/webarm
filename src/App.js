@@ -19,7 +19,7 @@ const Top = styled.div`
   flex-flow: row nowrap;
   align-items: stretch;
   padding: 8px;
-  border-bottom: 2px solid var(--color-thistle):
+  border-bottom: 2px solid var(--color-thistle);
 `
 
 const Controls = styled.div`
@@ -144,11 +144,11 @@ class App extends React.Component {
                 Show memory
             </label>
         )
-        const parseButton = (
+        const assembleButton = (
             <button
-                onClick={() => this.handleParse()}
-                key={'parseButton'}
-            >Parse</button>
+                onClick={() => this.handleAssemble()}
+                key={'assembleButton'}
+            >Assemble</button>
         );
         const runButton = (
             <button
@@ -187,7 +187,7 @@ class App extends React.Component {
             >Stop</button>
         );
 
-        const buttons = (this.state.state === '') ? [ openFileButton, saveFileButton, parseButton, runButton, debugButton ]
+        const buttons = (this.state.state === '') ? [ openFileButton, saveFileButton, assembleButton, runButton, debugButton ]
             : (this.state.state === 'running') ? [ stopButton ]
             : (this.state.state === 'debugging/paused') ? [ stepBackButton, stepForwardButton, continueButton, stopButton ]
             : (this.state.state === 'debugging/running') ? [ stopButton ]
@@ -340,21 +340,27 @@ class App extends React.Component {
         this.updateState({ code: s });
     }
 
-    handleParse() {
+    handleAssemble() {
         this.clearMessages();
         ++this.seq;
 
         this.messageHandler = msg => {
-            console.debug('handleParse() message handler: msg =', msg);
-             if (msg.result === 'success')
+             if (msg.result === 'success') {
                  this.printMessage('Looks good!');
-             else
+                 console.debug(msg.state);
+                 if (msg.state)
+                     this.updateState({
+                         simulatorState: SimulatorState.reconstruct(msg.state),
+                         previousSimulatorState: null,
+                         simulatorStateDiff: null,
+                     });
+             } else
                  this.printMessage(`Line ${msg.error.line}: ${msg.error.text}`);
         };
 
         this.getWorker().postMessage({
             seq: this.seq,
-            command: 'parse',
+            command: 'assemble',
             params: {
                 code: this.state.code,
             }

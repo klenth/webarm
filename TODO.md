@@ -62,4 +62,6 @@
   - Ability to "upload" files into app, "download" from
 - [DONE] >>> Fix inability to lex BLT correctly
 - [DONE] Scroll editor to executing instruction on a step/continue
-- Rename "Parse" button to "Assemble"
+- [DONE] Rename "Parse" button to "Assemble"
+- Finish implementing toString() for all instruction types
+- 

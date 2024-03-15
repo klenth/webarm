@@ -23,8 +23,8 @@ class ParseError extends Error {
 
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
-        if (e.data.command === 'parse')
-            handleParseMessage(e.data.seq, e.data.params);
+        if (e.data.command === 'assemble')
+            handleAssembleMessage(e.data.seq, e.data.params);
         else if (e.data.command === 'run')
             handleRunMessage(e.data.seq, e.data.params);
         else
@@ -39,12 +39,21 @@ class ParseError extends Error {
         });
     }
 
-    function handleParseMessage(seq, params) {
+    function handleAssembleMessage(seq, params) {
         const r = doParseAndRealize(params.code);
-        sendToApp(seq, {
-            result: r.result,
-            ...(r.error ? { error: r.error } : {}),
-        });
+        if (r.error)
+            sendToApp(seq,{
+                result: r.result,
+                error: r.error,
+            });
+        else {
+            const state = new SimulatorState();
+            state.memory = r.code;
+            sendToApp(seq, {
+                result: r.result,
+                state: state,
+            });
+        }
     }
 
     function doParseAndRealize(code) {
