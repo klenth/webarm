@@ -48,7 +48,7 @@
 - [DONE] Correct handling of R15 (cannot participate in some instructions)
 - Support RRX?
   - Seems like a lot of effort for something that will likely never be used.
-- Quick way to jump to register location in memory (or just R12, SP, LR, PC)
+- [DONE] Quick way to jump to register location in memory (or just R12, SP, LR, PC)
   - Symbols too
 - Ability to copy view shown by RamDisplay
 - [DONE] Title, icon
