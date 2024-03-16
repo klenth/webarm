@@ -88,6 +88,9 @@ const Nonprintable = styled.span`
     color: #bbb;
 `;
 
+const CODE_STORAGE_PROPERTY = 'webarm_code';
+let firstLoad = true;
+
 class App extends React.Component {
 
     constructor(props) {
@@ -107,6 +110,13 @@ class App extends React.Component {
         this.openFileDialogRef = null;
         this.seq = 0;
         this.messageHandler = null;
+
+        if (firstLoad) {
+            firstLoad = false;
+            const storedCode = ('localStorage' in window) ? window['localStorage'].getItem(CODE_STORAGE_PROPERTY) : null;
+            if (storedCode)
+                this.state.code = storedCode;
+        }
     }
 
     render() {
@@ -245,7 +255,7 @@ class App extends React.Component {
                             fixedWidthGutter: true,
                             animatedScroll: true,
                         }}
-                    />
+                    >{this.state.code}</Editor>
                     <Registers>
                         {registers}
                         <NzcvDisplay
@@ -318,8 +328,8 @@ class App extends React.Component {
     }
 
     handleOpenFile(code) {
+        this.handleCodeChange(code);
         this.updateState({
-            code: code,
             simulatorState: new SimulatorState(),
             previousSimulatorState: null,
             simulatorStateDiff: null,
@@ -341,6 +351,8 @@ class App extends React.Component {
     }
 
     handleCodeChange(s) {
+        if ('localStorage' in window)
+            window['localStorage'].setItem(CODE_STORAGE_PROPERTY, s);
         this.updateState({ code: s });
     }
 

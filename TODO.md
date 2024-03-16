@@ -64,4 +64,4 @@
 - [DONE] Scroll editor to executing instruction on a step/continue
 - [DONE] Rename "Parse" button to "Assemble"
 - [DONE] Finish implementing toString() for all instruction types
-- Code and options in local/session storage
+- [DONE] Code and options in local/session storage
