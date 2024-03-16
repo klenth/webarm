@@ -2,6 +2,7 @@ import styled from 'styled-components';
 import React from 'react';
 import SimulatorMemory from '../../arm32sim/SimulatorMemory';
 import { WordTooltip } from './WordTooltip.js';
+import * as format from '../../format.js';
 
 const Pane = styled.div`
     margin: 4px;
@@ -30,6 +31,15 @@ const Controls = styled.div`
     & input {
       font-family: monospace;
     }
+  
+    #symbolBox {
+        width: 8em;
+    }
+    
+    & > * > * {
+        margin: 4px;
+    }
+    
 `;
 
 const Field = styled.div`
@@ -42,6 +52,10 @@ const Field = styled.div`
 const LineDisplay = styled.div`
     &:hover {
       background-color: var(--color-for-current-highlight);
+    }
+  
+    &:nth-child(4n+4) {
+        margin-bottom: 4px;
     }
 `;
 
@@ -68,8 +82,47 @@ const WordDisplay = styled.span`
 `;
 
 const ByteDisplay = styled.span`
+    position: relative;
     margin: 0 0.5ex;
     pointer-events: none;
+  
+  /*
+    &.selected {
+        font-weight: 900;
+        color: white;
+        background-color: var(--color-thistle);
+    }
+  */
+  
+    &.selected::before {
+        content: "";
+        display: inline-block;
+        position: absolute;
+        left: -6px;
+        top: -3px;
+        right: -6px;
+        bottom: -3px;
+        border: 4px solid var(--color-thistle);
+        border-radius: 4px 0 0 4px;
+        border-right-width: 0;
+    }
+  
+  /*
+    &.selected::before {
+        content: "▲";
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: -6px;
+        font-stretch: condensed;
+        text-align: center;
+        color: var(--color-thistle);
+        border: 4px solid var(--color-night);
+        border-right-width: 0;
+        border-radius: 4px;
+    }
+*/
 `;
 
 function formatByte(value) {
@@ -101,13 +154,16 @@ export default class RamDisplay extends React.Component {
             offset: 0,
             offsetText: '0',
             hoverAddress: null,
-            hoverPoint: {}
+            hoverPoint: {},
+            selectedAddress: null,
         };
+        this.numLines = 24;
+        this.wordsPerLine = 4;
     }
 
     render() {
-        const numLines = 32;
-        const wordsPerLine = 4;
+        const numLines = this.numLines;
+        const wordsPerLine = this.wordsPerLine;
         const mem = this.props.memory || new SimulatorMemory();
         const offset = this.state.offset >>> 0;
         const lines = [...Array(numLines).fill(0)].map((_, i) => (
@@ -119,9 +175,17 @@ export default class RamDisplay extends React.Component {
                 key={`line_${i}`}
                 highlightWord={this.props.highlightWord}
                 updatedAddresses={this.props.updatedAddresses}
+                selectedAddress={this.state.selectedAddress}
                 handleWordPointerEnter={(address, x, y) => this.handleWordPointerEnter(address, x, y)}
                 handleWordPointerExit={address => this.handleWordPointerExit(address)}
             />
+        ));
+
+        const symbolOptions = Object.keys(this.props.symbolAddresses || {}).map(sym => (
+            <option
+                key={sym}
+                value={sym}
+            >{sym} (0x{this.props.symbolAddresses[sym].toString(16).toUpperCase()})</option>
         ));
 
         return (
@@ -146,6 +210,29 @@ export default class RamDisplay extends React.Component {
                             onClick={() => this.handleScrollUp()}
                         >↑</button>
                     </label>
+                    <div>
+                        Jump to
+                        <button
+                            onClick={_ => this.handleScrollTo(this.props.registers.get(13))}
+                        >SP</button>
+                        <button
+                            onClick={_ => this.handleScrollTo(this.props.registers.get(14))}
+                        >LR</button>
+                        <button
+                            onClick={_ => this.handleScrollTo(this.props.registers.get(15))}
+                        >PC</button>
+
+                        <select
+                            id={'symbolBox'}
+                            onChange={e => this.handleScrollTo(this.props.symbolAddresses[e.target.value])}
+                            disabled={symbolOptions.length === 0}
+                        >
+                            <option
+                                value={""}
+                            >Symbol...</option>
+                            {symbolOptions}
+                        </select>
+                    </div>
                 </Controls>
                 <Field>
                     {lines}
@@ -195,6 +282,22 @@ export default class RamDisplay extends React.Component {
             offset: newOffset,
             offsetText: newOffset.toString(16).toUpperCase()
         });
+    }
+
+    handleScrollTo(addr) {
+        const newState = {
+            ...this.state,
+            selectedAddress: addr,
+        };
+
+        const minAddr = this.state.offset, maxAddr = this.state.offset + this.numLines * this.wordsPerLine * 4;
+        if (addr < minAddr || maxAddr <= addr) {
+            const newOffset = (Math.max(addr - 0x100, 0) & 0xffff_fff0) >>> 0;
+            newState.offset = newOffset;
+            newState.offsetText = newOffset.toString(16).toUpperCase();
+        }
+
+        this.setState(newState);
     }
 
     handleWordPointerEnter(address, x, y) {
@@ -258,6 +361,7 @@ class Line extends React.Component {
                 >{[...Array(4).fill(0)].map((_, b) => (
                     <ByteDisplay
                         key={`line_${lineNumber}_word_${i}_${b}`}
+                        className={(this.props.selectedAddress === offset + 4 * i + b) ? 'selected' : ''}
                     >{formatByte(mem.readByte(offset + 4 * i + b))}</ByteDisplay>
                 ))}</WordDisplay>
             )

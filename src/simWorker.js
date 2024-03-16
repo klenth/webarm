@@ -18,7 +18,7 @@ class ParseError extends Error {
 
 //function main() {
 (function() {
-    let debugCode = null, debugStateStack = null, debugLineMap = null;
+    let debugCode = null, debugStateStack = null, debugLineMap = null, debugSymbols = null;
 
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
@@ -51,6 +51,7 @@ class ParseError extends Error {
             sendToApp(seq, {
                 result: r.result,
                 state: state,
+                symbols: r.symbols,
             });
         }
     }
@@ -58,7 +59,6 @@ class ParseError extends Error {
     function doParseAndRealize(code) {
         try {
             const ast = parse(code);
-            AST.logAst(ast);
             if (ast !== null)
                 return doRealize(ast);
         } catch (ex) {
@@ -139,11 +139,12 @@ class ParseError extends Error {
 
     function doRealize(ast) {
         try {
-            const { code, addressLineMap } = realize(ast);
+            const { code, addressLineMap, symbols } = realize(ast);
             return {
                 result: 'success',
                 code: code,
                 addressLineMap: addressLineMap,
+                symbols: symbols,
             };
         } catch (ex) {
             return {
@@ -178,6 +179,7 @@ class ParseError extends Error {
             state.memory = realized.code;
             state.memory.resetWrittenAddressesRecord();
             debugStateStack.push(state);
+            debugSymbols = realized.symbols;
         }
 
         try {
@@ -212,7 +214,8 @@ class ParseError extends Error {
             result: 'success',
             state: state,
             line: lineForAddress(state.PC),
-        }
+            symbols: debugSymbols,
+        };
     }
 
     function lineForAddress(addr) {

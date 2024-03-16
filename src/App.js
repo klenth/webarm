@@ -101,6 +101,7 @@ class App extends React.Component {
             state: '',
             debugCurrentLine: null,
             showingMemory: false,
+            symbolAddresses: null,
         };
         this.editorRef = null;
         this.openFileDialogRef = null;
@@ -112,6 +113,7 @@ class App extends React.Component {
         const stateRegisters = this.state.simulatorState.registers || new RegisterBank();
         const simulatorOutputText = this.makeSimulatorOutputText(this.state.simulatorState.stdout);
         const diff = this.state.simulatorStateDiff;
+        const symbolAddresses = this.state.symbolAddresses;
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
@@ -263,6 +265,8 @@ class App extends React.Component {
                             highlightWord={this.state.state === 'debugging/paused' ? this.state.simulatorState.PC : null}
                             style={{gridArea: 'memory'}}
                             updatedAddresses={diff?.memory}
+                            symbolAddresses={symbolAddresses}
+                            registers={stateRegisters}
                         />
                     ) : null}
                 <MessageDisplay>{this.state.message || ' '}</MessageDisplay>
@@ -353,6 +357,7 @@ class App extends React.Component {
                          simulatorState: SimulatorState.reconstruct(msg.state),
                          previousSimulatorState: null,
                          simulatorStateDiff: null,
+                         symbolAddresses: msg.symbols,
                      });
              } else
                  this.printMessage(`Line ${msg.error.line}: ${msg.error.text}`);
@@ -397,6 +402,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols,
                 });
                 this.printErrorMessage(msg.error.line, msg.error.text);
             } else if (state.broken) {
@@ -405,6 +411,7 @@ class App extends React.Component {
                     previousSimulatorState: this.state.simulatorState,
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: 'debugging/paused',
+                    symbolAddresses: msg.symbols,
                 });
             } else if (state.interrupted)
                 this.handleSoftwareInterrupt(msg.state);
@@ -415,6 +422,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: null,
+                    symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else
@@ -448,7 +456,6 @@ class App extends React.Component {
         ++this.seq;
 
         this.messageHandler = msg => {
-            console.debug('Debug message handler: msg =', msg);
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
             if (msg.result === 'error') {
                 this.updateState({
@@ -457,6 +464,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols,
                 });
                 this.printErrorMessage(msg.error.line, msg.error.text);
             } else if (state.interrupted)
@@ -468,6 +476,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: null,
+                    symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else
@@ -477,6 +486,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState, false),
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols,
                 });
 
             if (this.state.debugCurrentLine)
@@ -516,6 +526,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols,
                 });
                 this.printErrorMessage(msg.error.line, msg.error.text);
             } else if (state.interrupted)
@@ -527,6 +538,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: '',
                     debugCurrentLine: null,
+                    symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else
@@ -536,6 +548,7 @@ class App extends React.Component {
                     simulatorStateDiff: state.diff(this.state.simulatorState),
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols,
                 });
 
             if (this.state.debugCurrentLine)

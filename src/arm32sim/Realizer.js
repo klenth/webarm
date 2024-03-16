@@ -85,6 +85,7 @@ export function realize(ast) {
     return {
         code: mem,
         addressLineMap: addressLineMap,
+        symbols: symbols,
     };
 }
 
