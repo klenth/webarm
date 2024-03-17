@@ -33,7 +33,7 @@ export class SimulatorError extends Error {
 }
 
 export function step(state) {
-    if (!state.running || state.numSteps >= 1_000_000) {
+    if (!state.running) {
         return state;
     }
 
@@ -43,15 +43,13 @@ export function step(state) {
     const pc = newState.PC;
     newState.advancePC();
     const instr = state.memory.readWord(pc);
-    if (instr === 0)
-        newState.stop();   // auto-halt on zero
-    else {
-        try {
-            execute(instr, newState);
-        } catch (ex) {
-            throw new SimulatorError(ex.message, state);
-        }
+
+    try {
+        execute(instr, newState);
+    } catch (ex) {
+        throw new SimulatorError(ex.message, state);
     }
+
     return newState;
 }
 

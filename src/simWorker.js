@@ -4,9 +4,8 @@ import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
 import { AssemblyError, assemble } from './arm32sim/Assembler.js';
 
-//function main() {
 (function() {
-    let debugCode = null, debugStateStack = null, debugLineMap = null, debugSymbols = null;
+    let debugCode = null, debugStateStack = null, debugLineMap = null, debugSymbols = null, debugOptions = null;
 
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
@@ -120,6 +119,12 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
     }
 
     function runProgram(assembled, options) {
+        console.debug(`runProgram: options=`, options);
+        const startTime = new Date().getTime();
+        const checkZero = options.stopOnZero ? state => state.memory.readWord(state.PC) !== 0 : () => true;
+        const checkTime = (options.stopAfterTime !== undefined) ? () => new Date().getTime() < options.stopAfterTime + startTime : () => true;
+        const checkInstructions = (options.stopAfterInstructions !== undefined) ? i => i < options.stopAfterInstructions : () => true;
+        let numInstructions = 0;
         let state;
         if (options.resume) {
             state = debugStateStack.peek().clone();
@@ -145,12 +150,18 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
         }
 
         try {
-            while (state.running && !options.stopImmediately) {
+            while (state.running
+                    && !options.stopImmediately) {
                 if (options.direction === 'backward') {
                     if (debugStateStack.length === 1)
                         break;
                     debugStateStack.pop();
                     state = debugStateStack.peek();
+                } else if (!checkZero(state)) {
+                    state = state.clone();
+                    state.advancePC();
+                    state.stop();
+                    debugStateStack.push(state);
                 } else {
                     state = step(state);
                     debugStateStack.push(state);
@@ -158,7 +169,9 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
 
                 if (state.interrupted && options.stopOnInterrupt
                         || state.broken && options.stopOnBreak
-                        || options.stopAfterEveryInstruction)
+                        || options.stopAfterEveryInstruction
+                        || !checkTime()
+                        || !checkInstructions(++numInstructions))
                     break;
             }
         } catch (ex) {
@@ -177,6 +190,7 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
             state: state,
             line: lineForAddress(state.PC),
             symbols: debugSymbols,
+            executionTime: new Date().getTime() - startTime,
         };
     }
 

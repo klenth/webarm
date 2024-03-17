@@ -9,6 +9,7 @@ import './App.css';
 import NzcvDisplay from './components/NzcvDisplay';
 import RamDisplay from './components/RamDisplay';
 import OpenFileDialog from './components/OpenFileDialog';
+import OptionsDialog from './components/OptionsDialog';
 //import 'ace-builds/src-noconflict/mode-text';
 import 'ace-builds/src-noconflict/ext-searchbox.js';
 import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
@@ -105,9 +106,15 @@ class App extends React.Component {
             debugCurrentLine: null,
             showingMemory: false,
             symbolAddresses: null,
+            options: {
+                stopOnZero: true,
+                stopAfterInstructions: [true, 100],
+                stopAfterTime: [true, 10],
+            }
         };
         this.editorRef = null;
         this.openFileDialogRef = null;
+        this.optionsDialogRef = null;
         this.seq = 0;
         this.messageHandler = null;
 
@@ -202,8 +209,14 @@ class App extends React.Component {
                 key={'stopButton'}
             >Stop</button>
         );
+        const optionsButton = (
+            <button
+                onClick={() => this.handleShowOptionsDialog()}
+                key={'optionsButton'}
+            >Options</button>
+        );
 
-        const buttons = (this.state.state === '') ? [ openFileButton, saveFileButton, assembleButton, runButton, debugButton ]
+        const buttons = (this.state.state === '') ? [ openFileButton, saveFileButton, assembleButton, runButton, debugButton, optionsButton ]
             : (this.state.state === 'running') ? [ stopButton ]
             : (this.state.state === 'debugging/paused') ? [ stepBackButton, stepForwardButton, continueButton, stopButton ]
             : (this.state.state === 'debugging/running') ? [ stopButton ]
@@ -228,6 +241,11 @@ class App extends React.Component {
                 <OpenFileDialog
                     ref={ref => this.openFileDialogRef = ref}
                     onOpen={code => this.handleOpenFile(code)}
+                />
+                <OptionsDialog
+                    ref={ref => this.optionsDialogRef = ref}
+                    initialOptions={this.state.options}
+                    onAccept={newOptions => this.updateState({ options: newOptions })}
                 />
                 <Top>
                     <Controls>
@@ -381,6 +399,11 @@ class App extends React.Component {
         this.updateState({ code: s });
     }
 
+    handleShowOptionsDialog() {
+        if (this.optionsDialogRef)
+            this.optionsDialogRef.dialogRef.showModal();
+    }
+
     handleAssemble() {
         this.clearMessages();
         ++this.seq;
@@ -409,6 +432,14 @@ class App extends React.Component {
         });
     }
 
+    workerOptions() {
+        return {
+            stopOnZero: this.state.options.stopOnZero,
+            ...(this.state.options.stopAfterInstructions[0] ? { stopAfterInstructions: this.state.options.stopAfterInstructions[1] * 1000 } : {}),
+            ...(this.state.options.stopAfterTime[0] ? { stopAfterTime: this.state.options.stopAfterTime[1] * 1000 } : {}),
+        };
+    }
+
     handleRun() {
         this.updateState({
             state: 'running',
@@ -420,6 +451,7 @@ class App extends React.Component {
         });
         ++this.seq;
 
+        /*
         workerTimeout = window.setTimeout(() => {
             this.stopWorker();
             this.updateState({
@@ -427,9 +459,10 @@ class App extends React.Component {
                 state: '',
             });
         }, 5000);
+        */
 
         this.messageHandler = msg => {
-            window.clearTimeout(workerTimeout);
+            //window.clearTimeout(workerTimeout);
 
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
             if (msg.result === 'error') {
@@ -461,7 +494,17 @@ class App extends React.Component {
                     debugCurrentLine: null,
                     symbolAddresses: msg.symbols,
                 });
-                this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+                this.printMessage(`Program ended after executing ${state.numSteps} instructions in ${msg.executionTime / 1000}s`);
+            } else if (state.running) {
+                this.updateState({
+                    simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    state: '',
+                    debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols
+                });
+                this.printMessage(`Execution halted after ${state.numSteps} instructions in ${msg.executionTime / 1000}s due to exceeding limits.`);
             } else
                 console.error(`Unexpected simulator state after run: ${state.state}`);
         };
@@ -475,6 +518,7 @@ class App extends React.Component {
                     stopAfterEveryInstruction: false,
                     stopOnBreak: false,
                     stopOnInterrupt: true,
+                    ...this.workerOptions(),
                 },
             },
         });
@@ -540,6 +584,7 @@ class App extends React.Component {
                     stopAfterEveryInstruction: breakEveryInstruction,
                     stopOnBreak: true,
                     stopOnInterrupt: true,
+                    ...this.workerOptions(),
                 },
             },
         });
@@ -604,6 +649,7 @@ class App extends React.Component {
                     stopOnInterrupt: true,
                     direction: direction,
                     resetWrittenAddressRecord: true,
+                    ...this.workerOptions(),
                 },
             },
         });
