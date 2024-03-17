@@ -52,7 +52,7 @@
   - Symbols too
 - Ability to copy view shown by RamDisplay
 - [DONE] Title, icon
-- Options dialog
+- [DONE] Options dialog
   - Max instruction, max time for run
   - Stop when executing zero
   - Others?
@@ -65,4 +65,4 @@
 - [DONE] Rename "Parse" button to "Assemble"
 - [DONE] Finish implementing toString() for all instruction types
 - [DONE] Code and options in local/session storage
-- In debugger, don't break inside stdlib functions
+- [DONE] In debugger, don't break inside stdlib functions

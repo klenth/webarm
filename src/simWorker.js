@@ -3,9 +3,10 @@ import { step } from './arm32sim/Simulator.js';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
 import { AssemblyError, assemble } from './arm32sim/Assembler.js';
+import CircularArray from './util/circularArray.js';
 
 (function() {
-    let debugCode = null, debugStateStack = null, debugLineMap = null, debugSymbols = null, debugOptions = null;
+    let debugCode = null, debugStateStack = null, debugLineMap = null, debugSymbols = null, debugCodeLength = null;
 
     // eslint-disable-next-line no-restricted-globals
     self.addEventListener('message', e => {
@@ -100,12 +101,13 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
 
     function doAssemble(ast) {
         try {
-            const { code, addressLineMap, symbols } = assemble(ast);
+            const { code, addressLineMap, symbols, codeLength } = assemble(ast);
             return {
                 result: 'success',
                 code: code,
                 addressLineMap: addressLineMap,
                 symbols: symbols,
+                codeLength: codeLength,
             };
         } catch (ex) {
             return {
@@ -119,7 +121,7 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
     }
 
     function runProgram(assembled, options) {
-        console.debug(`runProgram: options=`, options);
+        console.debug(`assembled =`, assembled);
         const startTime = new Date().getTime();
         const checkZero = options.stopOnZero ? state => state.memory.readWord(state.PC) !== 0 : () => true;
         const checkTime = (options.stopAfterTime !== undefined) ? () => new Date().getTime() < options.stopAfterTime + startTime : () => true;
@@ -140,16 +142,18 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
                 };
             }
         } else {
-            debugStateStack = newStateStack();
+            debugStateStack = new CircularArray(128);
             debugLineMap = assembled.addressLineMap;
             state = new SimulatorState();
             state.memory = assembled.code;
             state.memory.resetWrittenAddressesRecord();
             debugStateStack.push(state);
             debugSymbols = assembled.symbols;
+            debugCodeLength = assembled.codeLength;
         }
 
         try {
+            console.debug(`debugCodeLength = ${debugCodeLength}`);
             while (state.running
                     && !options.stopImmediately) {
                 if (options.direction === 'backward') {
@@ -167,11 +171,14 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
                     debugStateStack.push(state);
                 }
 
-                if (state.interrupted && options.stopOnInterrupt
-                        || state.broken && options.stopOnBreak
-                        || options.stopAfterEveryInstruction
-                        || !checkTime()
-                        || !checkInstructions(++numInstructions))
+                if ((state.interrupted && options.stopOnInterrupt)
+                        || (state.broken && options.stopOnBreak)
+                        || (state.PC < debugCodeLength && (
+                            options.stopAfterEveryInstruction
+                            || !checkTime()
+                            || !checkInstructions(++numInstructions)
+                        ))
+                )
                     break;
             }
         } catch (ex) {
@@ -199,15 +206,6 @@ import { AssemblyError, assemble } from './arm32sim/Assembler.js';
             --addr;
         return debugLineMap[addr];
     }
-
-    function newStateStack() {
-        const stack = [];
-        stack.peek = function() {
-            return stack[stack.length - 1];
-        };
-        return stack;
-    }
-
 //}
 })();
 //main();
