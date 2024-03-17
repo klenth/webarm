@@ -21,14 +21,14 @@ let stdlib = null;
 function resolveImport(symbol) {
     if (!stdlib)
         stdlib = StandardLibary.assemble();
-    if (symbol in stdlib.symbols)
+    if (symbol in stdlib.exports)
         return stdlib;
     else
         return null;
 }
 
 export function assemble(ast, startAddress = 0) {
-    const symbols = {};
+    const importedSymbols = {}, symbols = {};
     let addressLineMap = {};
     let dataMaps = [];
     let address = startAddress;
@@ -40,11 +40,11 @@ export function assemble(ast, startAddress = 0) {
         if (!imp)
             throw new AssemblyError(`Unknown external symbol ${extern.item.symbol}`, extern);
         imports.add(imp);
-        symbols[extern.item.symbol] = imp.symbols[extern.item.symbol];
+        importedSymbols[extern.item.symbol] = imp.symbols[extern.item.symbol];
     }
 
     function registerSymbol(symbol) {
-        if (symbol in symbols)
+        if (symbol in symbols || symbol in importedSymbols)
             throw new AssemblyError(`Duplicate symbol: ${symbol}`)
         symbols[symbol] = address;
     }
@@ -91,6 +91,8 @@ export function assemble(ast, startAddress = 0) {
             return address;
         else if (symbol in symbols)
             return symbols[symbol];
+        else if (symbol in importedSymbols)
+            return importedSymbols[symbol];
         else
             throw new AssemblyError("Unknown symbol: " + symbol);
     };
@@ -122,7 +124,6 @@ export function assemble(ast, startAddress = 0) {
             || (imp.startAddress >= address && imp < address))
             throw new AssemblyError(`Code overlaps with imported library (starting at address 0x${imp.startAddress.toHexString(16)})`);
 
-        console.debug(`Writing ${imp.codeLength} bytes of code starting at address 0x${imp.startAddress.toString(16)}`);
         for (let i = imp.startAddress; i < imp.startAddress + imp.codeLength; i += 4)
             mem.writeWord(i, imp.code.readWord(i));
     }

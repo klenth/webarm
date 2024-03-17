@@ -9,12 +9,19 @@ export function assemble() {
 const CODE = `
 EXPORT  .std_srand
 EXPORT  .std_rand
+EXPORT  .std_print
+EXPORT  .std_println
+EXPORT  .std_print_number
+EXPORT  .std_mod10
+EXPORT  .std_div10
 
+        ALIGN
 .std_srand
         LDR     R1, =.rand_seed
         STR     R0, [R1]
         MOV     PC, LR
 
+        ALIGN
 .std_rand
         MOV     R3, LR
         LDR     R0, .rand_seed
@@ -28,6 +35,7 @@ EXPORT  .std_rand
 .rand_seed
         DCD     0
 
+        ALIGN
 .std_print  
         STMFD   SP!, {R7,LR}
         LDR     R7, =0xCA11_0011
@@ -41,6 +49,7 @@ EXPORT  .std_rand
 .print_end
         LDMFD   SP!, {R7,PC}
 
+        ALIGN
 .std_println
         STMFD   SP!, {R7,LR}
         BL      .std_print
@@ -49,8 +58,11 @@ EXPORT  .std_rand
         SWI
         LDMFD   SP!, {R7,PC}
 
+        ALIGN
 .std_print_number
         STMFD   SP!, {R5-R9,LR}
+        CMP     R1, #20
+        MOVHI   R1, #20
         MOV     R9, R1
         LDR     R6, =.print_number_buffer_end
         SUB     R6, R6, #1
@@ -90,9 +102,10 @@ EXPORT  .std_rand
         LDMFD   SP!, {R5,R6,R7,R8,R9,PC}
         
 .print_number_buffer
-        FILL    16
+        FILL    24
 .print_number_buffer_end
 
+        ALIGN
 .std_mod10  
         CMP     R0, #16
         BCC     .mod10_end
@@ -107,6 +120,7 @@ EXPORT  .std_rand
         SUBCS   R0, R0, #10
         MOV     PC, LR
         
+        ALIGN
 .std_div10
         STMFD   SP!, {R5,LR}
         LSRS    R1, R0, #31
