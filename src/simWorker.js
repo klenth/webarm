@@ -165,11 +165,12 @@ import CircularArray from './util/circularArray.js';
                     state = state.clone();
                     state.advancePC();
                     state.stop();
-                    debugStateStack.push(state);
                 } else {
                     state = step(state);
-                    debugStateStack.push(state);
                 }
+
+                if (state.PC < debugCodeLength && options.direction !== 'backward')
+                    debugStateStack.push(state);
 
                 if ((state.interrupted && options.stopOnInterrupt)
                         || (state.broken && options.stopOnBreak)

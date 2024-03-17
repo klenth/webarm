@@ -38,7 +38,7 @@
   - input integer (same types)
   - generate random integer, seed
 - Linter
-- Limited buffer of simulator states when debugging (not unlimited — 256?)
+- [DONE] Limited buffer of simulator states when debugging (not unlimited — 256?)
 - [SUBSTITUTE] Step forward to go to next line *of code,* not next instruction
   - Instead, editor shows current line, even when it corresponds to multiple
     instrs (relevant instruction is shown in memory view)
