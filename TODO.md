@@ -21,7 +21,7 @@
 - [DONE] Error messages on parse/assembly error
 - [DONE] Syntax highlighting (Ace mode)
 - [DONE] Instruction reference
-- Keyboard shortcuts (at least for run/debug)
+- [DONE] Keyboard shortcuts (at least for run/debug)
 - Syscalls:
   - putchar
   - getchar
