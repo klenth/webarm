@@ -39,7 +39,10 @@ const Controls = styled.div`
     & > * > * {
         margin: 4px;
     }
-    
+`;
+
+const AddressInput = styled.input`
+    width: 8em;
 `;
 
 const Field = styled.div`
@@ -197,7 +200,7 @@ export default class RamDisplay extends React.Component {
                     <label>
                         Starting address: &nbsp;
                         <span style={{fontFamily: 'monospace'}}>0x</span>
-                        <input
+                        <AddressInput
                             type={'text'}
                             onChange={e => this.handleOffsetChange(e)}
                             onKeyDown={e => this.handleOffsetKeyDown(e)}
