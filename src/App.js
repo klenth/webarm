@@ -90,6 +90,7 @@ const Nonprintable = styled.span`
 `;
 
 const CODE_STORAGE_PROPERTY = 'webarm_code';
+const OPTIONS_STORAGE_PROPERTY = 'webarm_options';
 let firstLoad = true;
 
 class App extends React.Component {
@@ -120,9 +121,17 @@ class App extends React.Component {
 
         if (firstLoad) {
             firstLoad = false;
-            const storedCode = ('localStorage' in window) ? window['localStorage'].getItem(CODE_STORAGE_PROPERTY) : null;
-            if (storedCode)
-                this.state.code = storedCode;
+            if ('localStorage' in window) {
+                const storedCode = window['localStorage'].getItem(CODE_STORAGE_PROPERTY);
+                if (storedCode)
+                    this.state.code = storedCode;
+                const storedOptions = window['localStorage'].getItem(OPTIONS_STORAGE_PROPERTY);
+                if (storedOptions)
+                    this.state.options = {
+                        ...this.state.options,
+                        ...JSON.parse(storedOptions)
+                    };
+            }
         }
     }
 
@@ -245,7 +254,7 @@ class App extends React.Component {
                 <OptionsDialog
                     ref={ref => this.optionsDialogRef = ref}
                     initialOptions={this.state.options}
-                    onAccept={newOptions => this.updateState({ options: newOptions })}
+                    onAccept={newOptions => this.handleOptionsChange(newOptions)}
                 />
                 <Top>
                     <Controls>
@@ -396,6 +405,14 @@ class App extends React.Component {
         if ('localStorage' in window)
             window['localStorage'].setItem(CODE_STORAGE_PROPERTY, s);
         this.updateState({ code: s });
+    }
+
+    handleOptionsChange(options) {
+        if ('localStorage' in window)
+            window['localStorage'].setItem(OPTIONS_STORAGE_PROPERTY, JSON.stringify(options));
+        this.updateState({
+            options: options,
+        });
     }
 
     handleShowOptionsDialog() {

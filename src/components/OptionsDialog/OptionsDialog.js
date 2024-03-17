@@ -59,7 +59,8 @@ export default class OptionsDialog extends React.Component {
         this.dialogRef = null;
         this.state = {
             options: {
-                ...OptionsDialog._defaultOptions
+                ...OptionsDialog._defaultOptions,
+                ...this.props.initialOptions,
             },
         };
     }

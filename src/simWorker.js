@@ -170,12 +170,14 @@ import CircularArray from './util/circularArray.js';
                 if (state.PC < debugCodeLength && options.direction !== 'backward')
                     debugStateStack.push(state);
 
+                ++numInstructions;
+
                 if ((state.interrupted && options.stopOnInterrupt)
                         || (state.broken && options.stopOnBreak)
                         || (state.PC < debugCodeLength && (
                             options.stopAfterEveryInstruction
                             || !checkTime()
-                            || !checkInstructions(++numInstructions)
+                            || !checkInstructions(numInstructions)
                         ))
                 )
                     break;
