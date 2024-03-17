@@ -160,18 +160,21 @@ class App extends React.Component {
             <button
                 onClick={() => this.handleAssemble()}
                 key={'assembleButton'}
+                title={'Assemble code (F6)'}
             >Assemble</button>
         );
         const runButton = (
             <button
                 onClick={() => this.handleRun()}
                 key={'runButton'}
+                title={'Run program (F7)'}
             >Run</button>
         );
         const debugButton = (
             <button
                 onClick={() => this.handleDebug(true)}
                 key={'debugButton'}
+                title={'Debug program (F8)'}
             >Debug</button>
         );
         const stepBackButton = (
@@ -190,6 +193,7 @@ class App extends React.Component {
             <button
                 onClick={() => this.handleContinue('forward', false)}
                 key={'continueButton'}
+                title={'Continue (F8)'}
             >Continue</button>
         );
         const stopButton = (
@@ -218,7 +222,9 @@ class App extends React.Component {
         const readOnly = (this.state.state !== '');
 
         return (
-            <div className="App">
+            <div className="App"
+                 onKeyDown={e => this.handleKeyDown(e)}
+            >
                 <OpenFileDialog
                     ref={ref => this.openFileDialogRef = ref}
                     onOpen={code => this.handleOpenFile(code)}
@@ -320,6 +326,25 @@ class App extends React.Component {
             clearTimeout(workerTimeout);
 
         this.seq = this.messageHandler = simWorker = null;
+    }
+
+    handleKeyDown(e) {
+        if (e.code === 'F6') {
+            e.preventDefault();
+            if (this.state.state === '')
+                this.handleAssemble();
+        } else if (e.code === 'F7') {
+            e.preventDefault();
+            if (this.state.state === '')
+                this.handleRun();
+        } else if (e.code === 'F8') {
+            e.preventDefault();
+            if (this.state.state === '')
+                this.handleDebug();
+            else if (this.state.state === 'debugging/paused')
+                this.handleContinue('forward', false);
+        }
+        console.debug(`keyDown:`, e.code);
     }
 
     handleOpenFileButtonClicked() {
