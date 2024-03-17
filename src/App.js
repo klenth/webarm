@@ -6,6 +6,7 @@ import * as AST from './grammar/arm32Ast';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { RegisterBank } from './arm32sim/RegisterBank.js';
 import './App.css';
+import logo from './cs.w.twotone.transparent.png';
 import NzcvDisplay from './components/NzcvDisplay';
 import RamDisplay from './components/RamDisplay';
 import OpenFileDialog from './components/OpenFileDialog';
@@ -87,6 +88,10 @@ const SimulatorOutput = styled.pre`
 
 const Nonprintable = styled.span`
     color: #bbb;
+`;
+
+const Logo = styled.img`
+    height: 24px;
 `;
 
 const CODE_STORAGE_PROPERTY = 'webarm_code';
@@ -266,6 +271,9 @@ class App extends React.Component {
                     <Controls>
                         {memoryCheckbox}
                         {buttons}
+                        <Logo
+                            src={logo}
+                        />
                     </Controls>
                 </Top>
                     <Editor
