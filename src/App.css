@@ -7,6 +7,8 @@
   --color-flint: #101820;
   --color-birch: #F1F1DE;
   --color-thistle: #8252C7;
+  --color-thistle-darker: #7a46c3;
+  --color-thistle-lighter: #9065cd;
   --color-sky: #00B5E2;
   --color-for-current-highlight: rgba(142, 102, 199, 0.4);
 
@@ -61,6 +63,22 @@
 
 .read-only .ace_cursor {
   opacity: 0 !important;
+}
+
+button, label.button, select {
+    background-color: var(--color-thistle);
+    color: white;
+    border: none;
+    padding: 4px 12px;
+    border-radius: 4px;
+}
+
+button:hover, label.button:hover, select:hover {
+    background-color: var(--color-thistle-lighter);
+}
+
+button:active, label.button:active, select:active {
+  background-color: var(--color-thistle-darker);
 }
 
 @font-face {

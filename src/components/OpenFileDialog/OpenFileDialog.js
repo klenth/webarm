@@ -24,15 +24,6 @@ const Title = styled.div`
 `;
 
 const Label = styled.label`
-    padding: 8px;
-    border: 1px solid black;
-    border-radius: 4px;
-    color: white;
-    background-color: var(--color-sky);
-  
-    &:hover {
-      background-color: #33D6FF;
-    }
 `;
 
 const Filename = styled.div`
@@ -71,7 +62,9 @@ export default class OpenFileDialog extends React.Component {
                 <Title>
                     Open file
                 </Title>
-                <Label>
+                <Label
+                    className={'button'}
+                >
                     Choose an assembly file (.webs) to load
                     <input
                         type={'file'}
