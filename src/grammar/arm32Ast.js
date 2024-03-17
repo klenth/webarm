@@ -1,4 +1,4 @@
-import { AssemblyError } from '../arm32sim/Realizer.js';
+import { AssemblyError } from '../arm32sim/Assembler.js';
 import { parseMnemonic } from './arm32Mnemonic.js';
 
 export function parseImmediate(text) {

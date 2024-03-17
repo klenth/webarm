@@ -6,7 +6,7 @@ import counter from './counter';
 import { step } from './arm32sim/Simulator.js';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
-import { AssemblyError, realize } from './arm32sim/Realizer.js';
+import { AssemblyError, assemble } from './arm32sim/Assembler.js';
 
 class ParseError extends Error {
     constructor(message, line, column) {
@@ -39,7 +39,7 @@ class ParseError extends Error {
     }
 
     function handleAssembleMessage(seq, params) {
-        const r = doParseAndRealize(params.code);
+        const r = doParseAndAssemble(params.code);
         if (r.error)
             sendToApp(seq,{
                 result: r.result,
@@ -56,11 +56,11 @@ class ParseError extends Error {
         }
     }
 
-    function doParseAndRealize(code) {
+    function doParseAndAssemble(code) {
         try {
             const ast = parse(code);
             if (ast !== null)
-                return doRealize(ast);
+                return doAssemble(ast);
         } catch (ex) {
             if (ex instanceof ParseError) {
                 return {
@@ -96,7 +96,7 @@ class ParseError extends Error {
         if (params.options.resume)
             runResult = runProgram(null, params.options);
         else {
-            const r = doParseAndRealize(params.code);
+            const r = doParseAndAssemble(params.code);
             if (r.error) {
                 sendToApp(seq, {
                     result: r.result,
@@ -137,9 +137,9 @@ class ParseError extends Error {
         return ast;
     }
 
-    function doRealize(ast) {
+    function doAssemble(ast) {
         try {
-            const { code, addressLineMap, symbols } = realize(ast);
+            const { code, addressLineMap, symbols } = assemble(ast);
             return {
                 result: 'success',
                 code: code,
@@ -157,7 +157,7 @@ class ParseError extends Error {
         }
     }
 
-    function runProgram(realized, options) {
+    function runProgram(assembled, options) {
         let state;
         if (options.resume) {
             state = debugStateStack.peek().clone();
@@ -174,12 +174,12 @@ class ParseError extends Error {
             }
         } else {
             debugStateStack = newStateStack();
-            debugLineMap = realized.addressLineMap;
+            debugLineMap = assembled.addressLineMap;
             state = new SimulatorState();
-            state.memory = realized.code;
+            state.memory = assembled.code;
             state.memory.resetWrittenAddressesRecord();
             debugStateStack.push(state);
-            debugSymbols = realized.symbols;
+            debugSymbols = assembled.symbols;
         }
 
         try {
