@@ -63,7 +63,6 @@ export class Program extends AstNode {
         this.externs = externs;
         this.exports = exports;
         this.lines = lines;
-        console.debug(`externs =`, externs);
     }
 
     children() {
@@ -172,7 +171,6 @@ export class DCD extends Directive {
             else {
                 const word = parseImmediate(value);
                 if ((word & 0xffff_ffff) >>> 0 !== word) {
-                    console.debug(`word & 0xffff_ffff = ${word & 0xffff_ffff}, word = ${word}`);
                     throw new AssemblyError(`Numeric value ${value} out of range for a word`);
                 }
                 words.push(word);
@@ -496,10 +494,7 @@ export class BinaryOp extends SymbolicExpression {
     }
 
     evaluate(mapper) {
-        console.debug('BinaryOp.evaluate()');
         const l = this.left.evaluate(mapper), r = this.right.evaluate(mapper);
-        console.debug(`BinaryOp: l=${l}, r=${r}`);
-        console.debug(`this._OPS=${this._OPS}, this.op=${this.op}`);
         return this._OPS[this.op](this.left.evaluate(mapper), this.right.evaluate(mapper));
     }
 
@@ -514,7 +509,6 @@ export class CurrentAddressExpression extends SymbolicExpression {
     }
 
     evaluate(mapper) {
-        console.debug(`CurrentAddressExpression.evaluate()`);
         return mapper('.');
     }
 }
@@ -526,7 +520,6 @@ export class SymbolExpression extends SymbolicExpression {
     }
 
     evaluate(mapper) {
-        console.debug(`SymbolExpression.evaluate(): symbol=${this.symbol}`);
         return mapper(this.symbol);
     }
 }

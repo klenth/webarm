@@ -362,7 +362,6 @@ class App extends React.Component {
             else if (this.state.state === 'debugging/paused')
                 this.handleContinue('forward', false);
         }
-        console.debug(`keyDown:`, e.code);
     }
 
     handleOpenFileButtonClicked() {
@@ -411,7 +410,6 @@ class App extends React.Component {
         this.messageHandler = msg => {
              if (msg.result === 'success') {
                  this.printMessage('Looks good!');
-                 console.debug(msg.state);
                  if (msg.state)
                      this.updateState({
                          simulatorState: SimulatorState.reconstruct(msg.state),

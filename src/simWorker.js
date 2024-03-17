@@ -121,7 +121,6 @@ import CircularArray from './util/circularArray.js';
     }
 
     function runProgram(assembled, options) {
-        console.debug(`assembled =`, assembled);
         const startTime = new Date().getTime();
         const checkZero = options.stopOnZero ? state => state.memory.readWord(state.PC) !== 0 : () => true;
         const checkTime = (options.stopAfterTime !== undefined) ? () => new Date().getTime() < options.stopAfterTime + startTime : () => true;
@@ -153,7 +152,6 @@ import CircularArray from './util/circularArray.js';
         }
 
         try {
-            console.debug(`debugCodeLength = ${debugCodeLength}`);
             while (state.running
                     && !options.stopImmediately) {
                 if (options.direction === 'backward') {
