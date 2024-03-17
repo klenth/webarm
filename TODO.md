@@ -17,7 +17,7 @@
   - [DONE] ALIGN (and remove auto-alignment from realizer)
 - [DONE] Load/save
 - [DONE (enough, at least)] NZCV for all relevant instructions
-- Assembler module
+- [DONE] Assembler module
 - [DONE] Error messages on parse/assembly error
 - [DONE] Syntax highlighting (Ace mode)
 - [DONE] Instruction reference
@@ -31,7 +31,7 @@
     - R7: syscall function number
     - R0-R6: syscall arguments
     - Result returned in R0
-- Library functions (IMPORT or EXTERN directive)
+- [DONE] Library functions (IMPORT or EXTERN directive)
   - print string
   - print integer (unsigned decimal, signed decimal, hex)
   - input line
@@ -65,3 +65,4 @@
 - [DONE] Rename "Parse" button to "Assemble"
 - [DONE] Finish implementing toString() for all instruction types
 - [DONE] Code and options in local/session storage
+- In debugger, don't break inside stdlib functions
