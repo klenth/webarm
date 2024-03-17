@@ -1,20 +1,8 @@
-import antlr4 from 'antlr4';
-import ARM32Lexer from './grammar/ARM32Lexer';
-import ARM32Parser from './grammar/ARM32Parser';
-import * as AST from './grammar/arm32Ast';
-import counter from './counter';
+import { parse, ParseError } from './arm32sim/Parser.js';
 import { step } from './arm32sim/Simulator.js';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
 import { AssemblyError, assemble } from './arm32sim/Assembler.js';
-
-class ParseError extends Error {
-    constructor(message, line, column) {
-        super(message);
-        this.line = line;
-        this.column = column;
-    }
-}
 
 //function main() {
 (function() {
@@ -109,32 +97,6 @@ class ParseError extends Error {
         }
 
         sendToApp(seq, runResult);
-    }
-
-    function parse(code) {
-        code += '\n'; // Make sure it ends in a newline
-        let ast;
-        const chars = new antlr4.InputStream(code);
-        const lexer = new ARM32Lexer(chars);
-        const tokens = new antlr4.CommonTokenStream(lexer);
-        const parser = new ARM32Parser(tokens);
-
-        const errorListener = {
-            syntaxError: (recognizer, token, line, column, message, error) => {
-                throw new ParseError(message, line, column);
-            },
-            reportAttemptingFullContext: () => {},
-            reportAmbiguity: () => {},
-        };
-
-        lexer.removeErrorListeners();
-        parser.removeErrorListeners();
-        lexer.addErrorListener(errorListener);
-        parser.addErrorListener(errorListener);
-
-        ast = parser.program().p;
-
-        return ast;
     }
 
     function doAssemble(ast) {

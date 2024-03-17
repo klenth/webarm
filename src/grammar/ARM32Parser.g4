@@ -10,8 +10,22 @@ options {
 
 program
 returns [Program p]
-    : NEWLINE* (lines+=line)* EOF {
-        $p = new AST.Program($lines.map(l => l.l));
+    : NEWLINE* (externs+=extern)* (exports+=export)* (lines+=line)* EOF {
+        $p = new AST.Program($externs.map(e => e.l), $exports.map(e => e.l), $lines.map(l => l.l));
+    }
+    ;
+
+extern
+returns [Line l]
+    : EXTERN ID NEWLINE+ {
+        $l = new AST.Line($ctx.start.line, '', new AST.Extern($ID.text));;
+    }
+    ;
+
+export
+returns [Line l]
+    : EXPORT ID NEWLINE+ {
+        $l = new AST.Line($ctx.start.line, '', new AST.Export($ID.text));
     }
     ;
 
@@ -200,9 +214,9 @@ returns [Directive d]
     | DCB (dcb_values+=dcb_value (COMMA dcb_values+=dcb_value)*) {
         $d = new AST.DCB($dcb_values.map(node => node.n));;
     }
-    | EQU value=INT {
+    /*| EQU value=INT {
         $d = new AST.EquateDirective($value.text);;
-    }
+    }*/
     | FILL bytes=INT (COMMA value=INT)? {
         $d = new AST.FillDirective($bytes.text, $value.text);;
     }

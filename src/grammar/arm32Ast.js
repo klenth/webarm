@@ -58,17 +58,54 @@ export class AstNode {
 }
 
 export class Program extends AstNode {
-    constructor(lines) {
+    constructor(externs, exports, lines) {
         super('program');
+        this.externs = externs;
+        this.exports = exports;
         this.lines = lines;
+        console.debug(`externs =`, externs);
     }
 
     children() {
-        return this.lines;
+        return [...this.externs, ...this.exports, ...this.lines];
     }
 
     static reconstruct(o) {
-        return new Program(o.lines.map(AstNode.reconstruct));
+        return new Program(
+            o.externs.map(AstNode.reconstruct),
+            o.exports.map(AstNode.reconstruct),
+            o.lines.map(AstNode.reconstruct)
+        );
+    }
+}
+
+export class Extern extends AstNode {
+    constructor(symbol) {
+        super('extern');
+        this.symbol = symbol;
+    }
+
+    toString() {
+        return `EXTERN ${this.symbol}`;
+    }
+
+    static reconstruct(o) {
+        return new Extern(o.symbol);
+    }
+}
+
+export class Export extends AstNode {
+    constructor(symbol) {
+        super('export');
+        this.symbol = symbol;
+    }
+
+    toString() {
+        return `EXPORT ${this.symbol}`;
+    }
+
+    static reconstruct(o) {
+        return new Export(o.symbol);
     }
 }
 
@@ -522,6 +559,8 @@ export function logAst(node, log=console.log, levels=0) {
 const exports = {
     'AstNode': AstNode,
     'Program': Program,
+    'Extern': Extern,
+    'Export': Export,
     'Line': Line,
     'Instruction': Instruction,
     'Directive': Directive,

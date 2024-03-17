@@ -2,6 +2,7 @@ import * as AST from '../grammar/arm32Ast';
 import * as I from './Instruction';
 import { rotateRight } from '../bits/arithmetic.js';
 import SimulatorMemory from './SimulatorMemory';
+import * as StandardLibary from './StandardLibrary.js';
 
 export class AssemblyError extends Error {
     constructor(message, node) {
@@ -16,11 +17,31 @@ export class InvalidOperandsError extends AssemblyError {
     }
 }
 
-export function assemble(ast) {
+let stdlib = null;
+function resolveImport(symbol) {
+    if (!stdlib)
+        stdlib = StandardLibary.assemble();
+    if (symbol in stdlib.symbols)
+        return stdlib;
+    else
+        return null;
+}
+
+export function assemble(ast, startAddress = 0) {
     const symbols = {};
     let addressLineMap = {};
     let dataMaps = [];
-    let address = 0;
+    let address = startAddress;
+
+    // Import any externs
+    const imports = new Set();
+    for (let extern of ast.externs) {
+        const imp = resolveImport(extern.item.symbol);
+        if (!imp)
+            throw new AssemblyError(`Unknown external symbol ${extern.item.symbol}`, extern);
+        imports.add(imp);
+        symbols[extern.item.symbol] = imp.symbols[extern.item.symbol];
+    }
 
     function registerSymbol(symbol) {
         if (symbol in symbols)
@@ -64,7 +85,7 @@ export function assemble(ast) {
         }
     });
 
-    address = 0;
+    address = startAddress;
     const symbolAddressMapper = symbol => {
         if (symbol === '.')
             return address;
@@ -82,10 +103,37 @@ export function assemble(ast) {
         address += dataMap.size(address);
     });
 
+    // Now that the code is assembled, process exports
+    const exports = {};
+    for (const exp of ast.exports) {
+        if (exp.item.symbol in symbols)
+            exports[exp.item.symbol] = symbols[exp.item.symbol];
+        else
+            throw new AssemblyError(`No symbol ${exp.item.symbol} to export`, exp);
+    }
+
+    // Add imports (from externs) in
+    for (const imp of imports) {
+        // Check that there is no overlap between imp's code and ours
+        // [a, b): [startAddress, address)
+        // [c, d): [imp.startAddress, imp.startAddress + imp.codeLength)
+        // [a, b) overlaps with [c, d) iff a ∈ [c, d) || c ∈ [a, b)
+        if ((startAddress >= imp.startAddress && startAddress < imp.startAddress + imp.codeLength)
+            || (imp.startAddress >= address && imp < address))
+            throw new AssemblyError(`Code overlaps with imported library (starting at address 0x${imp.startAddress.toHexString(16)})`);
+
+        console.debug(`Writing ${imp.codeLength} bytes of code starting at address 0x${imp.startAddress.toString(16)}`);
+        for (let i = imp.startAddress; i < imp.startAddress + imp.codeLength; i += 4)
+            mem.writeWord(i, imp.code.readWord(i));
+    }
+
     return {
         code: mem,
+        startAddress: startAddress,
+        codeLength: address - startAddress,
         addressLineMap: addressLineMap,
         symbols: symbols,
+        exports: exports,
     };
 }
 

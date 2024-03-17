@@ -128,9 +128,9 @@ DCB
     : 'DCB'
     ;
 
-EQU
+/*EQU
     : 'EQU'
-    ;
+    ;*/
 
 FILL
     : 'FILL'
@@ -138,6 +138,14 @@ FILL
 
 ALIGN
     : 'ALIGN'
+    ;
+
+EXTERN
+    : 'EXTERN'
+    ;
+
+EXPORT
+    : 'EXPORT'
     ;
 
 ID
