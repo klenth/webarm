@@ -985,15 +985,15 @@ function operandSpecToString(spec) {
         if (sp === '')
             return [];
         else if (sp.startsWith('Null'))
-            return ['(empty)', ...(specStringify(sp.slice(4)))];
+            return ['(empty)', ...specStringify(sp.slice(4))];
         else if (sp.startsWith('Rs'))
-            return ['signed register', ...(specStringify(sp.slice(2)))];
+            return ['signed register', ...specStringify(sp.slice(2))];
         else if (sp.startsWith('Rw'))
             return ['writeback register', ...specStringify(sp.slice(2))];
         else if (sp.startsWith('Rf'))
-            return ['shifted register', ...(specStringify(sp.slice(2)))];
+            return ['shifted register', ...specStringify(sp.slice(2))];
         else if (sp.startsWith('R'))
-            return ['register', ...(specStringify(sp.slice(1)))];
+            return ['register', ...specStringify(sp.slice(1))];
         else if (sp.startsWith('{R}'))
             return ['register set', ...specStringify(sp.slice(3))];
         else if (sp.startsWith('Pre['))
@@ -1003,9 +1003,9 @@ function operandSpecToString(spec) {
         else if (sp.startsWith('Ip'))
             return ['=immediate', ...specStringify(sp.slice(2))];
         else if (sp.startsWith('I'))
-            return ['immediate', specStringify(sp.slice(1))];
+            return ['immediate', ...specStringify(sp.slice(1))];
         else if (sp.startsWith('S'))
-            return ['symbolic', specStringify(sp.slice(1))];
+            return ['symbolic', ...specStringify(sp.slice(1))];
         else
             return [];
     }
