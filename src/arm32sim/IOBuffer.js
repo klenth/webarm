@@ -1,7 +1,7 @@
 export class IOBuffer {
 
     constructor(buf) {
-        this.bytes = buf?.bytes || [];
+        this.bytes = buf?.bytes? [...buf.bytes] : [];
         this.mark = buf?.mark || 0;
     }
 
