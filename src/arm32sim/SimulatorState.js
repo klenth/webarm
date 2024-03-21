@@ -17,8 +17,8 @@ export class SimulatorState {
         this.nzcv = nzcv || 0b0000;
         this.numSteps = numSteps || 0;
         this.state = state || 'running';
-        this.stdin = stdin || new IOBuffer();
-        this.stdout = stdout || new IOBuffer();
+        this.stdin = new IOBuffer(stdin);
+        this.stdout = new IOBuffer(stdout);
     }
 
     getPC() {
