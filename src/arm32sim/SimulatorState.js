@@ -105,6 +105,10 @@ export class SimulatorState {
         return this.state === 'interrupted';
     }
 
+    get exceededLimits() {
+        return this.state === 'exceeded-limits';
+    }
+
     continue() {
         this.state = 'running';
     }
@@ -119,6 +123,10 @@ export class SimulatorState {
 
     interrupt() {
         this.state = 'interrupted';
+    }
+
+    markExceededLimits() {
+        this.state = 'exceeded-limits';
     }
 
     static reconstruct(o) {

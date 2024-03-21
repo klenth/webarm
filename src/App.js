@@ -27,6 +27,7 @@ const Top = styled.div`
 const Controls = styled.div`
   flex-grow: 0;
   text-align: right;
+  padding-right: 80px;
   
   & > * {
     margin: 2px 8px;
@@ -91,6 +92,9 @@ const Nonprintable = styled.span`
 `;
 
 const Logo = styled.img`
+    position: absolute;
+    right: 8px;
+    top: 8px;
     height: 24px;
 `;
 
@@ -265,7 +269,9 @@ class App extends React.Component {
                     <Controls>
                         <a href={"https://cs.westminsteru.edu/cmpt328/webarm/docs/"} target={"docs"}>Help</a>
                     </Controls>
-                    <Title>
+                    <Title
+                        title={'WebARM version 20240321.0'}
+                    >
                         WebARM
                     </Title>
                     <Controls>
@@ -518,7 +524,7 @@ class App extends React.Component {
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions in ${msg.executionTime / 1000}s`);
-            } else if (state.running) {
+            } else if (state.exceededLimits) {
                 this.updateState({
                     simulatorState: state,
                     previousSimulatorState: this.state.simulatorState,
@@ -583,6 +589,16 @@ class App extends React.Component {
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+            } else if (state.exceededLimits) {
+                this.updateState({
+                    simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    state: '',
+                    debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols
+                });
+                this.printMessage(`Execution halted after ${state.numSteps} instructions in ${msg.executionTime / 1000}s due to exceeding limits.`);
             } else
                 this.updateState({
                     simulatorState: state,
@@ -646,6 +662,16 @@ class App extends React.Component {
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+            } else if (state.exceededLimits) {
+                this.updateState({
+                    simulatorState: state,
+                    previousSimulatorState: this.state.simulatorState,
+                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    state: '',
+                    debugCurrentLine: msg.line,
+                    symbolAddresses: msg.symbols
+                });
+                this.printMessage(`Execution halted after ${state.numSteps} instructions in ${msg.executionTime / 1000}s due to exceeding limits.`);
             } else
                 this.updateState({
                     simulatorState: state,
@@ -654,6 +680,7 @@ class App extends React.Component {
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
+                    message: `Paused (${state.numSteps} instructions executed)`,
                 });
 
             if (this.state.debugCurrentLine)

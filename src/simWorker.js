@@ -148,7 +148,7 @@ import CircularArray from './util/circularArray.js';
             state.memory.resetWrittenAddressesRecord();
             debugStateStack.push(state);
             debugSymbols = assembled.symbols;
-            debugCodeLength = assembled.codeLength;
+            debugCodeLength = 0x1f_0000; // assembled.codeLength;
         }
 
         try {
@@ -174,13 +174,13 @@ import CircularArray from './util/circularArray.js';
 
                 if ((state.interrupted && options.stopOnInterrupt)
                         || (state.broken && options.stopOnBreak)
-                        || (state.PC < debugCodeLength && (
-                            options.stopAfterEveryInstruction
-                            || !checkTime()
-                            || !checkInstructions(numInstructions)
-                        ))
+                        || (state.PC < debugCodeLength && options.stopAfterEveryInstruction)
                 )
                     break;
+                else if (!checkTime() || !checkInstructions(numInstructions)) {
+                    state.markExceededLimits();
+                    break;
+                }
             }
         } catch (ex) {
             return {
