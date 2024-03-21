@@ -1118,7 +1118,7 @@
 
                 <h3><code class="highlight">ALIGN</code></h3>
                 <p>
-                    An <code class="highlight">ALIGN</code> directive ensures that the next data (whether it be an instruction or another directive) begins at an address that is a multiple of some value (4 by default) by adding zero bytes if necessary. This is necessary in some cases as ARM cannot make unaligned memory addresses (for example, it cannot load bytes 3–6 as a single word since 3 is not a multiple of 4); since instructions are words, they must always start on a multiple of 4 as well, but directives like <code class="highlight">DCB</code> and <code class="highlight">FILL</code> can cause addresses to become unaligned.
+                    An <code class="highlight">ALIGN</code> directive ensures that the next data (whether it be an instruction or another directive) begins at an address that is a multiple of some value (4 by default) by adding zero bytes if necessary. This is necessary in some cases as ARM cannot make unaligned memory accesses (for example, it cannot load bytes 3–6 as a single word since 3 is not a multiple of 4); since instructions are words, they must always start on a multiple of 4 as well, but directives like <code class="highlight">DCB</code> and <code class="highlight">FILL</code> can cause addresses to become unaligned.
                 </p>
                 <pre class="highlight">
         ; A chunk of memory that will cause unalignment
