@@ -270,7 +270,7 @@ class App extends React.Component {
                         <a href={"https://cs.westminsteru.edu/cmpt328/webarm/docs/"} target={"docs"}>Help</a>
                     </Controls>
                     <Title
-                        title={'WebARM version 20240321.0'}
+                        title={'WebARM version 20240321.1'}
                     >
                         WebARM
                     </Title>
