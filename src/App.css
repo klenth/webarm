@@ -11,6 +11,9 @@
   --color-thistle-lighter: #9065cd;
   --color-sky: #00B5E2;
   --color-for-current-highlight: rgba(142, 102, 199, 0.4);
+  --color-for-chrome: var(--color-thistle);
+  --color-for-text: black;
+  --color-for-background: white;
 
   --content-font: Lato, sans-serif;
   --mono-font: Iosevka Kathy Web, monospace;
@@ -24,6 +27,15 @@
     "editor registers memory"
     "message message message"
     "output output output";
+
+  background-color: var(--color-for-background);
+  color: var(--color-for-text);
+}
+
+.App.dark-mode {
+    --color-for-text: white;
+    --color-for-background: var(--color-flint);
+    --color-for-chrome: var(--color-copper);
 }
 
 .App-logo {

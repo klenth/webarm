@@ -23,8 +23,8 @@ const Display = styled.div`
   position: relative;
   border: 3px solid var(--chrome-color);
   border-radius: 8px;
-  color: #00b5e2;
-  background-color: var(--chrome-color);
+  color: var(--color-for-text);
+  background-color: var(--color-for-chrome);
   padding: 0;
   height: var(--display-height);
   font-size: 0.8rem;
@@ -49,7 +49,7 @@ const Label = styled.div`
 
 const Interior = styled.div`
   display: inline-block;
-  background-color: white;
+  background-color: var(--color-for-background);
   border-radius: 4px;
 `;
 
@@ -57,7 +57,7 @@ const Value = styled.div`
   display: inline-block;
   width: 10em;
   font-family: monospace;
-  color: ${textColor};
+  color: var(--color-for-text);
 
   text-align: center;
   white-space: nowrap;
@@ -71,8 +71,8 @@ const Modes = styled.span`
 `;
 
 const Mode = styled.span`
-  color: ${({ selected }) => selected ? foreColor : 'var(--chrome-color)'};
-  background-color: ${({ selected }) => selected ? 'var(--chrome-color)' : foreColor};
+  color: ${({ selected }) => selected ? 'white' : 'var(--chrome-color)'};
+  background-color: ${({ selected }) => selected ? 'var(--chrome-color)' : 'var(--color-for-background)'};
   border-radius: 4px;
   padding: 2px 2px;
   cursor: pointer;
@@ -91,7 +91,7 @@ const CopyButton = styled.span`
     background-position-y: center;
     background-repeat: no-repeat;
     cursor: pointer;
-    color: #8252C7;
+    color: var(--color-for-chrome);
     opacity: 20%;
   
     &:hover {

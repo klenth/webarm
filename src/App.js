@@ -14,6 +14,8 @@ import OptionsDialog from './components/OptionsDialog';
 //import 'ace-builds/src-noconflict/mode-text';
 import 'ace-builds/src-noconflict/ext-searchbox.js';
 import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
+import 'ace-builds/src-noconflict/theme-textmate.js';
+import 'ace-builds/src-noconflict/theme-github_dark.js';
 
 const Top = styled.div`
   grid-area: top;
@@ -120,7 +122,8 @@ class App extends React.Component {
                 stopOnZero: true,
                 stopAfterInstructions: [true, 100],
                 stopAfterTime: [true, 10],
-            }
+            },
+            dark: true,
         };
         this.editorRef = null;
         this.openFileDialogRef = null;
@@ -252,8 +255,10 @@ class App extends React.Component {
 
         const readOnly = (this.state.state !== '');
 
+        const className = 'App' + (this.state.dark ? ' dark-mode' : '');
+
         return (
-            <div className="App"
+            <div className={className}
                  onKeyDown={e => this.handleKeyDown(e)}
             >
                 <OpenFileDialog
@@ -285,6 +290,7 @@ class App extends React.Component {
                     <Editor
                         ref={ref => this.setEditorRef(ref)}
                         value={this.state.code}
+                        theme={this.state.dark ? 'github_dark' : 'textmate'}
                         fontSize={18}
                         onChange={(s) => this.handleCodeChange(s)}
                         mode={'text'}
