@@ -17,6 +17,8 @@ import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 import 'ace-builds/src-noconflict/theme-textmate.js';
 import 'ace-builds/src-noconflict/theme-github_dark.js';
 
+const VERSION = '20240322.0';
+
 const Top = styled.div`
   grid-area: top;
   display: flex;
@@ -27,9 +29,11 @@ const Top = styled.div`
 `
 
 const Controls = styled.div`
+  position: relative;
   flex-grow: 0;
   text-align: right;
   padding-right: 80px;
+  padding-left: 40px;
   
   & > * {
     margin: 2px 8px;
@@ -70,22 +74,36 @@ const MessageDisplay = styled.div`
 `;
 
 const SimulatorOutput = styled.pre`
+    position: relative;
     margin: 4px;
     grid-area: output;
     border: 2px solid var(--color-thistle);
-    position: relative;
     min-height: 8em;
     overflow: scroll;
+`;
+
+const SimulatorOutputLabel = styled.div`
+    position: absolute;
+    right: 0;
+    top: 0;
+    color: white;
+    padding: 6px;
+    isolation: isolate;
+    z-index: 1;
+    font-family: Lato, sans-serif;
   
-    &:before {
-        content: "Simulator output";
+    &::before {
+        content: "";
+        display: block;
         position: absolute;
-        right: 0;
-        top: 0;
-        background-color: var(--color-thistle);
-        color: white;
-        padding: 4px;
+        left: -12px;
+        right: -24px;
+        bottom: -4px;
+        top: -4px;
+        background-color: var(--color-for-chrome);
+        transform: skewX(20deg);
         border-radius: 0 0 0 4px;
+        z-index: -1;
     }
 `;
 
@@ -96,12 +114,19 @@ const Nonprintable = styled.span`
 const Logo = styled.img`
     position: absolute;
     right: 8px;
-    top: 8px;
+    top: 0;
+    bottom: 0;
+    margin: auto 0 !important;
     height: 24px;
+    
+    .dark-mode & {
+        filter: brightness(120%);
+    }
 `;
 
 const CODE_STORAGE_PROPERTY = 'webarm_code';
 const OPTIONS_STORAGE_PROPERTY = 'webarm_options';
+const DARK_MODE_STORAGE_PROPERTY = 'webarm_dark';
 let firstLoad = true;
 
 class App extends React.Component {
@@ -123,7 +148,7 @@ class App extends React.Component {
                 stopAfterInstructions: [true, 100],
                 stopAfterTime: [true, 10],
             },
-            dark: true,
+            dark: false,
         };
         this.editorRef = null;
         this.openFileDialogRef = null;
@@ -143,6 +168,9 @@ class App extends React.Component {
                         ...this.state.options,
                         ...JSON.parse(storedOptions)
                     };
+                const storedDark = window['localStorage'].getItem(DARK_MODE_STORAGE_PROPERTY);
+                if (storedDark !== undefined)
+                    this.state.dark = JSON.parse(storedDark);
             }
         }
     }
@@ -272,10 +300,15 @@ class App extends React.Component {
                 />
                 <Top>
                     <Controls>
+                        <div
+                            className={'dark-mode-toggle'}
+                            title={'Toggle dark mode'}
+                            onClick={_ => this.handleToggleDarkMode()}
+                        />
                         <a href={"https://cs.westminsteru.edu/cmpt328/webarm/docs/"} target={"docs"}>Help</a>
                     </Controls>
                     <Title
-                        title={'WebARM version 20240321.4'}
+                        title={`WebARM version ${VERSION}`}
                     >
                         WebARM
                     </Title>
@@ -333,7 +366,12 @@ class App extends React.Component {
                         />
                     ) : null}
                 <MessageDisplay>{this.state.message || ' '}</MessageDisplay>
-                <SimulatorOutput>{simulatorOutputText}</SimulatorOutput>
+                <SimulatorOutput>
+                    {simulatorOutputText}
+                    <SimulatorOutputLabel>
+                        Simulator output
+                    </SimulatorOutputLabel>
+                </SimulatorOutput>
             </div>
         );
     }
@@ -373,6 +411,15 @@ class App extends React.Component {
             clearTimeout(workerTimeout);
 
         this.seq = this.messageHandler = simWorker = null;
+    }
+
+    handleToggleDarkMode() {
+        const newDarkMode = !this.state.dark;
+        if ('localStorage' in window)
+            window['localStorage'].setItem(DARK_MODE_STORAGE_PROPERTY, JSON.stringify(newDarkMode));
+        this.updateState({
+            dark: newDarkMode,
+        });
     }
 
     handleKeyDown(e) {

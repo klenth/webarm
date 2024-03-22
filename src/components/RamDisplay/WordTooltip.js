@@ -11,7 +11,9 @@ const Tooltip = styled.div`
     top: ${props => `${props.y}px}`};
     margin: 0 auto;
     display: ${props => props.visible ? 'grid' : 'none'};
-    background: #ffffffe0;
+    /*background: #ffffffe0;*/
+    background: var(--color-for-background-translucent);
+    color: var(--color-for-text);
     padding: 16px;
     border: 2px solid var(--color-night);
     border-radius: 4px;

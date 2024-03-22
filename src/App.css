@@ -14,6 +14,7 @@
   --color-for-chrome: var(--color-thistle);
   --color-for-text: black;
   --color-for-background: white;
+  --color-for-background-translucent: #ffffffe0;
 
   --content-font: Lato, sans-serif;
   --mono-font: Iosevka Kathy Web, monospace;
@@ -35,7 +36,7 @@
 .App.dark-mode {
     --color-for-text: white;
     --color-for-background: var(--color-flint);
-    --color-for-chrome: var(--color-copper);
+    --color-for-background-translucent: #101820f0;
 }
 
 .App-logo {
@@ -91,6 +92,66 @@ button:hover, label.button:hover, select:hover {
 
 button:active, label.button:active, select:active {
   background-color: var(--color-thistle-darker);
+}
+
+.dark-mode a[href] {
+  color: var(--color-thistle);
+}
+
+.dark-mode-toggle {
+  display: inline-block;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto 0 !important;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjBweCIgeT0iMHB4IiB3aWR0aD0iMTAwIiBoZWlnaHQ9IjEwMCIgdmlld0JveD0iMCAwIDUwIDUwIj4KICAgIDxwYXRoIGlkPSJsaW5lcyIgc3Ryb2tlPSIjNDQ0IiBzdHJva2Utd2lkdGg9IjQiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIgZD0iTTI1LDUgTDI1LDExIE0yNSw0NSBMMjUsMzkgTTUsMjUgTDExLDI1IE00NSwyNSBMMzksMjUiPjwvcGF0aD4KICAgIDx1c2UgaHJlZj0iI2xpbmVzIiB0cmFuc2Zvcm09InJvdGF0ZSg0NSwgMjUsIDI1KSI+PC91c2U+CiAgICA8Y2lyY2xlIGN4PSIyNSIgY3k9IjI1IiByPSI4IiBzdHJva2U9IiM0NDQiIHN0cm9rZS13aWR0aD0iNCIgZmlsbD0ibm9uZSI+PC9jaXJjbGU+Cjwvc3ZnPgo=");
+  background-size: cover;
+  border: none;
+  cursor: pointer;
+}
+
+.dark-mode-toggle:hover {
+  opacity: 0.8;
+}
+
+dialog {
+    padding: 96px 16px 16px 16px;
+    border: 2px solid var(--color-thistle);
+    border-radius: 4px;
+    min-width: 50vw;
+    min-height: 30vh;
+    background-color: var(--color-for-background);
+    color: var(--color-for-text);
+
+}
+
+dialog h1 {
+    position: absolute;
+    background-color: var(--color-for-chrome);
+    color: white;
+    left: 0;
+    top: 0;
+    padding: 8px 12px;
+    margin: 0;
+    isolation: isolate;
+    z-index: 1;
+}
+
+dialog h1::before {
+    content: "";
+    position: absolute;
+    display: block;
+    left: -24px;
+    right: -24px;
+    bottom: -4px;
+    top: -8px;
+    transform: skewX(-20deg);
+    background-color: var(--color-for-chrome);
+    z-index: -1;
+    border-radius: 0 0 4px 0;
 }
 
 @font-face {

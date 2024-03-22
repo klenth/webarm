@@ -3,12 +3,7 @@ import React from 'react';
 
 const Dialog = styled.dialog`
     position: relative;
-    padding: 16px;
-    border: 2px solid var(--color-thistle);
-    border-radius: 4px;
-    min-width: 50vw;
-    min-height: 30vh;
-  
+    
     &::backdrop {
         background-color: rgba(0, 0, 0, 0.2);
     }
@@ -16,12 +11,15 @@ const Dialog = styled.dialog`
     & input[type=file] {
         display: none;
     }
+
+    & input[type=number] {
+      background-color: var(--color-for-background);
+      color: var(--color-for-text);
+      border-color: var(--color-for-chrome);
+    }
 `;
 
-const Title = styled.div`
-    font-size: 1.2rem;
-    margin: 8px;
-    margin-bottom: 24px;
+const Title = styled.h1`
 `;
 
 const ControlsTable = styled.table`

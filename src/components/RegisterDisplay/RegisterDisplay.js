@@ -24,7 +24,7 @@ const Display = styled.div`
   border: 3px solid var(--chrome-color);
   border-radius: 8px;
   color: var(--color-for-text);
-  background-color: var(--color-for-chrome);
+  background-color: var(--chrome-color);
   padding: 0;
   height: var(--display-height);
   font-size: 0.8rem;

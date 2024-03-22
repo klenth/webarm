@@ -1,6 +1,5 @@
 import styled from 'styled-components';
 import React from 'react';
-import './style.css';
 
 const displayHeight = '24px';
 //const chromeColor = '#00b5e2';
@@ -43,13 +42,13 @@ const Value = styled.div`
   display: inline-block;
   width: 1em;
   font-family: monospace;
-  color: ${textColor};
+  color: var(--color-for-text);
 
   text-align: center;
   white-space: nowrap;
   height: var(--display-height);
   line-height: var(--display-height);
-  background-color: white;
+  background-color: var(--color-for-background);
   border-radius: 4px;
   padding: 0 8px;
 

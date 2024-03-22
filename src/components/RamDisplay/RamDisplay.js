@@ -43,6 +43,9 @@ const Controls = styled.div`
 
 const AddressInput = styled.input`
     width: 8em;
+    color: var(--color-for-text);
+    background-color: var(--color-for-background);
+    border-color: var(--color-thistle);
 `;
 
 const Field = styled.div`
@@ -89,14 +92,6 @@ const ByteDisplay = styled.span`
     margin: 0 0.5ex;
     pointer-events: none;
   
-  /*
-    &.selected {
-        font-weight: 900;
-        color: white;
-        background-color: var(--color-thistle);
-    }
-  */
-  
     &.selected::before {
         content: "";
         display: inline-block;
@@ -109,23 +104,10 @@ const ByteDisplay = styled.span`
         border-radius: 4px 0 0 4px;
         border-right-width: 0;
     }
-  
-  /*
-    &.selected::before {
-        content: "▲";
-        display: inline-block;
-        position: absolute;
-        left: 0;
-        right: 0;
-        bottom: -6px;
-        font-stretch: condensed;
-        text-align: center;
-        color: var(--color-thistle);
-        border: 4px solid var(--color-night);
-        border-right-width: 0;
-        border-radius: 4px;
-    }
-*/
+`;
+
+const ScrollButton = styled.button`
+    padding: 0 12px;
 `;
 
 function formatByte(value) {
@@ -206,12 +188,12 @@ export default class RamDisplay extends React.Component {
                             onKeyDown={e => this.handleOffsetKeyDown(e)}
                             value={this.state.offsetText}
                         />
-                        <button
+                        <ScrollButton
                             onClick={() => this.handleScrollDown()}
-                        >↓</button>
-                        <button
+                        >🠫</ScrollButton>
+                        <ScrollButton
                             onClick={() => this.handleScrollUp()}
-                        >↑</button>
+                        >🠩</ScrollButton>
                     </label>
                     <div>
                         Jump to

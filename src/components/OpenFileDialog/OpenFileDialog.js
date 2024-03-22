@@ -3,13 +3,10 @@ import React from 'react';
 
 const Dialog = styled.dialog`
     position: relative;
-    padding: 16px;
-    border: 2px solid var(--color-night);
-    min-width: 50vw;
-    min-height: 30vh;
   
     &::backdrop {
         background-color: rgba(0, 0, 0, 0.2);
+        filter: blur(5px);
     }
   
     & input[type=file] {
@@ -17,10 +14,7 @@ const Dialog = styled.dialog`
     }
 `;
 
-const Title = styled.div`
-    font-size: 1.2rem;
-    margin: 8px;
-    margin-bottom: 24px;
+const Title = styled.h1`
 `;
 
 const Label = styled.label`
