@@ -69,4 +69,4 @@
 - Ctrl-/ to comment
 - Highlighted line is instruction/directive, not symbol
 - Save file dialog (to specify filename)
-- 
+- Reset current line display, other state when loading file
