@@ -13,7 +13,7 @@
 - [DONE] Directives
   - [DONE] DCB, DCD
   - [DONE] FILL (make this do the right thing - fill with given value, not just zero)
-    - FILL nbytes value (default value is zero)
+    - [DONE] FILL nbytes value (default value is zero)
   - [DONE] ALIGN (and remove auto-alignment from realizer)
 - [DONE] Load/save
 - [DONE (enough, at least)] NZCV for all relevant instructions
@@ -23,10 +23,10 @@
 - [DONE] Instruction reference
 - [DONE] Keyboard shortcuts (at least for run/debug)
 - Syscalls:
-  - putchar
+  - [DONE] putchar
   - getchar
-  - time
-  - exit
+  - [DONE] time
+  - [NEVER MIND] exit
   - Implementation: SWI instruction (actual SWI takes an argument but it is ignored, so maybe just don't use it)
     - R7: syscall function number
     - R0-R6: syscall arguments
@@ -49,7 +49,7 @@
 - Support RRX?
   - Seems like a lot of effort for something that will likely never be used.
 - [DONE] Quick way to jump to register location in memory (or just R12, SP, LR, PC)
-  - Symbols too
+  - [DONE] Symbols too
 - Ability to copy view shown by RamDisplay
 - [DONE] Title, icon
 - [DONE] Options dialog
