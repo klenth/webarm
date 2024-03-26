@@ -294,6 +294,9 @@ function executeSingleDataTransferInstruction(state, instr) {
     const baseAddress = state.registers.get(Rn);
     let adjustedAddress = baseAddress;
 
+    if (!P && W)
+        throw new SimulatorError(`Invalid ${instr.mnemonic()} instruction`);
+
     if (!I) {
         // immediate offset
         const off = Offset;

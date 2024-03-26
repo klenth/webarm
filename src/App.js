@@ -17,7 +17,7 @@ import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 import 'ace-builds/src-noconflict/theme-textmate.js';
 import 'ace-builds/src-noconflict/theme-github_dark.js';
 
-const VERSION = '20240322.0';
+const VERSION = '20240326.0';
 
 const Top = styled.div`
   grid-area: top;
@@ -556,7 +556,7 @@ class App extends React.Component {
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
                 });
-                this.printErrorMessage(msg.error.line, msg.error.text);
+                this.printErrorMessage(msg.error.line, `Error in execution: ${msg.error.text}`);
             } else if (state.broken) {
                 this.updateState({
                     simulatorState: state,
@@ -629,7 +629,7 @@ class App extends React.Component {
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
                 });
-                this.printErrorMessage(msg.error.line, msg.error.text);
+                this.printErrorMessage(msg.error.line, `Error in execution: ${msg.error.text}`);
             } else if (state.interrupted)
                 this.handleSoftwareInterrupt(msg.state);
             else if (state.stopped) {
@@ -702,7 +702,7 @@ class App extends React.Component {
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
                 });
-                this.printErrorMessage(msg.error.line, msg.error.text);
+                this.printErrorMessage(msg.error.line, `Error in execution: ${msg.error.text}`);
             } else if (state.interrupted)
                 this.handleSoftwareInterrupt(msg.state);
             else if (state.stopped) {
