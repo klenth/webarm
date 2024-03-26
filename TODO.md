@@ -66,3 +66,5 @@
 - [DONE] Finish implementing toString() for all instruction types
 - [DONE] Code and options in local/session storage
 - [DONE] In debugger, don't break inside stdlib functions
+- Ctrl-/ to comment
+- Highlighted line is instruction/directive, not symbol
