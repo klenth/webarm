@@ -69,4 +69,45 @@ export default class AssemblyARM32Mode extends window.ace.acequire('ace/mode/tex
         super();
         this.HighlightRules = AssemblyARM32HighlightRules;
     }
+
+    toggleCommentLines(state, doc, startRow, endRow) {
+
+        const indentation = line => {
+            if (line === '')
+                return {
+                    index: 0,
+                    char: undefined,
+                };
+
+            let i;
+            for (i = 0; i < line.length && line[i] === ' '; ++i)
+                ;
+
+            if (i === line.length)
+                // This line is all spaces!
+                return {
+                    index: 0,
+                    char: ' ',
+                };
+            else
+                // We found a non-space character
+                return {
+                    index: i,
+                    char: line[i],
+                };
+        };
+
+        // Commenting mode if there is no leading ; in the first line — otherwise uncommenting
+        const commenting = (indentation(doc.getLine(startRow)).char !== ';');
+
+        for (let row = startRow; row <= endRow; ++row) {
+            const line = doc.getLine(row);
+            const ri = indentation(line);
+
+            if (commenting && ri.char !== ';')
+                doc.insert({ row: row, column: ri.index }, ';');
+            else if (!commenting && ri.char === ';')
+                doc.remove({ start: { row: row, column: ri.index }, end: { row: row, column: ri.index + 1 } });
+        }
+    }
 }
