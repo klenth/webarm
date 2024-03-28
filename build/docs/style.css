@@ -275,7 +275,7 @@ a:hover {
 
     .fancy nav ul li {
         position: relative;
-        margin: 16px 0;
+        margin: 8px 0;
         margin-right: 16px;
         isolation: isolate;
         left: 0;
@@ -307,7 +307,7 @@ a:hover {
     .fancy nav ul li a, nav ul li a:visited {
         position: relative;
         display: block;
-        padding: 16px 16px;
+        padding: 8px 16px;
         position: relative;
         text-decoration: none !important;
         color: var(--color-for-nav-links);
