@@ -33,6 +33,23 @@
         .condition-code-table tr > :nth-child(3) {
             text-align: center;
         }
+
+        .syscall-table tbody tr:nth-child(2n) > * {
+            background-color: #00b5e220;
+        }
+
+        .syscall-table tbody tr > :nth-child(1), .syscall-table tbody tr > :nth-child(2) {
+            font-family: Iosevka Kathy Web, monospace;
+            font-stretch: expanded;
+        }
+
+        .syscall-table tbody tr > :nth-child(4) {
+            min-width: max-content;
+        }
+
+        .syscall-table tbody tr>* {
+            text-align: left;
+        }
     </style>
 </head>
 <body>
@@ -1022,7 +1039,7 @@
 
                 <h3><code class="highlight">SWI</code></h3>
                 <p>
-                    Executes a software interrupt. On a real ARM system this invokes the operating system to execute a system call. On WebARM there is a small collection of syscall functions that can be executed in this fashion (documented elsewhere). This instruction can be suffixed with a condition code.
+                    Executes a software interrupt. On a real ARM system this invokes the operating system to execute a system call. On WebARM there is a <a href="#System_calls">small collection of syscall functions</a> that can be executed in this fashion. This instruction can be suffixed with a condition code.
                 </p>
                 <table class="instruction-table">
                     <thead>
@@ -1034,7 +1051,7 @@
                     <tbody>
                     <tr>
                         <td class="highlight">SWI</td>
-                        <td style="font-family: inherit;">Executes a software interrupt, invoking a system call.</td>
+                        <td style="font-family: inherit;">Executes a software interrupt.</td>
                     </tr>
                     </tbody>
                 </table>
@@ -1137,6 +1154,65 @@
         ALIGN   256
         DCD     1, 2, 3, 4
                 </pre>
+            </div>
+
+            <div class="problem">
+                <div class="title">System calls</div>
+
+                <p>
+                    A <em>system call</em> (or <em>syscall</em>) is a way of interfacing with the operating system, allowing a program to do something that can’t be expressed in code alone (such as reading from a file or opening a socket — when you do these things in a high-level programming language, you call a library function that internally uses syscalls). WebARM provides several syscalls.
+                </p>
+
+                <p>
+                    To use a syscall, put the syscall number (shown in the table, starting with <code>0xCA11_</code>) in register <code>R7</code> and any arguments required by the syscall in the appropriate registers, then execute the <code>SWI</code> instruction. Any return values of that function will be placed in registers and your program will resume with the subsequent instruction.
+                </p>
+
+                <h2>Supported system calls</h2>
+                <table class="syscall-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Number (<code>R7</code>)</th>
+                        <th scope="col">Function</th>
+                        <th scope="col">First parameter (<code>R0</code>)</th>
+                        <th scope="col">Return values</th>
+                        <th scope="col">Explanation</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>0xCA11_0001</td>
+                            <td>exit()</td>
+                            <td></td>
+                            <td></td>
+                            <td>Exits the program (same as <code class="highlight">STOP</code>)</td>
+                        </tr>
+                        <tr>
+                            <td>0xCA11_0010</td>
+                            <td>getch()</td>
+                            <td></td>
+                            <td><code class="highlight">R0</code>: a character</td>
+                            <td>Reads a single character (byte) from standard input (<strong>not yet implemented</strong>)</td>
+                        </tr>
+                        <tr>
+                            <td>0xCA11_0011</td>
+                            <td>putch(c)</td>
+                            <td><code class="highlight">R0</code>: a character</td>
+                            <td></td>
+                            <td>Writes a single character (byte) to standard output</td>
+                        </tr>
+                        <tr>
+                            <td>0xCA11_0100</td>
+                            <td>time()</td>
+                            <td></td>
+                            <td>
+                                <code class="highlight">R0</code>: the time
+                                <br>
+                                <code class="highlight">R1</code>: the date
+                            </td>
+                            <td>Returns the current time (<code>0xHH_MMSS</code>) and date (<code>0xYYYY_MMDD)</code></td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </main>
