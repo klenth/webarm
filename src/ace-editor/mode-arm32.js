@@ -97,6 +97,11 @@ export default class AssemblyARM32Mode extends window.ace.acequire('ace/mode/tex
                 };
         };
 
+        // Determine minimum indentation level of highlighted block
+        let minIndent = indentation(doc.getLine(startRow)).index;
+        for (let row = startRow + 1; row <= endRow; ++row)
+            minIndent = Math.min(minIndent, indentation(doc.getLine(row)).index);
+
         // Commenting mode if there is no leading ; in the first line — otherwise uncommenting
         const commenting = (indentation(doc.getLine(startRow)).char !== ';');
 
@@ -105,7 +110,7 @@ export default class AssemblyARM32Mode extends window.ace.acequire('ace/mode/tex
             const ri = indentation(line);
 
             if (commenting && ri.char !== ';')
-                doc.insert({ row: row, column: ri.index }, ';');
+                doc.insert({ row: row, column: minIndent }, ';');
             else if (!commenting && ri.char === ';')
                 doc.remove({ start: { row: row, column: ri.index }, end: { row: row, column: ri.index + 1 } });
         }
