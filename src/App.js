@@ -134,15 +134,19 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            code: '',
-            simulatorState: new SimulatorState(),
-            previousSimulatorState: null,
-            simulatorStateDiff: null,
-            message: '',
-            state: '',
-            debugCurrentLine: null,
+            tabs: [{
+                filename: 'code.webs',
+                code: '',
+                simulatorState: new SimulatorState(),
+                previousSimulatorState: null,
+                simulatorStateDiff: null,
+                message: '',
+                debugCurrentLine: null,
+                state: '',
+                symbolAddresses: null,
+            }],
+            selectedTab: 0,
             showingMemory: false,
-            symbolAddresses: null,
             options: {
                 stopOnZero: true,
                 stopAfterInstructions: [true, 100],
@@ -154,14 +158,15 @@ class App extends React.Component {
         this.openFileDialogRef = null;
         this.optionsDialogRef = null;
         this.seq = 0;
-        this.messageHandler = null;
+        this.seqs = {};
+        this.messageHandlers = {};
 
         if (firstLoad) {
             firstLoad = false;
             if ('localStorage' in window) {
-                const storedCode = window['localStorage'].getItem(CODE_STORAGE_PROPERTY);
+                /*const storedCode = window['localStorage'].getItem(CODE_STORAGE_PROPERTY);
                 if (storedCode)
-                    this.state.code = storedCode;
+                    this.state.code = storedCode;*/
                 const storedOptions = window['localStorage'].getItem(OPTIONS_STORAGE_PROPERTY);
                 if (storedOptions)
                     this.state.options = {
@@ -176,10 +181,11 @@ class App extends React.Component {
     }
 
     render() {
-        const stateRegisters = this.state.simulatorState.registers || new RegisterBank();
-        const simulatorOutputText = this.makeSimulatorOutputText(this.state.simulatorState.stdout);
-        const diff = this.state.simulatorStateDiff;
-        const symbolAddresses = this.state.symbolAddresses;
+        const tab = this.currentTab;
+        const stateRegisters = tab.simulatorState.registers || new RegisterBank();
+        const simulatorOutputText = this.makeSimulatorOutputText(tab.simulatorState.stdout);
+        const diff = tab.simulatorStateDiff;
+        const symbolAddresses = tab.symbolAddresses;
         const registers = [...Array(16).fill(0)].map((_, i) => (
             <RegisterDisplay
                 key={i}
@@ -265,23 +271,23 @@ class App extends React.Component {
             >Options</button>
         );
 
-        const buttons = (this.state.state === '') ? [ openFileButton, saveFileButton, assembleButton, runButton, debugButton, optionsButton ]
-            : (this.state.state === 'running') ? [ stopButton ]
-            : (this.state.state === 'debugging/paused') ? [ stepBackButton, stepForwardButton, continueButton, stopButton ]
-            : (this.state.state === 'debugging/running') ? [ stopButton ]
+        const buttons = (tab.state === '') ? [ openFileButton, saveFileButton, assembleButton, runButton, debugButton, optionsButton ]
+            : (tab.state === 'running') ? [ stopButton ]
+            : (tab.state === 'debugging/paused') ? [ stepBackButton, stepForwardButton, continueButton, stopButton ]
+            : (tab.state === 'debugging/running') ? [ stopButton ]
             : [];
 
         const markers = [];
-        if (this.state.debugCurrentLine !== null) {
+        if (tab.debugCurrentLine !== null) {
             markers.push({
-                startRow: this.state.debugCurrentLine - 1,
-                endRow: this.state.debugCurrentLine,
+                startRow: tab.debugCurrentLine - 1,
+                endRow: tab.debugCurrentLine,
                 type: 'line',
                 className: 'debug-current-line'
             });
         }
 
-        const readOnly = (this.state.state !== '');
+        const readOnly = (tab.state !== '');
 
         const className = 'App' + (this.state.dark ? ' dark-mode' : '');
 
@@ -322,7 +328,7 @@ class App extends React.Component {
                 </Top>
                     <Editor
                         ref={ref => this.setEditorRef(ref)}
-                        value={this.state.code}
+                        value={tab.code}
                         theme={this.state.dark ? 'github_dark' : 'textmate'}
                         fontSize={18}
                         onChange={(s) => this.handleCodeChange(s)}
@@ -341,14 +347,14 @@ class App extends React.Component {
                             fixedWidthGutter: true,
                             animatedScroll: true,
                         }}
-                    >{this.state.code}</Editor>
+                    >{tab.code}</Editor>
                     <Registers>
                         {registers}
                         <NzcvDisplay
-                            N={this.state.simulatorState.N}
-                            Z={this.state.simulatorState.Z}
-                            C={this.state.simulatorState.C}
-                            V={this.state.simulatorState.V}
+                            N={tab.simulatorState.N}
+                            Z={tab.simulatorState.Z}
+                            C={tab.simulatorState.C}
+                            V={tab.simulatorState.V}
                             updatedN={diff?.nzcv.N}
                             updatedZ={diff?.nzcv.Z}
                             updatedC={diff?.nzcv.C}
@@ -357,15 +363,15 @@ class App extends React.Component {
                     </Registers>
                     {(this.state.showingMemory) ? (
                         <RamDisplay
-                            memory={this.state.simulatorState.memory}
-                            highlightWord={this.state.state === 'debugging/paused' ? this.state.simulatorState.PC : null}
+                            memory={tab.simulatorState.memory}
+                            highlightWord={tab.state === 'debugging/paused' ? tab.simulatorState.PC : null}
                             style={{gridArea: 'memory'}}
                             updatedAddresses={diff?.memory}
                             symbolAddresses={symbolAddresses}
                             registers={stateRegisters}
                         />
                     ) : null}
-                <MessageDisplay>{this.state.message || ' '}</MessageDisplay>
+                <MessageDisplay>{tab.message || ' '}</MessageDisplay>
                 <SimulatorOutput>
                     {simulatorOutputText}
                     <SimulatorOutputLabel>
@@ -390,27 +396,39 @@ class App extends React.Component {
         this.setState(newState);
     }
 
+    updateTabState(changedProperties) {
+        const newTab = { ...this.currentTab, ...changedProperties };
+        const newTabs = [ ...this.state.tabs ];
+        newTabs[this.state.selectedTab] = newTab;
+        this.updateState({ tabs: newTabs });
+    }
+    
+    get currentTab() {
+        return this.state.tabs[this.state.selectedTab];
+    }
+
     getWorker() {
-        if (!simWorker) {
-            simWorker = new Worker(new URL('./simWorker.js', import.meta.url));
+        const selectedTab = this.state.selectedTab;
+        if (!simWorkers[selectedTab]) {
+            const simWorker = new Worker(new URL('./simWorker.js', import.meta.url));
             simWorker.addEventListener('message', e => {
-                if (e.data.seq === this.seq && this.messageHandler)
-                    this.messageHandler(e.data.message);
+                if (e.data.seq === this.seqs[selectedTab] && this.messageHandlers[selectedTab])
+                    this.messageHandlers[selectedTab](e.data.message);
                 else
-                    console.info(`Received stale message from worker:`, e.data.message);
+                    console.info(`Received stale message from worker (seq=${e.data.seq}, expected seq=${this.seqs[selectedTab]}:`, e.data.message);
             });
+            simWorkers[selectedTab] = simWorker;
         }
 
-        return simWorker;
+        return simWorkers[selectedTab];
     }
 
     stopWorker() {
-        if (simWorker)
-            simWorker.terminate();
-        if (workerTimeout)
-            clearTimeout(workerTimeout);
+        const selectedTab = this.state.selectedTab;
+        if (simWorkers[selectedTab])
+            simWorkers[selectedTab].terminate();
 
-        this.seq = this.messageHandler = simWorker = null;
+        this.seqs[selectedTab] = this.messageHandlers[selectedTab] = simWorkers[selectedTab] = null;
     }
 
     handleToggleDarkMode() {
@@ -425,17 +443,17 @@ class App extends React.Component {
     handleKeyDown(e) {
         if (e.code === 'F6') {
             e.preventDefault();
-            if (this.state.state === '')
+            if (this.currentTab.state === '')
                 this.handleAssemble();
         } else if (e.code === 'F7') {
             e.preventDefault();
-            if (this.state.state === '')
+            if (this.currentTab.state === '')
                 this.handleRun();
         } else if (e.code === 'F8') {
             e.preventDefault();
-            if (this.state.state === '')
+            if (this.currentTab.state === '')
                 this.handleDebug();
-            else if (this.state.state === 'debugging/paused')
+            else if (this.currentTab.state === 'debugging/paused')
                 this.handleContinue('forward', false);
         }
     }
@@ -447,7 +465,7 @@ class App extends React.Component {
 
     handleOpenFile(code) {
         this.handleCodeChange(code);
-        this.updateState({
+        this.updateTabState({
             simulatorState: new SimulatorState(),
             previousSimulatorState: null,
             simulatorStateDiff: null,
@@ -455,7 +473,7 @@ class App extends React.Component {
     }
 
     handleSaveFileButtonClicked() {
-        const data = new Blob([this.state.code + '\n'], { type: 'text/plain' });
+        const data = new Blob([this.currentTab.code + '\n'], { type: 'text/plain' });
         const a = document.createElement('a');
         const url = URL.createObjectURL(data);
         a.href = url;
@@ -471,7 +489,7 @@ class App extends React.Component {
     handleCodeChange(s) {
         if ('localStorage' in window)
             window['localStorage'].setItem(CODE_STORAGE_PROPERTY, s);
-        this.updateState({ code: s });
+        this.updateTabState({ code: s });
     }
 
     handleOptionsChange(options) {
@@ -489,13 +507,13 @@ class App extends React.Component {
 
     handleAssemble() {
         this.clearMessages();
-        ++this.seq;
+        this.seqs[this.state.selectedTab] = ++this.seq;
 
-        this.messageHandler = msg => {
+        this.messageHandlers[this.state.selectedTab] = msg => {
              if (msg.result === 'success') {
                  this.printMessage('Looks good!');
                  if (msg.state)
-                     this.updateState({
+                     this.updateTabState({
                          simulatorState: SimulatorState.reconstruct(msg.state),
                          previousSimulatorState: null,
                          simulatorStateDiff: null,
@@ -506,10 +524,10 @@ class App extends React.Component {
         };
 
         this.getWorker().postMessage({
-            seq: this.seq,
+            seq: this.seqs[this.state.selectedTab],
             command: 'assemble',
             params: {
-                code: this.state.code,
+                code: this.currentTab.code,
             }
         });
     }
@@ -523,7 +541,7 @@ class App extends React.Component {
     }
 
     handleRun() {
-        this.updateState({
+        this.updateTabState({
             state: 'running',
             message: '',
             simulatorState: new SimulatorState(),
@@ -531,7 +549,7 @@ class App extends React.Component {
             simulatorStateDiff: null,
             debugCurrentLine: null,
         });
-        ++this.seq;
+        this.seqs[this.state.selectedTab] = ++this.seq;
 
         /*
         workerTimeout = window.setTimeout(() => {
@@ -543,45 +561,45 @@ class App extends React.Component {
         }, 5000);
         */
 
-        this.messageHandler = msg => {
+        this.messageHandlers[this.state.selectedTab] = msg => {
+            const tab = this.currentTab;
             //window.clearTimeout(workerTimeout);
-
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
             if (msg.result === 'error') {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
                 });
                 this.printErrorMessage(msg.error.line, `Error in execution: ${msg.error.text}`);
             } else if (state.broken) {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: 'debugging/paused',
                     symbolAddresses: msg.symbols,
                 });
             } else if (state.interrupted)
                 this.handleSoftwareInterrupt(msg.state);
             else if (state.stopped) {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: null,
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions in ${msg.executionTime / 1000}s`);
             } else if (state.exceededLimits) {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols
@@ -592,10 +610,10 @@ class App extends React.Component {
         };
 
         this.getWorker().postMessage({
-            seq: this.seq,
+            seq: this.seqs[this.state.selectedTab],
             command: 'run',
             params: {
-                code: this.state.code,
+                code: this.currentTab.code,
                 options: {
                     stopAfterEveryInstruction: false,
                     stopOnBreak: false,
@@ -607,7 +625,7 @@ class App extends React.Component {
     }
 
     handleDebug(breakEveryInstruction) {
-        this.updateState({
+        this.updateTabState({
             state: 'debugging/running',
             message: '',
             simulatorState: new SimulatorState(),
@@ -616,15 +634,16 @@ class App extends React.Component {
             debugCurrentLine: null,
         });
 
-        ++this.seq;
+        this.seqs[this.state.selectedTab] = ++this.seq;
 
-        this.messageHandler = msg => {
+        this.messageHandlers[this.state.selectedTab] = msg => {
+            const tab = this.currentTab;
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
             if (msg.result === 'error') {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
@@ -633,44 +652,44 @@ class App extends React.Component {
             } else if (state.interrupted)
                 this.handleSoftwareInterrupt(msg.state);
             else if (state.stopped) {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: null,
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else if (state.exceededLimits) {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols
                 });
                 this.printMessage(`Execution halted after ${state.numSteps} instructions in ${msg.executionTime / 1000}s due to exceeding limits.`);
             } else
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState, false),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState, false),
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
                 });
 
-            if (this.state.debugCurrentLine)
-                this.editorRef.editor.scrollToLine(this.state.debugCurrentLine - 1, true, true, () => {});
+            if (this.currentTab.debugCurrentLine)
+                this.editorRef.editor.scrollToLine(this.currentTab.debugCurrentLine - 1, true, true, () => {});
         };
 
         this.getWorker().postMessage({
-            seq: this.seq,
+            seq: this.seqs[this.state.selectedTab],
             command: 'run',
             params: {
-                code: this.state.code,
+                code: this.currentTab.code,
                 options: {
                     stopImmediately: breakEveryInstruction,
                     stopAfterEveryInstruction: breakEveryInstruction,
@@ -683,21 +702,22 @@ class App extends React.Component {
     }
 
     handleContinue(direction, stopEveryInstruction) {
-        ++this.seq;
+        this.seqs[this.state.selectedTab] = ++this.seq;
 
-        this.updateState({
+        this.updateTabState({
             state: 'debugging/running',
             message: '',
             debugCurrentLine: null,
         });
 
-        this.messageHandler = msg => {
+        this.messageHandlers[this.state.selectedTab] = msg => {
+            const tab = this.currentTab;
             const state = msg.state !== null ? SimulatorState.reconstruct(msg.state) : new SimulatorState();
             if (msg.result === 'error') {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
@@ -706,42 +726,42 @@ class App extends React.Component {
             } else if (state.interrupted)
                 this.handleSoftwareInterrupt(msg.state);
             else if (state.stopped) {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: null,
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
             } else if (state.exceededLimits) {
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: '',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols
                 });
                 this.printMessage(`Execution halted after ${state.numSteps} instructions in ${msg.executionTime / 1000}s due to exceeding limits.`);
             } else
-                this.updateState({
+                this.updateTabState({
                     simulatorState: state,
-                    previousSimulatorState: this.state.simulatorState,
-                    simulatorStateDiff: state.diff(this.state.simulatorState),
+                    previousSimulatorState: tab.simulatorState,
+                    simulatorStateDiff: state.diff(tab.simulatorState),
                     state: 'debugging/paused',
                     debugCurrentLine: msg.line,
                     symbolAddresses: msg.symbols,
                     message: `Paused (${state.numSteps} instructions executed)`,
                 });
 
-            if (this.state.debugCurrentLine)
-                this.editorRef.editor.scrollToLine(this.state.debugCurrentLine - 1, true, true, () => {});
+            if (this.currentTab.debugCurrentLine)
+                this.editorRef.editor.scrollToLine(this.currentTab.debugCurrentLine - 1, true, true, () => {});
         };
 
         this.getWorker().postMessage({
-            seq: this.seq,
+            seq: this.seqs[this.state.selectedTab],
             command: 'run',
             params: {
                 code: null,
@@ -760,7 +780,7 @@ class App extends React.Component {
 
     handleStop() {
         this.stopWorker();
-        this.updateState({
+        this.updateTabState({
             message: "Execution halted (stop button pushed)",
             state: '',
             debugCurrentLine: null,
@@ -773,14 +793,14 @@ class App extends React.Component {
     }
 
     clearMessages() {
-        this.updateState({
+        this.updateTabState({
             message: ''
         });
     }
 
     printMessage(text) {
-        this.updateState({
-            message: this.state.message + text
+        this.updateTabState({
+            message: this.currentTab.message + text
         });
     }
 
@@ -831,7 +851,6 @@ class App extends React.Component {
     }
 }
 
-let simWorker = null;
-let workerTimeout = null;
+let simWorkers = {};
 
 export default App;
