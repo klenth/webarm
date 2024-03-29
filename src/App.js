@@ -11,6 +11,7 @@ import NzcvDisplay from './components/NzcvDisplay';
 import RamDisplay from './components/RamDisplay';
 import OpenFileDialog from './components/OpenFileDialog';
 import OptionsDialog from './components/OptionsDialog';
+import EditorTab from './components/EditorTab';
 //import 'ace-builds/src-noconflict/mode-text';
 import 'ace-builds/src-noconflict/ext-searchbox.js';
 import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
@@ -57,6 +58,11 @@ const Editor = styled(AceEditor)`
     background-color: var(--color-for-current-highlight);
     position: absolute;
   }
+`;
+
+const EditorTabs = styled.div`
+    grid-area: editor;
+    position: relative;
 `;
 
 const Registers = styled.div`
@@ -128,6 +134,7 @@ const CODE_STORAGE_PROPERTY = 'webarm_code';
 const OPTIONS_STORAGE_PROPERTY = 'webarm_options';
 const DARK_MODE_STORAGE_PROPERTY = 'webarm_dark';
 let firstLoad = true;
+const customMode = new AssemblyARM32Mode();
 
 class App extends React.Component {
 
@@ -154,11 +161,12 @@ class App extends React.Component {
             },
             dark: false,
         };
-        this.editorRef = null;
+        this.editorRefs = {};
         this.openFileDialogRef = null;
         this.optionsDialogRef = null;
         this.seq = 0;
         this.seqs = {};
+        this.tabNumber = 1;
         this.messageHandlers = {};
 
         if (firstLoad) {
@@ -277,14 +285,17 @@ class App extends React.Component {
             : (tab.state === 'debugging/running') ? [ stopButton ]
             : [];
 
-        const markers = [];
-        if (tab.debugCurrentLine !== null) {
-            markers.push({
-                startRow: tab.debugCurrentLine - 1,
-                endRow: tab.debugCurrentLine,
-                type: 'line',
-                className: 'debug-current-line'
-            });
+        function tabMarkers(t) {
+            const markers = [];
+            if (t.debugCurrentLine !== null) {
+                markers.push({
+                    startRow: t.debugCurrentLine - 1,
+                    endRow: t.debugCurrentLine,
+                    type: 'line',
+                    className: 'debug-current-line'
+                });
+            }
+            return markers;
         }
 
         const readOnly = (tab.state !== '');
@@ -326,51 +337,45 @@ class App extends React.Component {
                         />
                     </Controls>
                 </Top>
-                    <Editor
-                        ref={ref => this.setEditorRef(ref)}
-                        value={tab.code}
-                        theme={this.state.dark ? 'github_dark' : 'textmate'}
-                        fontSize={18}
-                        onChange={(s) => this.handleCodeChange(s)}
-                        mode={'text'}
-                        markers={markers}
-                        readOnly={readOnly}
-                        className={readOnly ? 'read-only' : ''}
-                        tabSize={8}
-                        width={'initial'}
-                        height={'initial'}
-                        wrapEnabled={false}
-                        showPrintMargin={false}
-                        setOptions={{
-                            highlightActiveLine: !readOnly,
-                            highlightGutterLine: !readOnly,
-                            fixedWidthGutter: true,
-                            animatedScroll: true,
-                        }}
-                    >{tab.code}</Editor>
-                    <Registers>
-                        {registers}
-                        <NzcvDisplay
-                            N={tab.simulatorState.N}
-                            Z={tab.simulatorState.Z}
-                            C={tab.simulatorState.C}
-                            V={tab.simulatorState.V}
-                            updatedN={diff?.nzcv.N}
-                            updatedZ={diff?.nzcv.Z}
-                            updatedC={diff?.nzcv.C}
-                            updatedV={diff?.nzcv.V}
+                <EditorTabs>
+                    {Object.entries(this.state.tabs).map(([i, t]) => (
+                        <EditorTab
+                            key={`tab_${i}`}
+                            selected={i == this.state.selectedTab}
+                            readOnly={t.state !== ''}
+                            label={t.filename}
+                            code={t.code}
+                            theme={this.state.dark ? 'github_dark' : 'textmate'}
+                            markers={tabMarkers(t)}
+                            handleCodeChange={code => this.handleCodeChange(i, code)}
+                            handleSetEditorRef={ref => this.setEditorRef(i, ref)}
+                            handleTabSelected={() => this.selectTab(i)}
                         />
-                    </Registers>
-                    {(this.state.showingMemory) ? (
-                        <RamDisplay
-                            memory={tab.simulatorState.memory}
-                            highlightWord={tab.state === 'debugging/paused' ? tab.simulatorState.PC : null}
-                            style={{gridArea: 'memory'}}
-                            updatedAddresses={diff?.memory}
-                            symbolAddresses={symbolAddresses}
-                            registers={stateRegisters}
-                        />
-                    ) : null}
+                    ))}
+                </EditorTabs>
+                <Registers>
+                    {registers}
+                    <NzcvDisplay
+                        N={tab.simulatorState.N}
+                        Z={tab.simulatorState.Z}
+                        C={tab.simulatorState.C}
+                        V={tab.simulatorState.V}
+                        updatedN={diff?.nzcv.N}
+                        updatedZ={diff?.nzcv.Z}
+                        updatedC={diff?.nzcv.C}
+                        updatedV={diff?.nzcv.V}
+                    />
+                </Registers>
+                {(this.state.showingMemory) ? (
+                    <RamDisplay
+                        memory={tab.simulatorState.memory}
+                        highlightWord={tab.state === 'debugging/paused' ? tab.simulatorState.PC : null}
+                        style={{gridArea: 'memory'}}
+                        updatedAddresses={diff?.memory}
+                        symbolAddresses={symbolAddresses}
+                        registers={stateRegisters}
+                    />
+                ) : null}
                 <MessageDisplay>{tab.message || ' '}</MessageDisplay>
                 <SimulatorOutput>
                     {simulatorOutputText}
@@ -382,13 +387,19 @@ class App extends React.Component {
         );
     }
 
-    setEditorRef(ref) {
-        this.editorRef = ref;
+    selectTab(tabIndex) {
+        this.updateState({
+            selectedTab: tabIndex,
+        });
+    }
+
+    setEditorRef(i, ref) {
+        this.editorRefs[i] = ref;
+        if (ref)
+            ref.editor.getSession().setMode(customMode);
     }
 
     componentDidMount() {
-        const customMode = new AssemblyARM32Mode();
-        this.editorRef.editor.getSession().setMode(customMode);
     }
 
     updateState(changedProperties) {
@@ -396,10 +407,12 @@ class App extends React.Component {
         this.setState(newState);
     }
 
-    updateTabState(changedProperties) {
+    updateTabState(changedProperties, tabIndex=null) {
+        if (tabIndex === null)
+            tabIndex = this.state.selectedTab;
         const newTab = { ...this.currentTab, ...changedProperties };
-        const newTabs = [ ...this.state.tabs ];
-        newTabs[this.state.selectedTab] = newTab;
+        const newTabs = { ...this.state.tabs };
+        newTabs[tabIndex] = newTab;
         this.updateState({ tabs: newTabs });
     }
     
@@ -464,11 +477,24 @@ class App extends React.Component {
     }
 
     handleOpenFile(code) {
-        this.handleCodeChange(code);
-        this.updateTabState({
+        const newTabNumber = ++this.tabNumber;
+        const newTab = {
+            filename: `code${newTabNumber}.webs`,
+            code: code,
             simulatorState: new SimulatorState(),
             previousSimulatorState: null,
             simulatorStateDiff: null,
+            message: '',
+            debugCurrentLine: null,
+            state: '',
+            symbolAddresses: null,
+        };
+
+        const newTabs = { ...this.state.tabs };
+        newTabs[newTabNumber] = newTab;
+        this.updateState({
+            tabs: newTabs,
+            selectedTab: newTabNumber,
         });
     }
 
@@ -486,10 +512,10 @@ class App extends React.Component {
         }, 0);
     }
 
-    handleCodeChange(s) {
+    handleCodeChange(i, s) {
         if ('localStorage' in window)
             window['localStorage'].setItem(CODE_STORAGE_PROPERTY, s);
-        this.updateTabState({ code: s });
+        this.updateTabState({ code: s }, i);
     }
 
     handleOptionsChange(options) {
@@ -682,7 +708,7 @@ class App extends React.Component {
                 });
 
             if (this.currentTab.debugCurrentLine)
-                this.editorRef.editor.scrollToLine(this.currentTab.debugCurrentLine - 1, true, true, () => {});
+                this.editorRefs[this.state.selectedTab].editor.scrollToLine(this.currentTab.debugCurrentLine - 1, true, true, () => {});
         };
 
         this.getWorker().postMessage({
@@ -757,7 +783,7 @@ class App extends React.Component {
                 });
 
             if (this.currentTab.debugCurrentLine)
-                this.editorRef.editor.scrollToLine(this.currentTab.debugCurrentLine - 1, true, true, () => {});
+                this.editorRefs[this.state.selectedTab].editor.scrollToLine(this.currentTab.debugCurrentLine - 1, true, true, () => {});
         };
 
         this.getWorker().postMessage({
