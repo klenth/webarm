@@ -101,7 +101,8 @@ export default class OpenFileDialog extends React.Component {
     async handleOk() {
         if (this.props.onOpen && this.state.selectedFile) {
             const code = await this.state.selectedFile.text();
-            this.props.onOpen(code);
+            const filename = await this.state.selectedFile.name;
+            this.props.onOpen(filename, code);
         }
 
         this.closeDialog();

@@ -2,19 +2,58 @@ import styled from 'styled-components';
 import React from 'react';
 import AceEditor from 'react-ace';
 
+const Tab = styled.div`
+    position: relative;
+    display: inline-block;
+  background-color: var(--color-thistle);
+  filter: brightness(80%);
+  padding: 4px 12px;
+  border-radius: 4px 4px 0 0;
+  width: fit-content;
+  color: white;
+  margin: 2px 4px;
+  top: 3px;
+  height: 24px;
+  line-height: 24px;
+  z-index: 0;
+  transition-property: top, filter;
+  transition-duration: 0.1s;
+  font-family: Iosevka Kathy Extended, monospace;
+  font-stretch: expanded;
+
+  &.selected {
+    background-color: var(--color-thistle);
+    filter: initial;
+    top: 0;
+    z-index: 2;
+  }
+  
+  &:hover:not(.selected) {
+    filter: brightness(90%);
+  }
+
+  &:focus {
+    outline: none;
+  }
+`;
+
+const EditButton = styled.div`
+    display: inline-block;
+    border: none;
+    margin: 0 8px 0 0;
+    cursor: pointer;
+    user-select: none;
+`;
+
 const TabLabel = styled.div`
+    display: inline-block;
+    color: white;
     cursor: default;
     user-select: none;
-    
-    display: inline-block;
-    background-color: var(--color-night);
-    padding: 4px 8px;
-    border-radius: 4px 4px 0 0;
-    color: white;
-    margin: 2px 8px;
   
-    &.selected {
-      background-color: var(--color-thistle);
+    &.editing {
+        cursor: text;
+        user-select: initial;
     }
 `;
 
@@ -31,6 +70,7 @@ const Editor = styled(AceEditor)`
   left: 0;
   right: 0;
   border-top: 2px solid var(--color-thistle);
+  z-index: 1;
   
   .debug-current-line {
     background-color: var(--color-for-current-highlight);
@@ -47,8 +87,9 @@ export default class EditorTab extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-
+            editing: false,
         };
+        this.labelRef = null;
     }
 
     render() {
@@ -59,12 +100,28 @@ export default class EditorTab extends React.Component {
 
         return (
             <>
-                <TabLabel
+                <Tab
                     className={this.props.selected ? 'selected' : ''}
                     onClick={_ => this.props.handleTabSelected()}
                 >
-                    {this.props.label}
-                </TabLabel>
+                    <EditButton
+                        title={'Rename file'}
+                        onClick={_ => this.setState({ editing: true })}
+                    >
+                        ✎
+                    </EditButton>
+                    <TabLabel
+                        ref={ref => this.labelRef = ref}
+                        className={this.state.editing ? 'editing' : ''}
+                        contentEditable={this.state.editing}
+                        spellCheck={false}
+                        onBlur={e => this.handleLabelBlur(e)}
+                        onKeyDown={e => this.handleLabelKeyDown(e)}
+                        suppressContentEditableWarning={true}
+                    >
+                        {this.props.label}
+                    </TabLabel>
+                </Tab>
                 <Editor
                     className={editorClassName}
                     ref={ref => this.props.handleSetEditorRef(ref)}
@@ -89,5 +146,27 @@ export default class EditorTab extends React.Component {
                 >{this.props.code}</Editor>
             </>
         );
+    }
+
+    componentDidUpdate(prevProps, prevState) {
+        if (!prevState.editing && this.state.editing)
+            this.labelRef.focus();
+    }
+
+    handleLabelKeyDown(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (e.target.innerText.trim())
+                e.target.blur();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            e.target.innerText = this.props.label;
+            e.target.blur();
+        }
+    }
+
+    handleLabelBlur(e) {
+        this.setState({ editing: false });
+        this.props.handleTabRenamed(e.target.innerText);
     }
 }

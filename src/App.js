@@ -63,6 +63,7 @@ const Editor = styled(AceEditor)`
 const EditorTabs = styled.div`
     grid-area: editor;
     position: relative;
+    padding-left: 12px;
 `;
 
 const Registers = styled.div`
@@ -308,7 +309,7 @@ class App extends React.Component {
             >
                 <OpenFileDialog
                     ref={ref => this.openFileDialogRef = ref}
-                    onOpen={code => this.handleOpenFile(code)}
+                    onOpen={(filename, code) => this.handleOpenFile(filename, code)}
                 />
                 <OptionsDialog
                     ref={ref => this.optionsDialogRef = ref}
@@ -350,6 +351,7 @@ class App extends React.Component {
                             handleCodeChange={code => this.handleCodeChange(i, code)}
                             handleSetEditorRef={ref => this.setEditorRef(i, ref)}
                             handleTabSelected={() => this.selectTab(i)}
+                            handleTabRenamed={name => this.updateTabState({ filename: name }, i)}
                         />
                     ))}
                 </EditorTabs>
@@ -476,10 +478,10 @@ class App extends React.Component {
             this.openFileDialogRef.dialogRef.showModal();
     }
 
-    handleOpenFile(code) {
+    handleOpenFile(filename, code) {
         const newTabNumber = ++this.tabNumber;
         const newTab = {
-            filename: `code${newTabNumber}.webs`,
+            filename: filename,
             code: code,
             simulatorState: new SimulatorState(),
             previousSimulatorState: null,
@@ -503,7 +505,7 @@ class App extends React.Component {
         const a = document.createElement('a');
         const url = URL.createObjectURL(data);
         a.href = url;
-        a.download = 'code.webs';
+        a.download = this.currentTab.filename;
         document.body.appendChild(a);
         a.click();
         setTimeout(() => {
