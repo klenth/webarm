@@ -18,7 +18,7 @@ import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 import 'ace-builds/src-noconflict/theme-textmate.js';
 import 'ace-builds/src-noconflict/theme-github_dark.js';
 
-const VERSION = '20240328.1';
+const VERSION = '20240329.0';
 
 const Top = styled.div`
   grid-area: top;
