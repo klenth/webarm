@@ -37,12 +37,20 @@ const Tab = styled.div`
   }
 `;
 
-const EditButton = styled.div`
+const TabButton = styled.div`
     display: inline-block;
     border: none;
-    margin: 0 8px 0 0;
+    margin: 0 8px;
     cursor: pointer;
     user-select: none;
+  
+    &:first-child {
+        margin-left: 0;
+    }
+  
+    &:last-child {
+        margin-right: 0;
+    }
 `;
 
 const TabLabel = styled.div`
@@ -104,12 +112,12 @@ export default class EditorTab extends React.Component {
                     className={this.props.selected ? 'selected' : ''}
                     onClick={_ => this.props.handleTabSelected()}
                 >
-                    <EditButton
+                    <TabButton
                         title={'Rename file'}
-                        onClick={_ => this.setState({ editing: true })}
+                        onClick={e => { e.stopPropagation(); this.setState({ editing: true }); }}
                     >
                         ✎
-                    </EditButton>
+                    </TabButton>
                     <TabLabel
                         ref={ref => this.labelRef = ref}
                         className={this.state.editing ? 'editing' : ''}
@@ -121,6 +129,10 @@ export default class EditorTab extends React.Component {
                     >
                         {this.props.label}
                     </TabLabel>
+                    <TabButton
+                        title={'Close file'}
+                        onClick={e => { e.stopPropagation(); this.props.handleTabClosed(); }}
+                    >×</TabButton>
                 </Tab>
                 <Editor
                     className={editorClassName}

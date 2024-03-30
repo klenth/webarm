@@ -153,6 +153,7 @@ class App extends React.Component {
                 state: '',
                 symbolAddresses: null,
             }],
+            livingTabNumbers: new Set([0]),
             selectedTab: 0,
             showingMemory: false,
             options: {
@@ -167,7 +168,7 @@ class App extends React.Component {
         this.optionsDialogRef = null;
         this.seq = 0;
         this.seqs = {};
-        this.tabNumber = 1;
+        this.tabNumber = 0;
         this.messageHandlers = {};
 
         if (firstLoad) {
@@ -339,21 +340,25 @@ class App extends React.Component {
                     </Controls>
                 </Top>
                 <EditorTabs>
-                    {Object.entries(this.state.tabs).map(([i, t]) => (
-                        <EditorTab
-                            key={`tab_${i}`}
-                            selected={i == this.state.selectedTab}
-                            readOnly={t.state !== ''}
-                            label={t.filename}
-                            code={t.code}
-                            theme={this.state.dark ? 'github_dark' : 'textmate'}
-                            markers={tabMarkers(t)}
-                            handleCodeChange={code => this.handleCodeChange(i, code)}
-                            handleSetEditorRef={ref => this.setEditorRef(i, ref)}
-                            handleTabSelected={() => this.selectTab(i)}
-                            handleTabRenamed={name => this.updateTabState({ filename: name }, i)}
-                        />
-                    ))}
+                    {[ ...this.state.livingTabNumbers ].map(i => {
+                        const t = this.state.tabs[i];
+                        return (
+                            <EditorTab
+                                key={`tab_${i}`}
+                                selected={i == this.state.selectedTab}
+                                readOnly={t.state !== ''}
+                                label={t.filename}
+                                code={t.code}
+                                theme={this.state.dark ? 'github_dark' : 'textmate'}
+                                markers={tabMarkers(t)}
+                                handleCodeChange={code => this.handleCodeChange(i, code)}
+                                handleSetEditorRef={ref => this.setEditorRef(i, ref)}
+                                handleTabSelected={() => this.selectTab(i)}
+                                handleTabRenamed={name => this.updateTabState({ filename: name }, i)}
+                                handleTabClosed={() => this.closeTab(i)}
+                            />
+                        );
+                    })}
                 </EditorTabs>
                 <Registers>
                     {registers}
@@ -395,10 +400,79 @@ class App extends React.Component {
         });
     }
 
+    closeTab(tabIndex) {
+        tabIndex = '' + tabIndex;
+
+        const newTabs = { ...this.state.tabs, [tabIndex]: null };
+        let newSelectedTab = this.state.selectedTab;
+        const newLivingTabs = new Set(this.state.livingTabNumbers);
+        newLivingTabs.delete(parseInt(tabIndex));
+
+        if (simWorkers[tabIndex])
+            simWorkers[tabIndex].terminate();
+        delete simWorkers[tabIndex];
+        delete this.seqs[tabIndex];
+        delete this.messageHandlers[tabIndex];
+        delete this.editorRefs[tabIndex];
+
+        if (newSelectedTab == tabIndex) {
+            // We're deleting the current tab; figure out which should now be selected
+            newSelectedTab = null;
+
+            // Try to select the next tab to the left
+            for (let i = tabIndex - 1; i >= 0; --i) {
+                if (newLivingTabs.has(i)) {
+                    newSelectedTab = i;
+                    break;
+                }
+            }
+
+            if (newSelectedTab === null) {
+                // No tabs to the left - try one to the right
+                for (let i of newLivingTabs) {
+                    if (i > tabIndex) {
+                        newSelectedTab = i;
+                        break;
+                    }
+                }
+            }
+
+            if (newSelectedTab === null) {
+                // It seems there aren't any other tabs! Make a new, blank one
+                const newTabNumber = ++this.tabNumber;
+                newTabs[newTabNumber] = this.newTab({ filename: `code${newTabNumber}.webs` });
+                newSelectedTab = newTabNumber;
+                newLivingTabs.add(newTabNumber);
+            }
+        }
+
+        const newState = { ...this.state };
+        newState.tabs = newTabs;
+        newState.selectedTab = newSelectedTab;
+        newState.livingTabNumbers = newLivingTabs;
+        this.setState(newState);
+    }
+
     setEditorRef(i, ref) {
         this.editorRefs[i] = ref;
         if (ref)
             ref.editor.getSession().setMode(customMode);
+    }
+
+    newTab(properties) {
+        return {
+            filename: 'code.webs',
+            code: '',
+            simulatorState: new SimulatorState(),
+            previousSimulatorState: null,
+            simulatorStateDiff: null,
+            message: '',
+            debugCurrentLine: null,
+            state: '',
+            symbolAddresses: null,
+
+            ...properties
+        };
     }
 
     componentDidMount() {
@@ -478,25 +552,28 @@ class App extends React.Component {
             this.openFileDialogRef.dialogRef.showModal();
     }
 
-    handleOpenFile(filename, code) {
-        const newTabNumber = ++this.tabNumber;
-        const newTab = {
-            filename: filename,
-            code: code,
-            simulatorState: new SimulatorState(),
-            previousSimulatorState: null,
-            simulatorStateDiff: null,
-            message: '',
-            debugCurrentLine: null,
-            state: '',
-            symbolAddresses: null,
-        };
+    handleOpenFile(files) {
+        if (!files)
+            return;
 
         const newTabs = { ...this.state.tabs };
-        newTabs[newTabNumber] = newTab;
+        const newLivingTabs = new Set(this.state.livingTabNumbers);
+        let newSelectedTab = null;
+        for (const file of files) {
+            const newTabNumber = ++this.tabNumber;
+            const newTab = this.newTab({ filename: file.filename, code: file.code });
+
+            newTabs[newTabNumber] = newTab;
+            newLivingTabs.add(newTabNumber);
+
+            if (newSelectedTab === null)
+                newSelectedTab = newTabNumber;
+        }
+
         this.updateState({
-            tabs: newTabs,
-            selectedTab: newTabNumber,
+             tabs: newTabs,
+             selectedTab: newSelectedTab,
+             livingTabNumbers: newLivingTabs,
         });
     }
 

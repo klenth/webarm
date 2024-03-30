@@ -42,13 +42,12 @@ export default class OpenFileDialog extends React.Component {
         super(props);
         this.dialogRef = this.fileInputRef = null;
         this.state = {
-            selectedFile: null,
-            selectedFileName: null,
+            selectedFiles: [],
         };
     }
 
     render() {
-        const selectedFile = this.state.selectedFile;
+        const selectedFilenames = [ ...this.state.selectedFiles ].map(f => f.name).join(', ');
         return (
             <Dialog
                 ref={ref => this.dialogRef = ref}
@@ -62,13 +61,14 @@ export default class OpenFileDialog extends React.Component {
                     Choose an assembly file (.webs) to load
                     <input
                         type={'file'}
+                        multiple={true}
                         accept={'.webs'}
                         onChange={e => this.handleFileInput(e)}
                         ref={ref => this.fileInputRef = ref}
                     />
                 </Label>
                 <Filename>
-                    {this.state.selectedFile?.name || ''}
+                    {selectedFilenames}
                 </Filename>
                 <Controls>
                     <button
@@ -76,7 +76,7 @@ export default class OpenFileDialog extends React.Component {
                     >Cancel</button>
                     <button
                         onClick={() => this.handleOk()}
-                        disabled={selectedFile === null}
+                        disabled={!this.state.selectedFiles}
                     >OK</button>
                 </Controls>
             </Dialog>
@@ -84,8 +84,7 @@ export default class OpenFileDialog extends React.Component {
     }
 
     handleFileInput(e) {
-        const [file] = e.target.files;
-        this.setState({ selectedFile: file });
+        this.setState({ selectedFiles: e.target.files });
     }
 
     handleCancel() {
@@ -93,16 +92,20 @@ export default class OpenFileDialog extends React.Component {
     }
 
     closeDialog() {
-        this.setState({ selectedFile: null });
+        this.setState({ selectedFiles: [] });
         this.fileInputRef.files = null;
         this.dialogRef.close();
     }
 
     async handleOk() {
-        if (this.props.onOpen && this.state.selectedFile) {
-            const code = await this.state.selectedFile.text();
-            const filename = await this.state.selectedFile.name;
-            this.props.onOpen(filename, code);
+        if (this.props.onOpen && this.state.selectedFiles) {
+            const files = [];
+            for (const file of this.state.selectedFiles) {
+                const code = await file.text();
+                const filename = await file.name;
+                files.push({ filename: filename, code: code });
+            }
+            this.props.onOpen(files);
         }
 
         this.closeDialog();
