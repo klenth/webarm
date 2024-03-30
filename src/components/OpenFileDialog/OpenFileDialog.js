@@ -58,7 +58,7 @@ export default class OpenFileDialog extends React.Component {
                 <Label
                     className={'button'}
                 >
-                    Choose an assembly file (.webs) to load
+                    Choose WebARM assembly files (.webs) to load
                     <input
                         type={'file'}
                         multiple={true}
@@ -67,9 +67,13 @@ export default class OpenFileDialog extends React.Component {
                         ref={ref => this.fileInputRef = ref}
                     />
                 </Label>
-                <Filename>
-                    {selectedFilenames}
-                </Filename>
+                <ul>
+                    {[ ...this.state.selectedFiles ].map(f => (
+                        <li
+                            key={f.name}
+                        >{f.name}</li>
+                    ))}
+                </ul>
                 <Controls>
                     <button
                         onClick={() => this.handleCancel()}
