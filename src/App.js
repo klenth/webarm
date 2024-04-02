@@ -18,7 +18,7 @@ import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 import 'ace-builds/src-noconflict/theme-textmate.js';
 import 'ace-builds/src-noconflict/theme-github_dark.js';
 
-const VERSION = '20240329.0';
+const VERSION = '20240402.0';
 
 const Top = styled.div`
   grid-area: top;
@@ -205,6 +205,13 @@ class App extends React.Component {
             />
         ));
 
+        const newFileButton = (
+            <button
+                onClick={() => this.handleNewFileButtonClicked()}
+                key={'newFileButton'}
+            >New file</button>
+        );
+
         const openFileButton = (
             <button
                 onClick={() => this.handleOpenFileButtonClicked()}
@@ -281,9 +288,9 @@ class App extends React.Component {
             >Options</button>
         );
 
-        const buttons = (tab.state === '') ? [ openFileButton, saveFileButton, assembleButton, runButton, debugButton, optionsButton ]
+        const buttons = (tab.state === '') ? [ newFileButton, openFileButton, saveFileButton, assembleButton, runButton, debugButton, optionsButton ]
             : (tab.state === 'running') ? [ stopButton ]
-            : (tab.state === 'debugging/paused') ? [ stepBackButton, stepForwardButton, continueButton, stopButton ]
+            : (tab.state === 'debugging/paused') ? [ newFileButton, openFileButton, saveFileButton, stepBackButton, stepForwardButton, continueButton, stopButton ]
             : (tab.state === 'debugging/running') ? [ stopButton ]
             : [];
 
@@ -545,6 +552,23 @@ class App extends React.Component {
             else if (this.currentTab.state === 'debugging/paused')
                 this.handleContinue('forward', false);
         }
+    }
+
+    handleNewFileButtonClicked() {
+        const newTabNumber = ++this.tabNumber;
+        const newTab = this.newTab({ filename: `code${newTabNumber}.webs`, code: '' });
+
+        const newTabs = { ...this.state.tabs };
+        const newLivingTabs = new Set(this.state.livingTabNumbers);
+
+        newTabs[newTabNumber] = newTab;
+        newLivingTabs.add(newTabNumber);
+
+        this.updateState({
+            tabs: newTabs,
+            selectedTab: newTabNumber,
+            livingTabNumbers: newLivingTabs,
+        });
     }
 
     handleOpenFileButtonClicked() {
