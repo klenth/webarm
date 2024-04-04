@@ -68,8 +68,9 @@
 - [DONE] In debugger, don't break inside stdlib functions
 - [DONE] Ctrl-/ to comment
 - Highlighted line is instruction/directive, not symbol
-- Save file dialog (to specify filename)
-- Tabs
+- [SUBSTITUTE] Save file dialog (to specify filename)
+  - Instead, tabs that can be renamed
+- [DONE] Tabs
 - Reset current line display, other state when loading file
 - Don't allow register writeback syntax when not appropriate (e.g. LDR R1!, [R5])
-- Option for initial randomization of register values
+- [DONE] Option for initial randomization of register values
