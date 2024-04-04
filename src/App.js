@@ -18,7 +18,7 @@ import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 import 'ace-builds/src-noconflict/theme-textmate.js';
 import 'ace-builds/src-noconflict/theme-github_dark.js';
 
-const VERSION = '20240402.0';
+const VERSION = '20240404.0';
 
 const Top = styled.div`
   grid-area: top;
@@ -160,6 +160,7 @@ class App extends React.Component {
                 stopOnZero: true,
                 stopAfterInstructions: [true, 100],
                 stopAfterTime: [true, 10],
+                randomizeRegisters: false,
             },
             dark: false,
         };
@@ -670,10 +671,13 @@ class App extends React.Component {
     }
 
     handleRun() {
+        const randomizeRegisters = !!this.state.options.randomizeRegisters;
+        const initialRegisters = randomizeRegisters ? this.randomRegisters() : new RegisterBank();
+
         this.updateTabState({
             state: 'running',
             message: '',
-            simulatorState: new SimulatorState(),
+            simulatorState: new SimulatorState(initialRegisters),
             previousSimulatorState: null,
             simulatorStateDiff: null,
             debugCurrentLine: null,
@@ -747,6 +751,8 @@ class App extends React.Component {
                     stopAfterEveryInstruction: false,
                     stopOnBreak: false,
                     stopOnInterrupt: true,
+                    randomizeRegisters: true,
+                    initialRegisterValues: initialRegisters.values,
                     ...this.workerOptions(),
                 },
             },
@@ -754,10 +760,13 @@ class App extends React.Component {
     }
 
     handleDebug(breakEveryInstruction) {
+        const randomizeRegisters = !!this.state.options.randomizeRegisters;
+        const initialRegisters = randomizeRegisters ? this.randomRegisters() : new RegisterBank();
+
         this.updateTabState({
             state: 'debugging/running',
             message: '',
-            simulatorState: new SimulatorState(),
+            simulatorState: new SimulatorState(initialRegisters),
             previousSimulatorState: null,
             simulatorStateDiff: null,
             debugCurrentLine: null,
@@ -824,6 +833,7 @@ class App extends React.Component {
                     stopAfterEveryInstruction: breakEveryInstruction,
                     stopOnBreak: true,
                     stopOnInterrupt: true,
+                    initialRegisterValues: initialRegisters.values,
                     ...this.workerOptions(),
                 },
             },
@@ -977,6 +987,14 @@ class App extends React.Component {
         appendRange(text, printable);
 
         return ranges;
+    }
+
+    randomRegisters() {
+        const registers = new RegisterBank();
+        for (let i = 0; i <= 12; ++i)
+            registers.set(i, Math.floor(0x1_0000_0000 * Math.random()));
+        registers.set(13, ((0xff00_0000 + Math.floor(0xf0_0000 * Math.random())) >>> 8) << 8);
+        return registers;
     }
 }
 

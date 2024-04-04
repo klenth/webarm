@@ -50,6 +50,7 @@ export default class OptionsDialog extends React.Component {
         stopOnZero: true,
         stopAfterInstructions: [true, 100],
         stopAfterTime: [true, 5],
+        randomizeRegisters: false,
     };
 
     constructor(props) {
@@ -128,6 +129,35 @@ export default class OptionsDialog extends React.Component {
                             </label>
                         </td>
                     </tr>
+                    <tr>
+                        <td></td>
+                        <td>
+                            Initial register values:
+                            <div>
+                                <label
+                                    style={{
+                                        marginRight: '24px',
+                                    }}
+                                >
+                                    <input type={'radio'}
+                                           name={'initial-register-values'}
+                                           id={'initial-registers-zeros'}
+                                           checked={!this.state.options.randomizeRegisters}
+                                           onChange={() => this.handleRandomizeRegistersChanged(false)}
+                                    />
+                                    Zeros
+                                </label>
+                                <label>
+                                    <input type={'radio'}
+                                           name={'initial-register-values'}
+                                           id={'initial-registers-random'}
+                                           checked={this.state.options.randomizeRegisters}
+                                           onChange={() => this.handleRandomizeRegistersChanged(true)}
+                                    /> Random
+                                </label>
+                            </div>
+                        </td>
+                    </tr>
                     </tbody>
                 </ControlsTable>
 
@@ -190,6 +220,16 @@ export default class OptionsDialog extends React.Component {
                 ...this.state.options,
                 stopAfterTime: [this.state.options.stopAfterTime[0], +value],
             },
+        });
+    }
+
+    handleRandomizeRegistersChanged(randomize) {
+        this.setState({
+            ...this.state,
+            options: {
+                ...this.state.options,
+                randomizeRegisters: randomize,
+            }
         });
     }
 

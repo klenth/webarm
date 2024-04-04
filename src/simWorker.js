@@ -2,6 +2,7 @@ import { parse, ParseError } from './arm32sim/Parser.js';
 import { step } from './arm32sim/Simulator.js';
 import { SimulatorState } from './arm32sim/SimulatorState.js';
 import { SimulatorMemory } from './arm32sim/SimulatorMemory.js';
+import { RegisterBank } from './arm32sim/RegisterBank.js';
 import { AssemblyError, assemble } from './arm32sim/Assembler.js';
 import CircularArray from './util/circularArray.js';
 
@@ -144,6 +145,14 @@ import CircularArray from './util/circularArray.js';
             debugStateStack = new CircularArray(128);
             debugLineMap = assembled.addressLineMap;
             state = new SimulatorState();
+            console.debug(options.initialRegisterValues);
+            if (options.initialRegisterValues) {
+                console.debug('Setting initial register values');
+                const newBank = new RegisterBank(options.initialRegisterValues);
+                console.debug(newBank);
+                state.registers = newBank;
+            }
+            console.debug(state.registers);
             state.memory = assembled.code;
             state.memory.resetWrittenAddressesRecord();
             debugStateStack.push(state);

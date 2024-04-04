@@ -71,3 +71,5 @@
 - Save file dialog (to specify filename)
 - Tabs
 - Reset current line display, other state when loading file
+- Don't allow register writeback syntax when not appropriate (e.g. LDR R1!, [R5])
+- Option for initial randomization of register values
