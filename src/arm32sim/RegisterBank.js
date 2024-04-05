@@ -1,6 +1,5 @@
 export class RegisterBank {
     constructor(values) {
-        console.debug(`values = `, values);
         if (values instanceof RegisterBank)
             this.values = [ ...values.values ];
         else {

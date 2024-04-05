@@ -1,8 +1,8 @@
 {
   "files": {
     "main.css": "/cmpt328/webarm/static/css/main.0e670c16.css",
-    "main.js": "/cmpt328/webarm/static/js/main.edd2fff3.js",
-    "static/js/114.f4c8cca5.chunk.js": "/cmpt328/webarm/static/js/114.f4c8cca5.chunk.js",
+    "main.js": "/cmpt328/webarm/static/js/main.09675c89.js",
+    "static/js/114.26d724f4.chunk.js": "/cmpt328/webarm/static/js/114.26d724f4.chunk.js",
     "static/js/411.dd1b9119.chunk.js": "/cmpt328/webarm/static/js/411.dd1b9119.chunk.js",
     "static/media/iosevka-kathy-extendedthinitalic.ttf": "/cmpt328/webarm/static/media/iosevka-kathy-extendedthinitalic.e2ba12ae88de3c7b9080.ttf",
     "static/media/iosevka-kathy-extendedextralightitalic.ttf": "/cmpt328/webarm/static/media/iosevka-kathy-extendedextralightitalic.aebb91a48b42cf55f735.ttf",
@@ -121,12 +121,12 @@
     "static/media/cs.w.twotone.transparent.png": "/cmpt328/webarm/static/media/cs.w.twotone.transparent.e29acb589679955d9774.png",
     "index.html": "/cmpt328/webarm/index.html",
     "main.0e670c16.css.map": "/cmpt328/webarm/static/css/main.0e670c16.css.map",
-    "main.edd2fff3.js.map": "/cmpt328/webarm/static/js/main.edd2fff3.js.map",
-    "114.f4c8cca5.chunk.js.map": "/cmpt328/webarm/static/js/114.f4c8cca5.chunk.js.map",
+    "main.09675c89.js.map": "/cmpt328/webarm/static/js/main.09675c89.js.map",
+    "114.26d724f4.chunk.js.map": "/cmpt328/webarm/static/js/114.26d724f4.chunk.js.map",
     "411.dd1b9119.chunk.js.map": "/cmpt328/webarm/static/js/411.dd1b9119.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.0e670c16.css",
-    "static/js/main.edd2fff3.js"
+    "static/js/main.09675c89.js"
   ]
 }

@@ -170,10 +170,9 @@ export class DCD extends Directive {
                 words.push(value);  // it's a symbol
             else {
                 const word = parseImmediate(value);
-                if ((word & 0xffff_ffff) >>> 0 !== word) {
+                if (word < -2147483648 || word >= 4294967296)
                     throw new AssemblyError(`Numeric value ${value} out of range for a word`);
-                }
-                words.push(word);
+                words.push(word & 0xffff_ffff);
             }
         }
 
