@@ -5,7 +5,7 @@ export class RegisterBank {
         else {
             this.values = Array(16).fill(0);
             if (values)
-                for (let i = 0;  i < 16; ++i)
+                for (let i = 0; i < 16; ++i)
                     this.values[i] = ((values[i] || 0) & 0xffff_ffff) >>> 0;
         }
     }

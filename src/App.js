@@ -18,7 +18,7 @@ import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 import 'ace-builds/src-noconflict/theme-textmate.js';
 import 'ace-builds/src-noconflict/theme-github_dark.js';
 
-const VERSION = '20240405.0';
+const VERSION = '20240405.1';
 
 const Top = styled.div`
   grid-area: top;
@@ -136,6 +136,9 @@ const OPTIONS_STORAGE_PROPERTY = 'webarm_options';
 const DARK_MODE_STORAGE_PROPERTY = 'webarm_dark';
 let firstLoad = true;
 const customMode = new AssemblyARM32Mode();
+
+const DEFAULT_STARTING_REGISTERS = new RegisterBank();
+DEFAULT_STARTING_REGISTERS.set(13, 0xFF00_0000);
 
 class App extends React.Component {
 
@@ -672,7 +675,7 @@ class App extends React.Component {
 
     handleRun() {
         const randomizeRegisters = !!this.state.options.randomizeRegisters;
-        const initialRegisters = randomizeRegisters ? this.randomRegisters() : new RegisterBank();
+        const initialRegisters = randomizeRegisters ? this.randomRegisters() : DEFAULT_STARTING_REGISTERS;
 
         this.updateTabState({
             state: 'running',
@@ -761,7 +764,7 @@ class App extends React.Component {
 
     handleDebug(breakEveryInstruction) {
         const randomizeRegisters = !!this.state.options.randomizeRegisters;
-        const initialRegisters = randomizeRegisters ? this.randomRegisters() : new RegisterBank();
+        const initialRegisters = randomizeRegisters ? this.randomRegisters() : DEFAULT_STARTING_REGISTERS;
 
         this.updateTabState({
             state: 'debugging/running',
