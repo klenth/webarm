@@ -900,6 +900,8 @@ function handleBlockDataTransferInstruction(i) {
 }
 
 function handleStopInstruction(i) {
+    if (i.operands)
+        throw new InvalidOperandsError('STOP', operandSpec(i.operands), i);
     const cond = parseCond(i.cond);
     return [() => new I.StopInstruction({
         Cond: cond,
@@ -911,6 +913,8 @@ function handleStopInstruction(i) {
 }
 
 function handleBreakInstruction(i) {
+    if (i.operands)
+        throw new InvalidOperandsError('BREAK', operandSpec(i.operands), i);
     const cond = parseCond(i.cond);
     return [() => new I.BreakInstruction({
         Cond: cond,
@@ -921,7 +925,9 @@ function handleBreakInstruction(i) {
     })];
 }
 
-function handleNopInstruction(_) {
+function handleNopInstruction(i) {
+    if (i.operands)
+        throw new InvalidOperandsError('NOP', operandSpec(i.operands), i);
     // Treat NOP as 'MOV R0, R0'
     return [() => new I.DataProcessingInstruction({
         Cond: 0b1110,
@@ -936,6 +942,8 @@ function handleNopInstruction(_) {
 }
 
 function handleSoftwareInterruptInstruction(i) {
+    if (i.operands)
+        throw new InvalidOperandsError('SWI', operandSpec(i.operands), i);
     const cond = parseCond(i.cond);
     return [() => new I.SoftwareInterruptInstruction({
         Cond: cond,
