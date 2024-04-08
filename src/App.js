@@ -18,7 +18,7 @@ import AssemblyARM32Mode from './ace-editor/mode-arm32.js';
 import 'ace-builds/src-noconflict/theme-textmate.js';
 import 'ace-builds/src-noconflict/theme-github_dark.js';
 
-const VERSION = '20240406.1';
+const VERSION = '20240408.0';
 
 const Top = styled.div`
   grid-area: top;
@@ -131,7 +131,7 @@ const Logo = styled.img`
     }
 `;
 
-const CODE_STORAGE_PROPERTY = 'webarm_code';
+const TABS_STORAGE_PROPERTY = 'webarm_tabs';
 const OPTIONS_STORAGE_PROPERTY = 'webarm_options';
 const DARK_MODE_STORAGE_PROPERTY = 'webarm_dark';
 let firstLoad = true;
@@ -177,10 +177,9 @@ class App extends React.Component {
 
         if (firstLoad) {
             firstLoad = false;
+            const localStorageTabs = this.parseLocalStorageTabs();
+            this.state = { ...this.state, ...localStorageTabs };
             if ('localStorage' in window) {
-                /*const storedCode = window['localStorage'].getItem(CODE_STORAGE_PROPERTY);
-                if (storedCode)
-                    this.state.code = storedCode;*/
                 const storedOptions = window['localStorage'].getItem(OPTIONS_STORAGE_PROPERTY);
                 if (storedOptions)
                     this.state.options = {
@@ -461,7 +460,7 @@ class App extends React.Component {
         newState.tabs = newTabs;
         newState.selectedTab = newSelectedTab;
         newState.livingTabNumbers = newLivingTabs;
-        this.setState(newState);
+        this.setState(newState, () => this.updateLocalStorageTabs());
     }
 
     setEditorRef(i, ref) {
@@ -573,6 +572,8 @@ class App extends React.Component {
             selectedTab: newTabNumber,
             livingTabNumbers: newLivingTabs,
         });
+
+        this.updateLocalStorageTabs();
     }
 
     handleOpenFileButtonClicked() {
@@ -603,6 +604,8 @@ class App extends React.Component {
              selectedTab: newSelectedTab,
              livingTabNumbers: newLivingTabs,
         });
+
+        this.updateLocalStorageTabs();
     }
 
     handleSaveFileButtonClicked() {
@@ -620,9 +623,55 @@ class App extends React.Component {
     }
 
     handleCodeChange(i, s) {
-        if ('localStorage' in window)
-            window['localStorage'].setItem(CODE_STORAGE_PROPERTY, s);
+        this.updateLocalStorageTabs(i, s);
         this.updateTabState({ code: s }, i);
+    }
+
+    updateLocalStorageTabs(i, s) {
+        if ('localStorage' in window) {
+            let index = 0;
+            const storageTabs = {};
+            for (let tabIndex of this.state.livingTabNumbers) {
+                storageTabs[`tab${index}-code`] = (i !== undefined && tabIndex == i) ? s : this.state.tabs[tabIndex].code;
+                storageTabs[`tab${index}-name`] = this.state.tabs[tabIndex].filename;
+                if (tabIndex === this.state.selectedTab)
+                    storageTabs['selected-tab'] = index;
+                ++index;
+            }
+            storageTabs.count = index;
+            const text = JSON.stringify(storageTabs);
+            window['localStorage'].setItem(TABS_STORAGE_PROPERTY, text);
+        }
+    }
+
+    parseLocalStorageTabs() {
+        if ('localStorage' in window) {
+            const text = window['localStorage'].getItem(TABS_STORAGE_PROPERTY);
+            try {
+                const storageTabs = JSON.parse(text);
+                const tabs = [];
+                const tabCount = +storageTabs.count;
+                const livingTabNumbers = new Set();
+                for (let i = 0; i < tabCount; ++i) {
+                    const tabCode = storageTabs[`tab${i}-code`] || '';
+                    const tabFilename = storageTabs[`tab${i}-name`] || `code${i}.webs`;
+                    const tab = this.newTab({ code: tabCode, filename: tabFilename });
+                    tabs.push(tab);
+                    livingTabNumbers.add(i);
+                }
+                this.tabNumber = tabCount;
+
+                return {
+                    tabs: tabs,
+                    selectedTab: +storageTabs['selected-tab'] || 0,
+                    livingTabNumbers: livingTabNumbers,
+                };
+            } catch (e) {
+                console.warn(`Error parsing local storage tabs:`, e);
+            }
+        }
+
+        return {};
     }
 
     handleOptionsChange(options) {
