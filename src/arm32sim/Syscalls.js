@@ -9,6 +9,7 @@ const SYSCALL_MAP = {
     0xCA11_0011: putch,
     0xCA11_0012: flush,
     0xCA11_0100: time,
+    0xA1CC_A011: exit,
 };
 
 export function executeSyscall(state, worker) {

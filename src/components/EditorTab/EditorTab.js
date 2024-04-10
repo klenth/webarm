@@ -90,6 +90,21 @@ const Editor = styled(AceEditor)`
   }
 `;
 
+const EasterEgg = styled('iframe')`
+    display: none;
+    position: absolute;
+    top: 32px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    border-top: 2px solid var(--color-thistle);
+    z-index: 1;
+  
+    &.visible {
+        display: block;
+    }
+`;
+
 export default class EditorTab extends React.Component {
 
     constructor(props) {
@@ -105,6 +120,45 @@ export default class EditorTab extends React.Component {
             ...(this.props.selected ? ['visible'] : []),
             ...(this.props.readOnly ? ['read-only'] : []),
         ].join(' ');
+
+        let content = (
+            <Editor
+                className={editorClassName}
+                ref={ref => this.props.handleSetEditorRef(ref)}
+                value={this.props.code}
+                theme={this.props.theme}
+                fontSize={18}
+                onChange={(s) => this.props.handleCodeChange(s)}
+                mode={'text'}
+                markers={this.props.markers}
+                readOnly={this.props.readOnly}
+                tabSize={8}
+                width={'initial'}
+                height={'initial'}
+                wrapEnabled={false}
+                showPrintMargin={false}
+                setOptions={{
+                    highlightActiveLine: !this.props.readOnly,
+                    highlightGutterLine: !this.props.readOnly,
+                    fixedWidthGutter: true,
+                    animatedScroll: true,
+                }}
+            >{this.props.code}</Editor>
+        );
+        if (this.props.easterEgg)
+            content = (
+                <EasterEgg
+                        className={editorClassName}
+                        width={"100%"}
+                        height={"100%"}
+                        src={"https://www.youtube.com/embed/dQw4w9WgXcQ?si=U1HCX6HQrqQcFlZW?autoplay=1"}
+                        title={"YouTube video player"}
+                        frameBorder={0}
+                        allow={"autoplay *; encrypted-media; picture-in-picture;"}
+                        referrerPolicy={"strict-origin-when-cross-origin"}
+                        allowFullScreen={true}
+                />
+            );
 
         return (
             <>
@@ -134,28 +188,8 @@ export default class EditorTab extends React.Component {
                         onClick={e => { e.stopPropagation(); this.props.handleTabClosed(); }}
                     >×</TabButton>
                 </Tab>
-                <Editor
-                    className={editorClassName}
-                    ref={ref => this.props.handleSetEditorRef(ref)}
-                    value={this.props.code}
-                    theme={this.props.theme}
-                    fontSize={18}
-                    onChange={(s) => this.props.handleCodeChange(s)}
-                    mode={'text'}
-                    markers={this.props.markers}
-                    readOnly={this.props.readOnly}
-                    tabSize={8}
-                    width={'initial'}
-                    height={'initial'}
-                    wrapEnabled={false}
-                    showPrintMargin={false}
-                    setOptions={{
-                        highlightActiveLine: !this.props.readOnly,
-                        highlightGutterLine: !this.props.readOnly,
-                        fixedWidthGutter: true,
-                        animatedScroll: true,
-                    }}
-                >{this.props.code}</Editor>
+
+                {content}
             </>
         );
     }

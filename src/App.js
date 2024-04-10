@@ -136,6 +136,7 @@ const OPTIONS_STORAGE_PROPERTY = 'webarm_options';
 const DARK_MODE_STORAGE_PROPERTY = 'webarm_dark';
 let firstLoad = true;
 const customMode = new AssemblyARM32Mode();
+const EASTER_EGG_VALUE = 0xA1CC_A011;
 
 const DEFAULT_STARTING_REGISTERS = new RegisterBank();
 DEFAULT_STARTING_REGISTERS.set(13, 0xFF00_0000);
@@ -166,6 +167,7 @@ class App extends React.Component {
                 randomizeRegisters: false,
             },
             dark: false,
+            easterEgg: -1,
         };
         this.editorRefs = {};
         this.openFileDialogRef = null;
@@ -366,6 +368,7 @@ class App extends React.Component {
                                 handleTabSelected={() => this.selectTab(i)}
                                 handleTabRenamed={name => this.updateTabState({ filename: name }, i)}
                                 handleTabClosed={() => this.closeTab(i)}
+                                easterEgg={this.state.easterEgg === i}
                             />
                         );
                     })}
@@ -780,6 +783,7 @@ class App extends React.Component {
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions in ${msg.executionTime / 1000}s`);
+                this.checkEasterEgg(state);
             } else if (state.exceededLimits) {
                 this.updateTabState({
                     simulatorState: state,
@@ -851,6 +855,7 @@ class App extends React.Component {
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+                this.checkEasterEgg(state);
             } else if (state.exceededLimits) {
                 this.updateTabState({
                     simulatorState: state,
@@ -926,6 +931,7 @@ class App extends React.Component {
                     symbolAddresses: msg.symbols,
                 });
                 this.printMessage(`Program ended after executing ${state.numSteps} instructions.`);
+                this.checkEasterEgg(state);
             } else if (state.exceededLimits) {
                 this.updateTabState({
                     simulatorState: state,
@@ -1047,6 +1053,13 @@ class App extends React.Component {
             registers.set(i, Math.floor(0x1_0000_0000 * Math.random()));
         registers.set(13, ((0xff00_0000 + Math.floor(0xf0_0000 * Math.random())) >>> 8) << 8);
         return registers;
+    }
+
+    checkEasterEgg(state) {
+        if (state.registers.get(7) === EASTER_EGG_VALUE)
+            this.updateState({
+                easterEgg: this.state.selectedTab,
+            });
     }
 }
 
