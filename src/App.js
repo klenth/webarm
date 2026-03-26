@@ -47,19 +47,6 @@ const Title = styled.div`
     font-size: 1.2rem;
 `;
 
-const Editor = styled(AceEditor)`
-  grid-area: editor;
-  /*flex-grow: 1;*/
-  /*height: 100%;*/
-  font-family: var(--mono-font);
-  font-stretch: expanded;
-  
-  .debug-current-line {
-    background-color: var(--color-for-current-highlight);
-    position: absolute;
-  }
-`;
-
 const EditorTabs = styled.div`
     grid-area: editor;
     position: relative;
