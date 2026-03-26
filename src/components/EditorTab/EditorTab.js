@@ -79,7 +79,8 @@ const Editor = styled(AceEditor)`
   right: 0;
   border-top: 2px solid var(--color-thistle);
   z-index: 1;
-  
+    background-color: var(--color-for-background);
+    
   .debug-current-line {
     background-color: var(--color-for-current-highlight);
     position: absolute;
@@ -88,8 +89,17 @@ const Editor = styled(AceEditor)`
   &.visible {
     display: block;
   }
+    
+    &.read-only {
+        background-color: color-mix(in srgb, var(--color-thistle) 20%, var(--color-for-background) 80%);
+        cursor: default;
+    }
+    
+    &.read-only .ace-content, &.read-only .ace_scroller {
+        cursor: default;
+    }
 `;
-
+//    background-color: ${props => /*props.readOnly ?*/ `color-mix(in srgb, var(--color-thistle) 10%, white 90%})`/* : undefined*/};
 const EasterEgg = styled('iframe')`
     display: none;
     position: absolute;
