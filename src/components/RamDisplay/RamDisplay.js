@@ -106,38 +106,6 @@ const ByteDisplay = styled.span`
     }
 `;
 
-/*
-const ByteDisplay = styled.span`
-    position: relative;
-    margin: 0 0.5ex;
-    pointer-events: none;
-  
-    &.selected::before {
-        content: "▼";
-        font-size: 12px;
-        color: var(--color-thistle);
-        display: inline-block;
-        position: absolute;
-        left: 0;
-        right: 0;
-        text-align: center;
-        top: -7px;
-    }
-
-    &.selected::after {
-        content: "▲";
-        font-size: 12px;
-        color: var(--color-thistle);
-        display: inline-block;
-        position: absolute;
-        left: 0;
-        right: 0;
-        text-align: center;
-        bottom: -6px;
-    }
-`;
-*/
-
 const ScrollButton = styled.button`
     padding: 0 12px;
 `;
@@ -150,17 +118,6 @@ function formatByte(value) {
 function formatAddress(addr) {
     const s = (addr >>> 0).toString(16).toUpperCase();
     return '\u00a0'.repeat(Math.max(0, 8 - s.length)) + s;
-}
-
-function formatWordTitle(addr, value) {
-    const addrString = `0x${formatAddress(addr)}`;
-    const hexString = `${formatAddress(value >>> 0)}`;
-    const decString = `${value >> 0}`;
-    const udecString = `${value >>> 0}`;
-    return `Address ${addrString}:
-    Hex: ${hexString}
-    Dec: ${decString}
-    UDec: ${udecString}`
 }
 
 export default class RamDisplay extends React.Component {
