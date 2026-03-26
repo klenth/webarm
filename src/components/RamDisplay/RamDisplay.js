@@ -235,11 +235,12 @@ export default class RamDisplay extends React.Component {
 
     handleOffsetKeyDown(e) {
         if (e.key === 'Enter') {
-            const newAddr = parseInt(e.target.value, 16);
+            const newAddr = parseInt(e.target.value.replaceAll(/\s+/g, ''), 16);
             if (!isNaN(newAddr))
                 this.setState({
                     ...this.state,
                     offset: (newAddr & 0xffff_fff0) >>> 0,
+                    selectedAddress: (newAddr & 0xffff_ffff) >>> 0,
                 });
         }
     }
