@@ -98,13 +98,45 @@ const ByteDisplay = styled.span`
         position: absolute;
         left: -6px;
         top: -3px;
-        right: -6px;
+        width: 1ex;
         bottom: -3px;
         border: 4px solid var(--color-thistle);
         border-radius: 4px 0 0 4px;
         border-right-width: 0;
     }
 `;
+
+/*
+const ByteDisplay = styled.span`
+    position: relative;
+    margin: 0 0.5ex;
+    pointer-events: none;
+  
+    &.selected::before {
+        content: "▼";
+        font-size: 12px;
+        color: var(--color-thistle);
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        top: -7px;
+    }
+
+    &.selected::after {
+        content: "▲";
+        font-size: 12px;
+        color: var(--color-thistle);
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        right: 0;
+        text-align: center;
+        bottom: -6px;
+    }
+`;
+*/
 
 const ScrollButton = styled.button`
     padding: 0 12px;
@@ -141,6 +173,8 @@ export default class RamDisplay extends React.Component {
             hoverAddress: null,
             hoverPoint: {},
             selectedAddress: null,
+            selectedRegister: '',
+            selectedSymbol: '',
         };
         this.numLines = 24;
         this.wordsPerLine = 4;
@@ -171,6 +205,19 @@ export default class RamDisplay extends React.Component {
                 key={sym}
                 value={sym}
             >{sym} (0x{this.props.symbolAddresses[sym].toString(16).toUpperCase()})</option>
+        ))
+
+        const registerName = i =>
+            (i === 13) ? 'SP'
+            : (i === 14) ? 'LR'
+            : (i === 15) ? 'PC'
+            : `R${i}`
+        ;
+        const registerOptions = new Array(16).fill(0).map((_, i) => (
+            <option
+                key={`R${i}`}
+                value={i}
+            >{registerName(i)} (0x{this.props.registers.get(i).toString(16).toUpperCase()})</option>
         ));
 
         return (
@@ -197,24 +244,45 @@ export default class RamDisplay extends React.Component {
                     </label>
                     <div>
                         Jump to
-                        <button
-                            onClick={_ => this.handleScrollTo(this.props.registers.get(13))}
-                        >SP</button>
-                        <button
-                            onClick={_ => this.handleScrollTo(this.props.registers.get(14))}
-                        >LR</button>
-                        <button
-                            onClick={_ => this.handleScrollTo(this.props.registers.get(15))}
-                        >PC</button>
+
+                        <select
+                            id={'registerBox'}
+                            value={this.state.selectedRegister}
+                            onChange={e => {
+                                if (e.target.value === '')
+                                    this.setState(state => ({ ...state, selectedAddress: null, }));
+                                else
+                                    this.handleScrollTo(this.props.registers.get(e.target.value));
+                                this.setState(state => ({
+                                    ...state,
+                                    selectedRegister: e.target.value,
+                                    selectedSymbol: '',
+                                }));
+                            }}
+                        >
+                            <option value={""}>Register value</option>
+                            {registerOptions}
+                        </select>
 
                         <select
                             id={'symbolBox'}
-                            onChange={e => this.handleScrollTo(this.props.symbolAddresses[e.target.value])}
+                            value={this.state.selectedSymbol}
+                            onChange={e => {
+                                if (e.target.value === '')
+                                    this.setState(state => ({ ...state, selectedAddress: null, }));
+                                else
+                                    this.handleScrollTo(this.props.symbolAddresses[e.target.value]);
+                                this.setState(state => ({
+                                    ...state,
+                                    selectedSymbol: e.target.value,
+                                    selectedRegister: '',
+                                }));
+                            }}
                             disabled={symbolOptions.length === 0}
                         >
                             <option
                                 value={""}
-                            >Symbol...</option>
+                            >Symbol</option>
                             {symbolOptions}
                         </select>
                     </div>
