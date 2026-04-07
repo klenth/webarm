@@ -50,6 +50,19 @@
         .syscall-table tbody tr>* {
             text-align: left;
         }
+
+        .stdlib-table tbody tr>:nth-child(2), .stdlib-table tbody tr>:nth-child(3) {
+            text-align: left;
+        }
+
+        .stdlib-table .parameter {
+            padding-left: 3ch;
+            text-indent: -3ch;
+        }
+
+        .stdlib-table tbody tr:nth-child(2n) > * {
+            background-color: #00b5e220;
+        }
     </style>
 </head>
 <body>
@@ -1154,6 +1167,11 @@
         ALIGN   256
         DCD     1, 2, 3, 4
                 </pre>
+
+                <h3><code class="highlight">EXTERN</code></h3>
+                <p>
+                    A <code class="highlight">EXTERN</code> directive instructs the assembler to include code from an external source. See the <a href="#Standard_library">standard library</a> section for more information.
+                </p>
             </div>
 
             <div class="problem">
@@ -1213,6 +1231,143 @@
                         </tr>
                     </tbody>
                 </table>
+            </div>
+
+            <div class="problem">
+                <div class="title">Standard library</div>
+
+                <p>
+                    WebARM provides a few standard library functions that can be used to perform more complex tasks.
+                </p>
+
+                <h2>Calling a standard library function</h2>
+                <ol>
+                    <li>
+                        <p>At the top of your code, include an <code class="highlight" data-language="arm32">EXTERN</code> directive for the function you intend to call, for example</p>
+                        <pre class="highlight" data-language="arm32">EXTERN  .std_println</pre>
+                        <p>The standard library will be loaded into memory at address 0x1F0000 and the named symbol (in this example <code class="highlight" data-language="arm32">.std_println</code>) will become available to your code.</p>
+                    </li>
+
+                    <li>
+                        <p>Load values of arguments into the appropriate registers (see the table below). For example, for the <code class="highlight" data-language="arm32">.std_println</code> function, <code class="highlight" data-language="arm32">R0</code> must contain the address of the character data to print:</p>
+                        <pre class="highlight" data-language="arm32">LDR     R0, =.text</pre>
+                    </li>
+
+                    <li>
+                        <p>Branch (with link) to the function using the <code class="highlight">BL</code> instruction, for example:</p>
+                        <pre class="highlight">BL      .std_println</pre>
+                    </li>
+
+                    <li>
+                        <p>If the function returns any values, you can then find them in the corresponding registers. N.B.: standard library functions typically destroy the contents of parameter registers, so you cannot assume that their contents will be unchanged after the call.</p>
+                    </li>
+                </ol>
+
+                <p>
+                    Note that standard library functions are considered a “black box” where the debugger is concerned: it will not step into code within these functions.
+                </p>
+
+                <h3>Caution: registers <code>R0–R4</code> may be overwritten</h3>
+                <p>
+                    Standard library calls are allowed to overwrite registers R0–R4. Consequently, if you have important data in any of these registers, you must make sure to save it into into other registers or memory locations (such as the stack) before the call.
+                </p>
+
+                <h2>
+                   The table below shows the standard library functions with their parameters and return values.
+                </h2>
+                <table class="stdlib-table">
+                    <thead>
+                    <tr>
+                        <th scope="col">Function</th>
+                        <th scope="col">Parameters</th>
+                        <th scope="col">Return values</th>
+                        <th scope="col">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><code class="highlight">.std_srand</code></td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: the seed</div>
+                        </td>
+                        <td></td>
+                        <td>Seeds the pseudorandom number generator with a new value.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="highlight">.std_rand</code></td>
+                        <td></td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: the generated number</div>
+                        </td>
+                        <td>Generates a new pseudorandom number.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="highlight">.std_print</code></td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: the address of text data</div>
+                        </td>
+                        <td></td>
+                        <td>Prints a NUL-terminated string.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="highlight">.std_println</code></td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: the address of text data</code></div>
+                        </td>
+                        <td></td>
+                        <td>Same as <code class="highlight">.std_print</code> but prints a newline on the end.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="highlight">.std_print_number</code></td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: the number</div>
+                            <div class="parameter"><code class="highlight">R1</code>: minimum width</div>
+                        </td>
+                        <td></td>
+                        <td>Prints a signed decimal integer, zero-padding if necessary to make it at least a minimum width.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="highlight">.std_div10</code></td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: a number</div>
+                        </td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: the result</div>
+                        </td>
+                        <td>Divides an unsigned integer by 10.</td>
+                    </tr>
+                    <tr>
+                        <td><code class="highlight">.std_mod10</code></td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: a number</div>
+                        </td>
+                        <td>
+                            <div class="parameter"><code class="highlight">R0</code>: the result</div>
+                        </td>
+                        <td>Computes the remainder when an unsigned integer is divided by 10.</td>
+                    </tr>
+                    </tbody>
+                </table>
+
+                <h2>Example</h2>
+                <pre class="highlight">
+        ; A hello, world program
+
+        EXTERN  .std_println    ; The function we're going to call
+
+        B       .main
+
+.text   DCD     'Hello, world!', 0
+
+        ALIGN
+.main
+        ; Put arguments in registers
+        LDR     R0, =.text
+        ; Call the function
+        BL      .std_println
+
+        STOP
+                </pre>
             </div>
         </div>
     </main>

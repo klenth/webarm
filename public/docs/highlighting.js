@@ -44,7 +44,7 @@
             register: /\b(?:r0|r1|r2|r3|r4|r5|r6|r7|r8|r9|r10|r11|r12|r13|r14|r15|sp|lr|pc)\b/gi,
             number: /[#=]-?0x[A-F0-9_]+|[#=]-?0b[01_]+|[#=]-?[0-9_]+/gi,
             string: /'([^']|\.)*'|"([^"]|\.)*"/g,
-            directive: /(dcd|dcb|equ|fill|align)/gi,
+            directive: /(dcd|dcb|equ|fill|align|extern)/gi,
             symbol: /\.[A-Z0-9_]+/gi,
         },
  
