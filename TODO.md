@@ -74,4 +74,5 @@
 - Reset current line display, other state when loading file
 - Don't allow register writeback syntax when not appropriate (e.g. LDR R1!, [R5])
 - [DONE] Option for initial randomization of register values
+- Warning/error message if SP at end does not equal initial value
 - Add option to profile how many times kinds of instructions are run (e.g. data processing, branch, data transfer, etc.)
