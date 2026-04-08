@@ -29,6 +29,7 @@ EXPORT  .std_div10
         MUL     R0, R1, R0
         LDR     R1, =1_013_904_223
         ADD     R0, R0, R1
+        LSR     R0, R0, #8
         STR     R0, .rand_seed
         MOV     PC, R3
 
