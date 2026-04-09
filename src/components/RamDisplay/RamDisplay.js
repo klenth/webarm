@@ -59,6 +59,10 @@ const LineDisplay = styled.div`
     &:hover {
       background-color: var(--color-for-current-highlight);
     }
+    
+    .no-hover &:hover {
+        background-color: inherit;
+    }
   
     &:nth-child(4n+4) {
         margin-bottom: 4px;
@@ -71,18 +75,37 @@ const AddressDisplay = styled.span`
 `;
 
 const WordDisplay = styled.span`
+    position: relative;
     margin-left: 1.5ex;
     border-radius: 4px;
   
     &.highlighted {
         background-color: var(--color-for-current-highlight);
     }
+    
+    &.pinned {
+        outline: 3px solid var(--color-thistle);
+    }
+    
+    &.pinned::before {
+        content: "🔒";
+        position: absolute;
+        display: inline-block;
+        left: -2ch;
+        width: 2ch;
+        text-align: center;
+        font-variant-emoji: text;
+    }
   
     &.updated.highlighted, &.updated {
         background-color: #9D581F70;
     }
   
-    &:hover {
+    .no-hover &:hover:not(.pinned) {
+        outline: none;
+    }
+    
+    &:hover:not(.pinned) {
         outline: 3px solid var(--color-for-current-highlight);
     }
 `;
@@ -100,7 +123,7 @@ const ByteDisplay = styled.span`
         top: -3px;
         width: 1ex;
         bottom: -3px;
-        border: 4px solid var(--color-thistle);
+        border: 4px solid var(--color-sky);
         border-radius: 4px 0 0 4px;
         border-right-width: 0;
     }
@@ -130,6 +153,7 @@ export default class RamDisplay extends React.Component {
             hoverAddress: null,
             hoverPoint: {},
             selectedAddress: null,
+            pinnedAddress: null,
             selectedRegister: '',
             selectedSymbol: '',
         };
@@ -149,11 +173,13 @@ export default class RamDisplay extends React.Component {
                 numWords={wordsPerLine}
                 offset={offset + wordsPerLine * 4 * i}
                 key={`line_${i}`}
-                highlightWord={this.props.highlightWord}
+                highlightWord={this.state.pinnedAddress ?? this.props.highlightWord}
+                pinnedWord={this.state.pinnedAddress}
                 updatedAddresses={this.props.updatedAddresses}
                 selectedAddress={this.state.selectedAddress}
                 handleWordPointerEnter={(address, x, y) => this.handleWordPointerEnter(address, x, y)}
                 handleWordPointerExit={address => this.handleWordPointerExit(address)}
+                handleWordPointerClick={(address, x, y) => this.handleWordPointerClick(address, x, y)}
             />
         ));
 
@@ -176,6 +202,8 @@ export default class RamDisplay extends React.Component {
                 value={i}
             >{registerName(i)} (0x{this.props.registers.get(i).toString(16).toUpperCase()})</option>
         ));
+
+        const tooltipDisplayAddress = this.state.pinnedAddress ?? this.state.hoverAddress ?? null;
 
         return (
             <Pane>
@@ -244,14 +272,14 @@ export default class RamDisplay extends React.Component {
                         </select>
                     </div>
                 </Controls>
-                <Field>
+                <Field className={(this.state.pinnedAddress !== null) ? 'no-hover' : ''}>
                     {lines}
                     <WordTooltip
-                        x={this.state.hoverPoint.x || 0}
-                        y={this.state.hoverPoint.y || 0}
-                        visible={this.state.hoverAddress !== null}
-                        address={this.state.hoverAddress}
-                        word={this.state.hoverAddress !== null ? mem.readWord(this.state.hoverAddress) : 0}
+                        x={this.state.hoverPoint?.x ?? 0}
+                        y={this.state.hoverPoint?.y ?? 0}
+                        visible={tooltipDisplayAddress !== null}
+                        address={tooltipDisplayAddress}
+                        word={tooltipDisplayAddress !== null ? mem.readWord(tooltipDisplayAddress) : 0}
                     />
                 </Field>
             </Pane>
@@ -312,16 +340,30 @@ export default class RamDisplay extends React.Component {
     }
 
     handleWordPointerEnter(address, x, y) {
-        this.updateState({
-            hoverAddress: parseInt(address),
-            hoverPoint: { x: x, y: y }
-        });
+        if (this.state.pinnedAddress === null)
+            this.updateState({
+                hoverAddress: parseInt(address),
+                hoverPoint: { x: x, y: y }
+            });
     }
 
     handleWordPointerExit(address) {
-        if (this.state.hoverAddress === address)
+        if (this.state.hoverAddress === address && this.state.pinnedAddress === null)
             this.updateState({
                 hoverAddress: null
+            });
+    }
+
+    handleWordPointerClick(address, x, y) {
+        if (this.state.pinnedAddress === null)
+            this.updateState({
+                pinnedAddress: address,
+                hoverPoint: { x, y },
+            });
+        else if (this.state.pinnedAddress === address)
+            this.updateState({
+                pinnedAddress: null,
+                hoverPoint: {},
             });
     }
 
@@ -354,6 +396,8 @@ class Line extends React.Component {
             let className = '';
             if (this.props.highlightWord === addr)
                 className += 'highlighted ';
+            if (this.props.pinnedWord === addr)
+                className += 'pinned ';
             if (this.props.updatedAddresses && this.props.updatedAddresses.has(addr))
                 className += 'updated ';
             return (
@@ -363,12 +407,14 @@ class Line extends React.Component {
                     //title={formatWordTitle(offset + 4 * i, mem.readWord(offset + 4 * i))}
                     data-address={offset + 4 * i}
                     onPointerEnter={e => {
-                        let x = e.target.offsetLeft, y = e.target.offsetTop;
-                        x -= (i / (numWords - 1)) * e.target.offsetWidth;
-                        y += 3 * e.target.offsetHeight;
+                        const { x, y } = this.tooltipDisplayCoordinates(e.target, i, numWords);
                         this.props.handleWordPointerEnter(offset + 4 * i, x, y);
                     }}
                     onPointerLeave={_ => this.props.handleWordPointerExit(offset + 4 * i)}
+                    onClick={e => {
+                        const { x, y } = this.tooltipDisplayCoordinates(e.target, i, numWords);
+                        this.props.handleWordPointerClick(offset + 4 * i, x, y);
+                    }}
                 >{[...Array(4).fill(0)].map((_, b) => (
                     <ByteDisplay
                         key={`line_${lineNumber}_word_${i}_${b}`}
@@ -386,5 +432,12 @@ class Line extends React.Component {
                 {wordDisplays}
             </LineDisplay>
         );
+    }
+
+    tooltipDisplayCoordinates(wordElement, column, numColumns) {
+        let x = wordElement.offsetLeft, y = wordElement.offsetTop;
+        x -= (column / (numColumns - 1)) * wordElement.offsetWidth;
+        y += 3 * wordElement.offsetHeight;
+        return { x, y };
     }
 }
