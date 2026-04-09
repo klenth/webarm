@@ -264,7 +264,7 @@ export default class RamDisplay extends React.Component {
             if (!isNaN(newAddr))
                 this.setState({
                     ...this.state,
-                    offset: (newAddr & 0xffff_fff0) >>> 0,
+                    offset: (Math.max(0, newAddr - 0x10) & 0xffff_ffc0) >>> 0,
                     selectedAddress: (newAddr & 0xffff_ffff) >>> 0,
                 });
         }
@@ -303,7 +303,7 @@ export default class RamDisplay extends React.Component {
 
         const minAddr = this.state.offset, maxAddr = this.state.offset + this.numLines * this.wordsPerLine * 4;
         if (addr < minAddr || maxAddr <= addr) {
-            const newOffset = (Math.max(addr - 0x100, 0) & 0xffff_fff0) >>> 0;
+            const newOffset = (Math.max(addr - 0x100, 0) & 0xffff_ffc0) >>> 0;
             newState.offset = newOffset;
             newState.offsetText = newOffset.toString(16).toUpperCase();
         }
