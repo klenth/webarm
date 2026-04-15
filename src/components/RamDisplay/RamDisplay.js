@@ -131,6 +131,7 @@ const ByteDisplay = styled.span`
 
 const ScrollButton = styled.button`
     padding: 0 12px;
+    font-family: var(--mono-font);
 `;
 
 function formatByte(value) {
@@ -222,10 +223,10 @@ export default class RamDisplay extends React.Component {
                         />
                         <ScrollButton
                             onClick={() => this.handleScrollDown()}
-                        >🠫</ScrollButton>
+                        >⬇</ScrollButton>
                         <ScrollButton
                             onClick={() => this.handleScrollUp()}
-                        >🠩</ScrollButton>
+                        >⬆</ScrollButton>
                     </label>
                     <div>
                         Jump to
