@@ -1,7 +1,7 @@
-import * as Assembler from './Assembler.js';
-import { parse, ParseError } from './Parser.js';
+import * as Assembler from './Assembler';
+import { parse, ParseError } from './Parser';
 
-export function assemble() {
+export function assemble(): Assembler.AssemblerOutput {
     const ast = parse(CODE);
     return Assembler.assemble(ast, 0x1f_0000);
 }

@@ -1,24 +1,37 @@
 import * as AST from '../grammar/arm32Ast';
 import * as I from './Instruction';
-import { rotateRight } from '../bits/arithmetic.js';
+import { rotateRight } from '../bits/arithmetic';
 import SimulatorMemory from './SimulatorMemory';
 import * as StandardLibary from './StandardLibrary.js';
+import antlr4 from "antlr4";
+
+export type AssemblerOutput = {
+    code: SimulatorMemory,
+    startAddress: number,
+    codeLength: number,
+    addressLineMap: { [address: number]: number },
+    symbols: { [symbol: string]: number },
+    exports: { [symbol: string]: number }
+};
 
 export class AssemblyError extends Error {
-    constructor(message, node) {
+
+    node: AST.AstNode;
+
+    constructor(message: string, node: AST.AstNode) {
         super(message);
         this.node = node;
     }
 }
 
 export class InvalidOperandsError extends AssemblyError {
-    constructor(opcode, operandsSpec, node) {
+    constructor(opcode: string, operandsSpec: string, node: AST.AstNode) {
         super(`Invalid operands [${operandSpecToString(operandsSpec)}] for opcode ${opcode}`, node);
     }
 }
 
-let stdlib = null;
-function resolveImport(symbol) {
+let stdlib: AssemblerOutput | null = null;
+function resolveImport(symbol: string): AssemblerOutput | null {
     if (!stdlib)
         stdlib = StandardLibary.assemble();
     if (symbol in stdlib.exports)
@@ -27,7 +40,7 @@ function resolveImport(symbol) {
         return null;
 }
 
-export function assemble(ast, startAddress = 0) {
+export function assemble(ast: AST.AstNode, startAddress: number = 0): AssemblerOutput {
     const importedSymbols = {}, symbols = {};
     let addressLineMap = {};
     let dataMaps = [];

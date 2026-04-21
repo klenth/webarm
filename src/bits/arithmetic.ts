@@ -1,14 +1,14 @@
 import Bitfield from './Bitfield';
 
-function asSigned(n) {
+function asSigned(n: number): number {
     return n >> 0;
 }
 
-function asUnsigned(n) {
+function asUnsigned(n: number): number {
     return n >>> 0;
 }
 
-export function testAdditionOverflow(arg1, arg2, c) {
+export function testAdditionOverflow(arg1: number, arg2: number, c: number): { unsigned: number, signed: number } {
     let signed, unsigned;
 
     arg1 = asSigned(arg1);
@@ -33,11 +33,11 @@ export function testAdditionOverflow(arg1, arg2, c) {
     }
 }
 
-export function testSubtractionOverflow(arg1, arg2, c) {
+export function testSubtractionOverflow(arg1: number, arg2: number, c: number): { unsigned: number, signed: number } {
     return testAdditionOverflow(arg1, -asSigned(arg2), c);
 }
 
-export function rotateRight(value, bits) {
+export function rotateRight(value: number, bits: number): number {
     const rightBits = new Bitfield(bits, 0).get(value);
     value >>>= bits;
     value |= (rightBits << (32 - bits));

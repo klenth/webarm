@@ -1,25 +1,26 @@
-import SimulatorState from './SimulatorState';
-import SimulatorMemory from './SimulatorMemory';
 import Bitfield from '../bits/Bitfield';
 import * as format from '../format.js';
 import * as bits from '../bits/arithmetic.js';
-import In from 'antlr4';
 
 export class InstructionFormatError extends Error {}
 
-const INSTRUCTION_DECODERS = [];
+type FieldDefinitions = { [field: string]: Bitfield };
+type FieldValues = { [field: string]: number };
+type InstructionDecoder = (code: number) => Instruction;
 
-const registerInstructionDecoder = function(decoder) {
+const INSTRUCTION_DECODERS: InstructionDecoder[] = [];
+
+const registerInstructionDecoder = (decoder: (code: number) => Instruction) => {
     INSTRUCTION_DECODERS.push(decoder);
 }
 
-const registerOpcodeDecoder = function(mask, value, decoder) {
+const registerOpcodeDecoder = (mask: number, value: number, decoder: (code: number) => Instruction) => {
     registerInstructionDecoder(
         code => ((code & mask) === value) ? decoder(code) : null
     );
 }
 
-export function decode(code) {
+export function decode(code: number): Instruction | null {
     let instr;
     for (let decoder of INSTRUCTION_DECODERS) {
         instr = decoder(code);
@@ -29,7 +30,7 @@ export function decode(code) {
     return null;
 }
 
-function decodeFieldValues(word, format) {
+function decodeFieldValues(word: number, format: InstructionFormat): FieldValues {
     const fields = format.fields;
     const fieldValues = {};
     for (let name of Object.keys(fields))
@@ -39,23 +40,25 @@ function decodeFieldValues(word, format) {
 }
 
 export class Instruction {
-    constructor(fieldValues) {
+    fieldValues: FieldValues;
+
+    constructor(fieldValues: FieldValues) {
         this.fieldValues = { ...fieldValues };
     }
 
-    format() {
+    format(): InstructionFormat {
         throw "format() not overridden";
     }
 
-    mnemonic() {
+    mnemonic(): string {
         return "mnemonic() not overridden";
     }
 
-    get(fieldName) {
+    get(fieldName): number {
         return this.fieldValues[fieldName];
     }
 
-    encode() {
+    encode(): number {
         const fields = this.format().fields;
         let word = 0;
         for (let name of Object.keys(fields))
@@ -63,13 +66,15 @@ export class Instruction {
         return word;
     }
 
-    toString() {
+    toString(): string {
         return this.mnemonic();
     }
 }
 
 export class InstructionFormat {
-    constructor(fields) {
+    fields: FieldDefinitions;
+
+    constructor(fields: FieldDefinitions) {
         this.fields = fields;
 
         let bits = 0;
@@ -93,18 +98,18 @@ export class BranchInstruction extends Instruction {
         'offset': new Bitfield(24, 0)
     });
 
-    format() {
+    override format() {
         return BranchInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         if (this.get('L'))
             return 'BL';
         else
             return 'B';
     }
 
-    toString() {
+    override toString() {
         let { Cond, L, offset } = this.fieldValues;
         offset = ((offset << 8) >> 6) + 4;
         const addr = (offset >= 0) ? `#0x${format.hex(offset)}`
@@ -112,7 +117,7 @@ export class BranchInstruction extends Instruction {
         return `B${L ? 'L' : ''}${condToString(Cond)} ${addr}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): BranchInstruction {
         const fieldValues = decodeFieldValues(word, BranchInstruction._format);
         return new BranchInstruction(fieldValues);
     }
@@ -125,20 +130,20 @@ export class BranchAndExchangeInstruction extends Instruction {
         Rn: new Bitfield(4, 0)
     });
 
-    format() {
+    override format() {
         return BranchAndExchangeInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         return 'BX';
     }
 
-    toString() {
+    override toString() {
         const { Cond, Rn } = this.fieldValues;
         return `BX${condToString(Cond)} ${registerToString(Rn)}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): BranchAndExchangeInstruction {
         const fieldValues = decodeFieldValues(word, BranchAndExchangeInstruction._format);
         return new BranchAndExchangeInstruction(fieldValues);
     }
@@ -156,7 +161,7 @@ export class DataProcessingInstruction extends Instruction {
         Operand2: new Bitfield(12, 0)
     });
 
-    static _opcodes = {
+    static _opcodes: { [bits: number]: string } = {
         0b0000: 'AND',
         0b0001: 'EOR',
         0b0010: 'SUB',
@@ -175,11 +180,11 @@ export class DataProcessingInstruction extends Instruction {
         0b1111: 'MVN'
     }
 
-    format() {
+    override format() {
         return DataProcessingInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         let m = DataProcessingInstruction._opcodes[this.get('OpCode')];
         if (this.get('S') && ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(m) < 0)
             m += 'S';
@@ -187,11 +192,11 @@ export class DataProcessingInstruction extends Instruction {
         return m;
     }
 
-    toString() {
-        const {Cond, I, OpCode, S, Rn, Rd, Operand2} = this.fieldValues;
+    override toString() {
+        const {Cond, I, OpCode, Rn, Rd, Operand2} = this.fieldValues;
         const opcode = this.mnemonic();
 
-        let op2String;
+        let op2String: string;
         if (I) {
             const rotate = (Operand2 & 0xf00) >>> 8;
             const imm = ((Operand2 & 0x0ff) << 24) >> 24;
@@ -226,7 +231,7 @@ export class DataProcessingInstruction extends Instruction {
             return `${opcode}${condToString(Cond)} ${registerToString(Rd)}, ${registerToString(Rn)}, ${op2String}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): DataProcessingInstruction {
         const fieldValues = decodeFieldValues(word, DataProcessingInstruction._format);
         return new DataProcessingInstruction(fieldValues);
     }
@@ -245,16 +250,16 @@ export class MultiplyInstruction extends Instruction {
         Rm: new Bitfield(4, 0)
     });
 
-    format() {
+    override format() {
         return MultiplyInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         const A = this.get('A');
         return A ? 'MLA' : 'MUL';
     }
 
-    toString() {
+    override toString() {
         const { Cond, A, S, Rd, Rn, Rs, Rm } = this.fieldValues;
         if (A)
             return `MLA${S? 'S' : ''}${condToString(Cond)} ${registerToString(Rd)}, ${registerToString(Rm)}, ${registerToString(Rs)}, ${registerToString(Rn)}`;
@@ -262,7 +267,7 @@ export class MultiplyInstruction extends Instruction {
             return `MUL${S? 'S' : ''}${condToString(Cond)} ${registerToString(Rd)}, ${registerToString(Rm)}, ${registerToString(Rs)}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): MultiplyInstruction {
         const fieldValues = decodeFieldValues(word, MultiplyInstruction._format);
         return new MultiplyInstruction(fieldValues);
     }
@@ -283,17 +288,17 @@ export class SingleDataTransferInstruction extends Instruction {
         Offset: new Bitfield(12, 0)
     });
 
-    format() {
+    override format() {
         return SingleDataTransferInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         const B = this.get('B'), L = this.get('L');
         const prefix = L ? 'LDR' : 'STR';
         return B ? prefix + 'B' : prefix;
     }
 
-    toString() {
+    override toString() {
         const { Cond, I, P, U, W, Rn, Rd, Offset } = this.fieldValues;
         const opcode = this.mnemonic();
 
@@ -328,7 +333,7 @@ export class SingleDataTransferInstruction extends Instruction {
         }
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): SingleDataTransferInstruction {
         const fieldValues = decodeFieldValues(word, SingleDataTransferInstruction._format);
         return new SingleDataTransferInstruction(fieldValues);
     }
@@ -347,15 +352,15 @@ export class BlockDataTransferInstruction extends Instruction {
         RegisterList: new Bitfield(16, 0)
     });
 
-    format() {
+    override format() {
         return BlockDataTransferInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         return this.get('L') ? 'LDM' : 'STM';
     }
 
-    toString() {
+    override toString() {
         const { Cond, P, U, W, L, Rn, RegisterList } = this.fieldValues;
         const dirBits = (L << 2) | (P << 1) | U;
         const mnemonic = ['STMED', 'STMEA', 'STMFD', 'STMFA', 'LDMFA', 'LDMFD', 'LDMEA', 'LDMED'][dirBits];
@@ -393,7 +398,7 @@ export class BlockDataTransferInstruction extends Instruction {
         return `${mnemonic}${condToString(Cond)} ${reg}, {${regList}}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): BlockDataTransferInstruction {
         const fieldValues = decodeFieldValues(word, BlockDataTransferInstruction._format);
         return new BlockDataTransferInstruction(fieldValues);
     }
@@ -408,20 +413,20 @@ export class StopInstruction extends Instruction {
         '[bits3-0]': new Bitfield(4, 0).asConstant(0b0000)
     });
 
-    format() {
+    override format() {
         return StopInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         return 'STOP';
     }
 
-    toString() {
+    override toString() {
         const { Cond } = this.fieldValues;
         return `${this.mnemonic()}${condToString(Cond)}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): StopInstruction {
         const fieldValues = decodeFieldValues(word, StopInstruction._format);
         return new StopInstruction(fieldValues);
     }
@@ -436,20 +441,20 @@ export class BreakInstruction extends Instruction {
         '[bits3-0]': new Bitfield(4, 0).asConstant(0b0001)
     });
 
-    format() {
+    override format() {
         return BreakInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         return 'BREAK';
     }
 
-    toString() {
+    override toString() {
         const { Cond } = this.fieldValues;
         return `${this.mnemonic()}${condToString(Cond)}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): BreakInstruction {
         const fieldValues = decodeFieldValues(word, BreakInstruction._format);
         return new BreakInstruction(fieldValues);
     }
@@ -462,20 +467,20 @@ export class SoftwareInterruptInstruction extends Instruction {
         '[bits23-0]': new Bitfield(24, 0),
     });
 
-    format() {
+    override format() {
         return SoftwareInterruptInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         return 'SWI';
     }
 
-    toString() {
+    override toString() {
         const { Cond } = this.fieldValues;
         return `${this.mnemonic()}${condToString(Cond)}`;
     }
 
-    static fromCode(word) {
+    static fromCode(word: number): SoftwareInterruptInstruction {
         const fieldValues = decodeFieldValues(word, SoftwareInterruptInstruction._format);
         return new SoftwareInterruptInstruction(fieldValues);
     }
@@ -486,15 +491,15 @@ export class DummyInstruction extends Instruction {
         bits: new Bitfield(32, 0)
     });
 
-    format() {
+    override format() {
         return DummyInstruction._format;
     }
 
-    mnemonic() {
+    override mnemonic() {
         return '[dummy instruction]';
     }
 
-    static fromCode(_) {
+    static fromCode(_: number): DummyInstruction {
         throw new InstructionFormatError('Attempt to disassemble a dummy instruction!');
     }
 }
@@ -509,12 +514,12 @@ registerOpcodeDecoder(0x0f80_00f0, 0x0000_0090, MultiplyInstruction.fromCode);
 registerOpcodeDecoder(0x0c00_0000, 0x0000_0000, DataProcessingInstruction.fromCode);
 registerOpcodeDecoder(0x0f00_0000, 0x0f00_0000, SoftwareInterruptInstruction.fromCode);
 
-function condToString(cond) {
+function condToString(cond: number): string {
     if (cond === 0b1111)
         throw new InstructionFormatError('Invalid Cond field: 0b1111');
     return ['EQ', 'NE', 'HS', 'LO', 'MI', 'PL', 'VS', 'VC', 'HI', 'LS', 'GE', 'LT', 'GT', 'LE', ''][cond];
 }
 
-function registerToString(reg) {
+function registerToString(reg: number): string {
     return 'R' + reg;
 }

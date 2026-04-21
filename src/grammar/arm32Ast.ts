@@ -1,7 +1,7 @@
-import { AssemblyError } from '../arm32sim/Assembler.js';
-import { parseMnemonic } from './arm32Mnemonic.js';
+import { AssemblyError } from '../arm32sim/Assembler';
+import { parseMnemonic } from './arm32Mnemonic';
 
-export function parseImmediate(text) {
+export function parseImmediate(text: string): number {
     if (text.startsWith("-"))
         return -parseImmediate(text.slice(1));
     text = text.replaceAll("_", "").toLowerCase();
@@ -13,7 +13,7 @@ export function parseImmediate(text) {
         return parseInt(text, 10);
 }
 
-function registerNumber(registerText) {
+function registerNumber(registerText: string): number {
     registerText = registerText.toUpperCase();
     switch (registerText) {
         case 'SP':
@@ -28,26 +28,29 @@ function registerNumber(registerText) {
 }
 
 export class AstNode {
-    constructor(name) {
+    name: string;
+    className: string;
+
+    constructor(name: string) {
         this.name = name;
         this.className = this.constructor.name;
     }
 
-    children() {
+    children(): AstNode[] {
         return [];
     }
 
-    toString() {
+    toString(): string {
         return this.name;
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { className?: string }): AstNode | null | undefined {
         if (o === null)
             return null;
         else if (o === undefined)
             return undefined;
 
-        const className = o.className;
+        const className: string | undefined = o.className;
         if (!className)
             throw new Error('No className found!');
         if (typeof(exports[className]) !== 'undefined')
@@ -58,18 +61,22 @@ export class AstNode {
 }
 
 export class Program extends AstNode {
-    constructor(externs, exports, lines) {
+    externs: Extern[]
+    exports: Export[]
+    lines: Line[]
+
+    constructor(externs: Extern[], exports: Export[], lines: Line[]) {
         super('program');
         this.externs = externs;
         this.exports = exports;
         this.lines = lines;
     }
 
-    children() {
+    override children() {
         return [...this.externs, ...this.exports, ...this.lines];
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof Program]: any }): Program {
         return new Program(
             o.externs.map(AstNode.reconstruct),
             o.exports.map(AstNode.reconstruct),
@@ -79,60 +86,75 @@ export class Program extends AstNode {
 }
 
 export class Extern extends AstNode {
-    constructor(symbol) {
+
+    symbol: string;
+
+    constructor(symbol: string) {
         super('extern');
         this.symbol = symbol;
     }
 
-    toString() {
+    override toString() {
         return `EXTERN ${this.symbol}`;
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof Extern]: any }): Extern {
         return new Extern(o.symbol);
     }
 }
 
 export class Export extends AstNode {
-    constructor(symbol) {
+
+    symbol: string;
+
+    constructor(symbol: string) {
         super('export');
         this.symbol = symbol;
     }
 
-    toString() {
+    override toString() {
         return `EXPORT ${this.symbol}`;
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof Export]: any }): Export {
         return new Export(o.symbol);
     }
 }
 
 export class Line extends AstNode {
-    constructor(lineNumber, label, item) {
+    lineNumber: number;
+    label: string | null;
+    item: Instruction | Directive | null;
+
+    constructor(lineNumber: number, label: string | null, item: Instruction | Directive | null) {
         super('line');
         this.lineNumber = lineNumber;
         this.label = label;
         this.item = item;
     }
 
-    children() {
-        return [this.item];
+    override children() {
+        return this.item ? [this.item] : [];
     }
 
-    toString() {
+    override toString() {
         if (this.label)
             return '[' + this.label + '] ' + super.toString();
         return super.toString();
     }
 
-    static reconstruct(o) {
-        return new Line(o.label, AstNode.reconstruct(o.item));
+    static reconstruct(o: { [key in keyof Line]: any }): Line {
+        return new Line(o.lineNumber, o.label, AstNode.reconstruct(o.item) as Instruction | Directive | null);
     }
 }
 
 export class Instruction extends AstNode {
-    constructor(mnemonic, operands) {
+    opcode: number;
+    s: number;
+    cond: string;
+    operands: AstNode[]
+
+    constructor(mnemonic: string, operands: AstNode[]) {
         super(mnemonic);
         const { OpCode, S, Cond } = parseMnemonic(mnemonic);
         this.opcode = OpCode;
@@ -141,12 +163,13 @@ export class Instruction extends AstNode {
         this.operands = operands;
     }
 
-    children() {
+    override children() {
         return this.operands;
     }
 
-    static reconstruct(o) {
-        return new Instruction(o.opcode, o.s, o.cond, o.operands.map(AstNode.reconstruct));
+    static reconstruct(o: { [key in keyof Instruction]: any }): Instruction {
+        // return new Instruction(o.opcode, o.s, o.cond, o.operands.map(AstNode.reconstruct));
+        throw new Error("Yes, we really do need reconstruct()");
     }
 }
 
@@ -154,16 +177,18 @@ export class Directive extends AstNode {
 }
 
 export class DCD extends Directive {
-    constructor(values) {
+    values: (string | SymbolicExpression)[];
+
+    constructor(values: (string | SymbolicExpression)[]) {
         super('DCD');
         this.values = values;
     }
 
-    toString() {
+    override toString() {
         return 'DCD ' + this.values;
     }
 
-    get words() {
+    get words(): (number | SymbolicExpression)[] {
         const words = [];
         for (let value of this.values) {
             if (value instanceof SymbolicExpression)
@@ -171,7 +196,7 @@ export class DCD extends Directive {
             else {
                 const word = parseImmediate(value);
                 if (word < -2147483648 || word >= 4294967296)
-                    throw new AssemblyError(`Numeric value ${value} out of range for a word`);
+                    throw new AssemblyError(`Numeric value ${value} out of range for a word`, this);
                 words.push(word & 0xffff_ffff);
             }
         }
@@ -179,23 +204,26 @@ export class DCD extends Directive {
         return words;
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof DCD]: any }): DCD {
         return new DCD(o.values);
     }
 }
 
 export class DCB extends Directive {
-    constructor(values) {
+
+    values: string[];
+
+    constructor(values: string[]) {
         super('DCB');
         this.values = values;
     }
 
-    toString() {
+    override toString() {
         return 'DCB ' + this.values;
     }
 
-    get bytes() {
-        const bytes = [];
+    get bytes(): number[] {
+        const bytes: number[] = [];
         for (const value of this.values) {
             if (value[0] === '"' || value[0] === "'") {
                 for (let i = 1; i + 1 < value.length; ++i) {
@@ -218,7 +246,7 @@ export class DCB extends Directive {
             } else {
                 const byte = parseImmediate(value) >>> 0;
                 if (byte < -128 || byte > 255)
-                    throw new AssemblyError(`Numeric value ${value} out of range for a byte`);
+                    throw new AssemblyError(`Numeric value ${value} out of range for a byte`, this);
                 bytes.push((byte >>> 0) & 0xff);
             }
         }
@@ -226,13 +254,16 @@ export class DCB extends Directive {
         return bytes;
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof DCB]: any }): DCB {
         return new DCB(o.values);
     }
 }
 
 export class EquateDirective extends Directive {
-    constructor(value) {
+
+    value: string;
+
+    constructor(value: string) {
         super('EQU');
         this.value = value;
     }
@@ -241,7 +272,7 @@ export class EquateDirective extends Directive {
         return 'equ ' + this.value;
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof EquateDirective]: any }): EquateDirective {
         return new EquateDirective(o.value);
     }
 }
@@ -548,7 +579,7 @@ export function logAst(node, log=console.log, levels=0) {
         logAst(child, log, levels + 1);
 }
 
-const exports = {
+const exports: { [name: string]: typeof AstNode } = {
     'AstNode': AstNode,
     'Program': Program,
     'Extern': Extern,
