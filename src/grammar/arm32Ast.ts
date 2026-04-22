@@ -1,6 +1,8 @@
 import { AssemblyError } from '../arm32sim/Assembler';
 import { parseMnemonic } from './arm32Mnemonic';
 
+type SymbolAddressMapper = (symbol: string) => number;
+
 export function parseImmediate(text: string): number {
     if (text.startsWith("-"))
         return -parseImmediate(text.slice(1));
@@ -268,7 +270,7 @@ export class EquateDirective extends Directive {
         this.value = value;
     }
 
-    toString() {
+    override toString() {
         return 'equ ' + this.value;
     }
 
@@ -278,13 +280,16 @@ export class EquateDirective extends Directive {
 }
 
 export class FillDirective extends Directive {
-    constructor(bytesText, valueText) {
+    bytesText: string;
+    valueText: string;
+
+    constructor(bytesText: string, valueText: string) {
         super('FILL');
         this.bytesText = bytesText;
         this.valueText = valueText;
     }
 
-    toString() {
+    override toString() {
         return 'FILL ' + this.bytesText + (this.valueText ? ' ' + this.valueText : '');
     }
 
@@ -296,18 +301,20 @@ export class FillDirective extends Directive {
         return (this.valueText === null) ? null : parseImmediate(this.valueText);
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof FillDirective]: any }): FillDirective {
         return new FillDirective(o.bytesText, o.valueText);
     }
 }
 
 export class AlignDirective extends Directive {
-    constructor(value) {
+    value: string;
+
+    constructor(value: string) {
         super('ALIGN');
         this.value = value;
     }
 
-    toString() {
+    override toString() {
         return this.value ? `ALIGN ${this.value}` : 'ALIGN';
     }
 
@@ -315,37 +322,43 @@ export class AlignDirective extends Directive {
         return this.value ? parseImmediate(this.value) : null;
     }
 
+    /*
     static reconstruct(o) {
         return new AlignDirective(o.value);
     }
+     */
 }
 
 export class Register extends AstNode {
-    static reconstruct(o) {
+    /*static reconstruct(o) {
         return new Register(o.name);
-    }
+    }*/
 
-    number() {
+    number(): number {
         return registerNumber(this.name);
     }
 }
 
 export class WritebackRegister extends Register {
-    static reconstruct(o) {
+    /*static reconstruct(o) {
         return new WritebackRegister(o.name);
-    }
+    }*/
 }
 
 export class SignedRegister extends AstNode {
-    constructor(sign, name) {
+    sign: "-" | "";
+    name: string;
+
+    constructor(sign: "-" | "", name: string) {
         super(sign + name);
         this.sign = sign;
         this.name = name;
     }
 
+    /*
     static reconstruct(o) {
         return new SignedRegister(o.sign, o.name);
-    }
+    }*/
 
     number() {
         return registerNumber(this.name);
@@ -353,19 +366,24 @@ export class SignedRegister extends AstNode {
 }
 
 export class RegisterSet extends AstNode {
-    constructor(startRegister, endRegister, childRegisterSet) {
+    startRegister: Register;
+    endRegister: Register;
+    childRegisterSet: RegisterSet | null;
+
+    constructor(startRegister: Register, endRegister: Register, childRegisterSet: RegisterSet | null) {
         super('{}');
         this.startRegister = startRegister;
         this.endRegister = endRegister;
         this.childRegisterSet = childRegisterSet;
     }
 
+    /*
     static reconstruct(o) {
         return new RegisterSet(o.startRegister, o.endRegister, o.childRegisterSet);
-    }
+    }*/
 
-    get bits() {
-        let bits = this.childRegisterSet?.bits || 0;
+    get bits(): number {
+        let bits = this.childRegisterSet?.bits ?? 0;
         for (let i = this.startRegister.number(); i <= this.endRegister.number(); ++i)
             bits |= (1 << i);
         return bits;
@@ -373,7 +391,13 @@ export class RegisterSet extends AstNode {
 }
 
 export class FlexOperand extends AstNode {
-    constructor(register, shift, amountImmediate, amountRegister) {
+
+    register: Register;
+    shift: string;
+    amountImmediateText: string | null;
+    amountRegister: Register | null;
+
+    constructor(register: Register, shift: string, amountImmediate: string | null, amountRegister: Register | null) {
         super('flex');
         this.register = register;
         this.shift = shift;
@@ -383,27 +407,29 @@ export class FlexOperand extends AstNode {
         this.amountRegister = amountRegister;
     }
 
-    children() {
+    override children(): Register[] {
         if (this.amountRegister)
             return [this.register, this.amountRegister];
         else
             return [this.register];
     }
 
-    toString() {
+    override toString() {
         if (this.amountRegister)
             return 'flex: ' + this.shift;
         else
-            return 'flex: ' + this.shift + ' #' + this.amount;
+            return 'flex: ' + this.shift + ' #' + this.amountImmediate;
     }
 
+    /*
     static reconstruct(o) {
         return new FlexOperand(AstNode.reconstruct(o.register), o.shift,
             o.amountImmediateText,
             o.amountRegister ? AstNode.reconstruct(o.amountRegister) : null);
     }
+     */
 
-    get amountImmediate() {
+    get amountImmediate(): number | null {
         if (this.amountImmediateText !== null)
             return parseImmediate(this.amountImmediateText);
         else
@@ -412,103 +438,124 @@ export class FlexOperand extends AstNode {
 }
 
 export class PreindexedOperand extends AstNode {
-    constructor(register, offset, writeback) {
+
+    register: Register;
+    offset: string;
+    writeback: string;
+
+    constructor(register: Register, offset: string, writeback: string) {
         super('preindex');
         this.register = register;
         this.offset = offset;
         this.writeback = writeback;
     }
 
-    children() {
+    override children(): Register[] {
         return [this.register];
     }
 
-    toString() {
+    override toString() {
         return '[ , ' + this.offset + ']!';
     }
 
+    /*
     static reconstruct(o) {
         return new PreindexedOperand(AstNode.reconstruct(o.register), o.offset);
     }
+     */
 }
 
 export class PostindexedOperand extends AstNode {
-    constructor(register, offset) {
+
+    register: Register;
+    offset: string;
+
+    constructor(register: Register, offset: string) {
         super('postindex');
         this.register = register;
         this.offset = offset;
     }
 
-    children() {
+    override children(): Register[] {
         return [this.register];
     }
 
-    toString() {
+    override toString() {
         return '[ ], ' + this.offset;
     }
 
+    /*
     static reconstruct(o) {
         return new PostindexedOperand(AstNode.reconstruct(o.register), o.offset);
     }
+     */
 }
 
 export class Immediate extends AstNode {
-    constructor(text) {
+
+    text: string;
+
+    constructor(text: string) {
         super('immediate');
         this.text = text;
     }
 
-    toString() {
+    override toString() {
         return 'immediate [' + this.text + ']';
     }
 
-    get value() {
+    get value(): number {
         return parseImmediate(this.text);
     }
 
+    /*
     static reconstruct(o) {
         return new Immediate(o.text);
-    }
+    }*/
 }
 
 export class PseudoImmediate extends AstNode {
-    constructor(text) {
+
+    text: string | SymbolicExpression;
+
+    constructor(text: string) {
         super('pseudoimmediate');
         this.text = text;
     }
 
-    toString() {
+    override toString() {
         return 'pseudoimmediate [' + this.text + ']';
     }
 
-    get value() {
+    get value(): number | SymbolicExpression {
         if (this.text instanceof SymbolicExpression)
             return this.text;
         else
             return parseImmediate(this.text);
     }
 
-    children() {
+    children(): SymbolicExpression[] {
         if (this.text instanceof AstNode)
             return [this.text];
         else
             return [];
     }
 
+    /*
     static reconstruct(o) {
         return new PseudoImmediate(o.text);
-    }
+    }*/
 }
 
 export class SymbolicExpression extends AstNode {
 
-    evaluate(mapper) {
+    evaluate(mapper: SymbolAddressMapper): number {
         throw new Error('evaluate() not overridden');
     }
 }
 
 export class BinaryOp extends SymbolicExpression {
-    _OPS = {
+    static _OPS: { [op: string]: (l: number, r: number) => number } = {
         '+': (l, r) => l + r,
         '-': (l, r) => l - r,
         '*': (l, r) => l * r,
@@ -516,19 +563,23 @@ export class BinaryOp extends SymbolicExpression {
         '%': (l, r) => l % r
     };
 
-    constructor(op, left, right) {
+    op: string;
+    left: SymbolicExpression;
+    right: SymbolicExpression;
+
+    constructor(op: string, left: SymbolicExpression, right: SymbolicExpression) {
         super(op);
         this.op = op;
         this.left = left;
         this.right = right;
     }
 
-    evaluate(mapper) {
+    override evaluate(mapper: SymbolAddressMapper) {
         const l = this.left.evaluate(mapper), r = this.right.evaluate(mapper);
-        return this._OPS[this.op](this.left.evaluate(mapper), this.right.evaluate(mapper));
+        return BinaryOp._OPS[this.op](l, r);
     }
 
-    children() {
+    override children(): SymbolicExpression[] {
         return [this.left, this.right];
     }
 }
@@ -538,34 +589,40 @@ export class CurrentAddressExpression extends SymbolicExpression {
         super('.');
     }
 
-    evaluate(mapper) {
+    override evaluate(mapper: SymbolAddressMapper) {
         return mapper('.');
     }
 }
 
 export class SymbolExpression extends SymbolicExpression {
-    constructor(symbol) {
+
+    symbol: string;
+
+    constructor(symbol: string) {
         super(symbol);
         this.symbol = symbol;
     }
 
-    evaluate(mapper) {
+    override evaluate(mapper: SymbolAddressMapper) {
         return mapper(this.symbol);
     }
 }
 
 export class NumberExpression extends SymbolicExpression {
-    constructor(text) {
+
+    text: string;
+
+    constructor(text: string) {
         super(text);
         this.text = text;
     }
 
-    evaluate(mapper) {
+    override evaluate(mapper: SymbolAddressMapper) {
         return parseImmediate(this.text);
     }
 }
 
-export function logAst(node, log=console.log, levels=0) {
+export function logAst(node: AstNode, log: ((text: string) => void)=console.log, levels=0) {
     if (!node)
         return;
 
@@ -579,6 +636,7 @@ export function logAst(node, log=console.log, levels=0) {
         logAst(child, log, levels + 1);
 }
 
+/*
 const exports: { [name: string]: typeof AstNode } = {
     'AstNode': AstNode,
     'Program': Program,
@@ -607,3 +665,4 @@ const exports: { [name: string]: typeof AstNode } = {
     'SymbolExpression': SymbolExpression,
     'NumberExpression': NumberExpression,
 };
+*/
