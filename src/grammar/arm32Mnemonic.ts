@@ -1,7 +1,7 @@
 const _MNEMONIC_PATTERN =
     /^((?<scond>(?<scond_opc>AND|EOR|SUB|RSB|ADD|ADC|SBC|RSC|ORR|MOV|BIC|MVN|MUL|MLA|LSL|ASL|LSR|ASR|ROR)(?<scond_scond>S?(EQ|NE|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)?|(EQ|NE|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)?S?))|(?<condonly>(?<condonly_opc>CMP|CMN|TST|TEQ|B|BL|BX|STOP|BREAK|SWI)(?<condonly_cond>EQ|NE|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)?)|(?<ldrstr>(?<ldrstr_opc>(LDR|STR)B?)(?<ldrstr_cond>EQ|NE|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)?)|(?<ldmstm>(?<ldmstm_opc>(LDM|STM)(FA|FD|EA|ED|IA|IB|DA|DB))(?<ldmstm_cond>EQ|NE|CS|CC|MI|PL|VS|VC|HI|LS|GE|LT|GT|LE|AL)?)|(?<nop>NOP))$/i;
 
-type Mnemonic = {
+export type Mnemonic = {
     OpCode: string,
     S: string,
     Cond: string

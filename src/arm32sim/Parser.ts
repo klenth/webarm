@@ -1,17 +1,22 @@
 import antlr4 from 'antlr4';
+// @ts-ignore
 import ARM32Lexer from '../grammar/ARM32Lexer';
+// @ts-ignore
 import ARM32Parser from '../grammar/ARM32Parser';
-import { logAst } from '../grammar/arm32Ast.js';
+import { Program } from '../grammar/arm32Ast.js';
 
 export class ParseError extends Error {
-    constructor(message, line, column) {
+    line: number | null;
+    column: number | null;
+
+    constructor(message: string, line: number | null, column: number | null) {
         super(message);
         this.line = line;
         this.column = column;
     }
 }
 
-export function parse(code) {
+export function parse(code: string): Program {
     code += '\n'; // Make sure it ends in a newline
     let ast;
     const chars = new antlr4.InputStream(code);
@@ -20,7 +25,7 @@ export function parse(code) {
     const parser = new ARM32Parser(tokens);
 
     const errorListener = {
-        syntaxError: (recognizer, token, line, column, message, error) => {
+        syntaxError: (recognizer: any, token: any, line: any, column: any, message: any, error: any) => {
             throw new ParseError(message, line, column);
         },
         reportAttemptingFullContext: () => {},

@@ -5,40 +5,43 @@ class UnalignedAccess extends Error {
 
 export default class SimulatorMemory {
 
-    constructor(overrides, writtenAddresses) {
+    overrides: { [address: number]: number };
+    writtenAddresses: Set<number>;
+
+    constructor(overrides: { [address: number]: number }, writtenAddresses: Set<number>) {
         this.overrides = { ...overrides };
         this.writtenAddresses = new Set(writtenAddresses);
     }
 
-    clone() {
+    clone(): SimulatorMemory {
         return new SimulatorMemory(this.overrides, this.writtenAddresses);
     }
 
-    checkWordAlignment(address) {
+    checkWordAlignment(address: number) {
         if ((address & 0x3) !== 0)
             throw new UnalignedAccess('Unaligned word access to address ' + address);
     }
 
-    readWord(address) {
+    readWord(address: number): number {
         this.checkWordAlignment(address);
         return this.overrides[address >>> 2] || 0;
     }
 
-    readByte(address) {
-        const word = this.overrides[address >>> 2] || null;
+    readByte(address: number): number {
+        const word = this.overrides[address >>> 2] ?? null;
         if (word === null)
             return 0;
         const byte = address & 0x3;
         return (word >>> ((3 - byte) << 3)) & 0xff;
     }
 
-    writeWord(address, value) {
+    writeWord(address: number, value: number): void {
         this.checkWordAlignment(address);
         this.overrides[address >>> 2] = (value & 0xffff_ffff);
         this.writtenAddresses.add((address & 0xffff_fffc) >>> 0);
     }
 
-    writeWordUnaligned(address, value) {
+    writeWordUnaligned(address: number, value: number): void {
         if ((address & 0x3) === 0)
             // It's aligned anyway
             this.writeWord(address, value);
@@ -55,22 +58,22 @@ export default class SimulatorMemory {
         this.overrides[index1] = word1;
     }
 
-    writeByte(address, value) {
+    writeByte(address: number, value: number): void {
         const word = this.overrides[address >>> 2] || 0;
         const byte = address & 0x3;
         this.overrides[address >>> 2] = new Bitfield(8, (3 - byte) << 3).set(word, value);
         this.writtenAddresses.add((address & 0xffff_fffc) >>> 0);
     }
 
-    resetWrittenAddressesRecord() {
+    resetWrittenAddressesRecord(): void {
         this.writtenAddresses = new Set();
     }
 
-    static reconstruct(o) {
+    static reconstruct(o: { [key in keyof SimulatorMemory]: any }): SimulatorMemory {
         return new SimulatorMemory(o.overrides, o.writtenAddresses);
     }
 
-    diff(o) {
+    diff(o: SimulatorMemory): Set<number> {
         /*const addrs = {};
         for (const [thisAddr, thisValue] of Object.entries(this.overrides)) {
             if (o.overrides[thisAddr] !== thisValue)

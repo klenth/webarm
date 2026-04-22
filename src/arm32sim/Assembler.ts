@@ -1,9 +1,9 @@
 import * as AST from '../grammar/arm32Ast';
+import type { SymbolAddressMapper } from '../grammar/arm32Ast';
 import * as I from './Instruction';
 import { rotateRight } from '../bits/arithmetic';
 import SimulatorMemory from './SimulatorMemory';
 import * as StandardLibary from './StandardLibrary.js';
-import antlr4 from "antlr4";
 
 export type AssemblerOutput = {
     code: SimulatorMemory,
@@ -16,9 +16,9 @@ export type AssemblerOutput = {
 
 export class AssemblyError extends Error {
 
-    node: AST.AstNode;
+    node: AST.AstNode | undefined;
 
-    constructor(message: string, node: AST.AstNode) {
+    constructor(message: string, node: AST.AstNode | undefined = undefined) {
         super(message);
         this.node = node;
     }
@@ -40,14 +40,21 @@ function resolveImport(symbol: string): AssemblerOutput | null {
         return null;
 }
 
-export function assemble(ast: AST.AstNode, startAddress: number = 0): AssemblerOutput {
-    const importedSymbols = {}, symbols = {};
-    let addressLineMap = {};
-    let dataMaps = [];
-    let address = startAddress;
+type DataMap = {
+    data: (mapper: SymbolAddressMapper, mem: SimulatorMemory, addr: number) => void,
+    size: (addr: number) => number,
+    padding?: (addr: number) => number,
+};
+
+export function assemble(ast: AST.Program, startAddress: number = 0): AssemblerOutput {
+    const importedSymbols: { [symbol: string]: number } = {};
+    const symbols: { [symbol: string]: number } = {};
+    let addressLineMap: { [address: number]: number } = {};
+    let dataMaps: DataMap[] = [];
+    let address: number = startAddress;
 
     // Import any externs
-    const imports = new Set();
+    const imports: Set<AssemblerOutput> = new Set();
     for (let extern of ast.externs) {
         const imp = resolveImport(extern.item.symbol);
         if (!imp)
@@ -56,9 +63,9 @@ export function assemble(ast: AST.AstNode, startAddress: number = 0): AssemblerO
         importedSymbols[extern.item.symbol] = imp.symbols[extern.item.symbol];
     }
 
-    function registerSymbol(symbol) {
+    function registerSymbol(symbol: string) {
         if (symbol in symbols || symbol in importedSymbols)
-            throw new AssemblyError(`Duplicate symbol: ${symbol}`)
+            throw new AssemblyError(`Duplicate symbol: ${symbol}`);
         symbols[symbol] = address;
     }
 
@@ -73,7 +80,7 @@ export function assemble(ast: AST.AstNode, startAddress: number = 0): AssemblerO
                 dataMaps = [...dataMaps, data];
             } else if (line.item instanceof AST.Instruction) {
                 const assemblers = assembleInstruction(line.item);
-                const data = {
+                const data: DataMap = {
                     data: (mapper, mem, addr) => {
                         assemblers.forEach((assembler, i) => mem.writeWordUnaligned(addr + 4 * i, assembler(mapper).encode()));
                     },
@@ -151,7 +158,7 @@ export function assemble(ast: AST.AstNode, startAddress: number = 0): AssemblerO
     };
 }
 
-function assembleDirective(d) {
+function assembleDirective(d): DataMap {
     if (d instanceof AST.DCD)
         return handleDCD(d);
     else if (d instanceof AST.DCB)
@@ -162,8 +169,10 @@ function assembleDirective(d) {
         return handleFill(d);
     else if (d instanceof AST.AlignDirective)
         return handleAlign(d);
-    else
+    else {
         console.assert(false, 'Unhandled directive: ' + d);
+        throw Error();
+    }
 }
 
 function handleDCD(d) {

@@ -63,11 +63,11 @@ export class AstNode {
 }
 
 export class Program extends AstNode {
-    externs: Extern[]
-    exports: Export[]
+    externs: Line<Extern>[]
+    exports: Line<Export>[]
     lines: Line[]
 
-    constructor(externs: Extern[], exports: Export[], lines: Line[]) {
+    constructor(externs: Line<Extern>[], exports: Line<Export>[], lines: Line[]) {
         super('program');
         this.externs = externs;
         this.exports = exports;
@@ -123,20 +123,20 @@ export class Export extends AstNode {
     }
 }
 
-export class Line extends AstNode {
+export class Line<T = Instruction | Directive | null> extends AstNode {
     lineNumber: number;
     label: string | null;
-    item: Instruction | Directive | null;
+    item: T;
 
-    constructor(lineNumber: number, label: string | null, item: Instruction | Directive | null) {
+    constructor(lineNumber: number, label: string | null, item: T) {
         super('line');
         this.lineNumber = lineNumber;
         this.label = label;
         this.item = item;
     }
 
-    override children() {
-        return this.item ? [this.item] : [];
+    override children(): AstNode[] {
+        return this.item ? [this.item] as unknown as AstNode[] : [];
     }
 
     override toString() {
@@ -151,8 +151,8 @@ export class Line extends AstNode {
 }
 
 export class Instruction extends AstNode {
-    opcode: number;
-    s: number;
+    opcode: string;
+    s: string;
     cond: string;
     operands: AstNode[]
 
