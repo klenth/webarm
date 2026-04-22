@@ -106,7 +106,7 @@ export function assemble(ast: AST.Program, startAddress: number = 0): AssemblerO
     });
 
     address = startAddress;
-    const symbolAddressMapper = symbol => {
+    const symbolAddressMapper: (symbol: string) => number = symbol => {
         if (symbol === '.')
             return address;
         else if (symbol in symbols)
@@ -117,7 +117,7 @@ export function assemble(ast: AST.Program, startAddress: number = 0): AssemblerO
             throw new AssemblyError("Unknown symbol: " + symbol);
     };
 
-    const mem = new SimulatorMemory();
+    const mem = new SimulatorMemory({}, new Set());
     dataMaps.forEach(dataMap => {
         const padding = dataMap.padding ? dataMap.padding(address) : 0;
         address += padding;
@@ -126,7 +126,7 @@ export function assemble(ast: AST.Program, startAddress: number = 0): AssemblerO
     });
 
     // Now that the code is assembled, process exports
-    const exports = {};
+    const exports: { [symbol: string]: number } = {};
     for (const exp of ast.exports) {
         if (exp.item.symbol in symbols)
             exports[exp.item.symbol] = symbols[exp.item.symbol];
@@ -141,7 +141,7 @@ export function assemble(ast: AST.Program, startAddress: number = 0): AssemblerO
         // [c, d): [imp.startAddress, imp.startAddress + imp.codeLength)
         // [a, b) overlaps with [c, d) iff a ∈ [c, d) || c ∈ [a, b)
         if ((startAddress >= imp.startAddress && startAddress < imp.startAddress + imp.codeLength)
-            || (imp.startAddress >= address && imp < address))
+            || (imp.startAddress >= address && imp.startAddress + imp.codeLength < address))
             throw new AssemblyError(`Code overlaps with imported library (starting at address 0x${imp.startAddress.toHexString(16)})`);
 
         for (let i = imp.startAddress; i < imp.startAddress + imp.codeLength; i += 4)
@@ -175,7 +175,7 @@ function assembleDirective(d): DataMap {
     }
 }
 
-function handleDCD(d) {
+function handleDCD(d: AST.DCD): DataMap {
     const words = d.words;
     return {
         data: (mapper, mem, addr) => {
@@ -191,7 +191,7 @@ function handleDCD(d) {
     };
 }
 
-function handleDCB(d) {
+function handleDCB(d: AST.DCB): DataMap {
     const bytes = d.bytes;
     return {
         data: (mapper, mem, addr) =>
@@ -200,17 +200,17 @@ function handleDCB(d) {
     };
 }
 
-function handleEquate(d) {
+function handleEquate(d: AST.EquateDirective): DataMap {
     throw new AssemblyError('EQU not yet implemented');
 }
 
-function handleFill(d) {
-    const bytes = d.bytes;
-    const value = d.value;
+function handleFill(d: AST.FillDirective): DataMap {
+    const bytes: number = d.bytes;
+    const value: number = d.value ?? 0;
     if (value < -128 || value > 255)
         throw new AssemblyError(`Out of range value ${d.value} in FILL (must be between -128 and 255)`);
     return {
-        data: (mapper, mem, addr) => {
+        data: (_, mem, addr) => {
             if (bytes)
                 for (let i = 0; i < bytes; ++i)
                     mem.writeByte(addr + i, value & 0xff);
@@ -219,8 +219,8 @@ function handleFill(d) {
     };
 }
 
-function handleAlign(d) {
-    const alignment = (d.bytes === null) ? 4 : d.bytes;
+function handleAlign(d: AST.AlignDirective): DataMap {
+    const alignment: number = d.bytes ?? 4;
     return {
         data: () => [],
         size: addr => {
@@ -231,7 +231,7 @@ function handleAlign(d) {
     };
 }
 
-function assembleInstruction(i) {
+function assembleInstruction(i: AST.Instruction): DataMap[] {
     const opcode = i.opcode.toUpperCase();
     if (['CMP', 'CMN', 'MOV', 'MVN', 'TST', 'TEQ', 'CMP', 'CMN', 'AND', 'ANDS', 'EOR', 'EORS', 'ORR', 'ORRS', 'SUB', 'SUBS', 'RSB', 'RSBS', 'ADD', 'ADDS', 'ADC', 'ADCS', 'SBC', 'SBCS', 'RSC', 'RSCS'].indexOf(opcode) >= 0)
         return handleDataProcessingInstruction(i);
@@ -262,7 +262,7 @@ function assembleInstruction(i) {
 }
 
 
-function parseCond(cond) {
+function parseCond(cond: string): number {
     switch (cond.toUpperCase()) {
         case '':
         case 'AL':
@@ -299,13 +299,14 @@ function parseCond(cond) {
             return 0b1101;
         default:
             console.assert(false, 'Invalid condition suffix: ' + cond);
+            throw Error("Invalid condition suffix");
     }
 }
 
-function packFlexOperand(flex) {
+function packFlexOperand(flex: AST.FlexOperand): number {
     const amountImm = flex.amountImmediate, amountReg = flex.amountRegister;
 
-    let shiftBits;
+    let shiftBits: number;
     switch (flex.shift.toUpperCase()) {
         case "ASL":
         case "LSL":
@@ -322,6 +323,7 @@ function packFlexOperand(flex) {
             break;
         default:
             console.assert(false,  "Invalid shift: " + flex.shift);
+            throw Error("Invalid shift: " + flex.shift);
     }
 
     let bits = flex.register.number() | (shiftBits << 5);
@@ -335,7 +337,7 @@ function packFlexOperand(flex) {
     return bits;
 }
 
-function packRotatedImmediateOperand(imm, immString) {
+function packRotatedImmediateOperand(imm: number, immString: string): number {
     // ARM allows the immediate to be at most 8 bits, rotated an even number of bits (0..30) in the word
     // There are doubtless more efficient ways to compute this, but for our purposes brute force is plenty: just take a
     // mask of 8 bits and rotate it through all possible positions, stopping once we find one that hits all bits.
@@ -343,16 +345,16 @@ function packRotatedImmediateOperand(imm, immString) {
     const mask = 0xff;
     for (let rot = 0; rot <= 30; rot += 2) {
         // const rotated = rotateRight(mask, rot);
-        const immRotated = rotateRight(imm, 32 - rot) & 0xff;
+        const immRotated = rotateRight(imm, 32 - rot) & mask;
         if (rotateRight((immRotated << 24) >> 24, rot) === imm) {
-            return (rot << 7) | (rotateRight(imm, 32 - rot) & 0xff);
+            return (rot << 7) | (rotateRight(imm, 32 - rot) & mask);
         }
     }
 
     throw new AssemblyError(`Value ${immString} not in range: must be expressible as eight bits rotated within a 32-bit field`)
 }
 
-function handleDataProcessingInstruction(i) {
+function handleDataProcessingInstruction(i: AST.Instruction): ((map: SymbolAddressMapper) => I.Instruction)[] {
     const OpCode = i.opcode.toUpperCase();
     const S = i.s;
     const Cond = i.cond;
@@ -378,10 +380,10 @@ function handleDataProcessingInstruction(i) {
         : (OpCode === 'BIC') ?         0b1110
         : (OpCode === 'MVN') ?         0b1111
         : null;
+    if (opc === null)
+        throw new Error(`Unexpected opcode: ${OpCode}`);
 
-    const Sbit = !!S
-        || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0;
-
+    const Sbit = (S || ['TST', 'TEQ', 'CMP', 'CMN'].indexOf(OpCode) >= 0) ? 1 : 0;
     if (spec === 'RRI') {
         return [() => new I.DataProcessingInstruction({
             Cond: cond,
@@ -389,9 +391,9 @@ function handleDataProcessingInstruction(i) {
             I: 0b1,
             OpCode: opc,
             S: Sbit,
-            Rn: i.operands[1].number(),
-            Rd: i.operands[0].number(),
-            Operand2: packRotatedImmediateOperand(i.operands[2].value, i.operands[2].text)
+            Rn: (i.operands[1] as AST.Register).number(),
+            Rd: (i.operands[0] as AST.Register).number(),
+            Operand2: packRotatedImmediateOperand((i.operands[2] as AST.Immediate).value, (i.operands[2] as AST.Immediate).text)
         })];
     } else if (spec === 'RRS') {
         return [mapper => new I.DataProcessingInstruction({
